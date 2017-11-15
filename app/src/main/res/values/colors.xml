@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0288d1</color>
+    <color name="colorPrimaryDark">#026da7</color>
+    <color name="colorAccent">#0288d1</color>
+    <color name="colorLogo">#25bf94</color>
+
+    <!-- card_inbox and card_sent colors -->
+    <color name="background">#f4f4f4</color>
+    <color name="colorInbox">#e8e8e8</color>
+    <color name="colorTimestamp">#aeaeae</color>
+    <color name="colorSent">#00897B</color>
+</resources>

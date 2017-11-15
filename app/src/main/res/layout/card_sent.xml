@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp">
+
+    <TextView
+        android:id="@+id/timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="12dp"
+        android:textColor="@color/colorTimestamp"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/timestamp"
+        android:layout_margin="12dp"
+        android:background="@drawable/sms_sent_background"
+        android:lineSpacingExtra="4sp"
+        android:maxWidth="255dp"
+        android:padding="11dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:autoLink="all"
+        android:textIsSelectable="true"/>
+</RelativeLayout>
