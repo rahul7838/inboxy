@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 
 import java.util.List;
 
@@ -15,13 +14,12 @@ import in.inboxy.Adapter.CompleteSmsAdapter;
 import in.inboxy.R;
 import in.inboxy.db.Message;
 import in.inboxy.viewModel.CompleteSmsActivityViewModel;
-import me.everything.providers.android.contacts.Contact;
 
 public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
-  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
-  private Contact contact;
-  private View coView;
+//  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+//  private Contact contact;
+//  private View coView;
   public static String address;
   RecyclerView  completeSmsRecycleView;
   CompleteSmsActivityViewModel completeSmsActivityViewModel;

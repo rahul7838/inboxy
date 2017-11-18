@@ -28,7 +28,9 @@ public class MyAyncTask extends AsyncTask<Void,Void,Void> {
   @Override
   protected Void doInBackground(Void... voids) {
     List<Sms> list = MessageUtils.getAllMessages(application);
-
+    int listsize =list.size();
+//    Log.i("myAsyncTask", Integer.toString(listsize));
+    int count = 0;
     Message message = new Message();
     for (int i = 0; i < list.size(); i++) {
       Sms sms = list.get(i);
@@ -42,10 +44,11 @@ public class MyAyncTask extends AsyncTask<Void,Void,Void> {
       message.type = type;
       message.timestamp = timeStamp;
 
-
-//      MessageDatabase messageDatabase = MessageDatabase.getInMemoryDatabase(contexts[0]);
       mDB.messageDao().insertMessage(message);
     }
+
+//    Log.i("myAsyncTask", Integer.toString(totalCount));
+
     return null;
   }
 }

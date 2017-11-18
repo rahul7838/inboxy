@@ -3,6 +3,8 @@ package in.inboxy.viewModel;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import java.util.List;
 
@@ -27,7 +29,14 @@ public class LocalMessageDbViewModel extends AndroidViewModel {
 
   public void CDB(){
     mDB = MessageDatabase.getInMemoryDatabase(this.getApplication());
-    new MyAyncTask(mDB, this.getApplication()).execute();
+    SharedPreferences sharedPreferences = PreferenceManager
+            .getDefaultSharedPreferences(this.getApplication());
+    if(!sharedPreferences.getBoolean("firstTime", false)){
+      new MyAyncTask(mDB, this.getApplication()).execute();
+    }
+    SharedPreferences.Editor editor = sharedPreferences.edit();
+    editor.putBoolean("firstTime", true);
+    editor.commit();
   }
 
 }

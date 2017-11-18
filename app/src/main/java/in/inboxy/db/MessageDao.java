@@ -16,9 +16,9 @@ public interface MessageDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   public void insertMessage(Message message);
 
-  @Query("Select * from Message")
+  @Query("Select * from Message group by address order by timestamp desc")
   public LiveData<List<Message>> getMessage();
 
-  @Query("Select * from Message Where address Like :address")
+  @Query("Select * from Message Where address = :address order by timestamp asc")
   public LiveData<List<Message>> getMessageListByAddress(String address);
 }
