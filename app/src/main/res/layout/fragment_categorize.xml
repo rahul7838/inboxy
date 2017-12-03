@@ -1,0 +1,37 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#e6f2f7"
+    tools:context="in.smslite.fragments.CategorizeFragment">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/title_margin_top"
+        android:gravity="center_horizontal"
+        android:text="SMS box is being analyzed."
+        android:textColor="#1d1f20"
+        android:textSize="24sp" />
+
+    <ProgressBar
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/tagline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/tagline_margin_bottom"
+        android:layout_marginEnd="@dimen/tagline_horizontal_margin"
+        android:layout_marginStart="@dimen/tagline_horizontal_margin"
+        android:gravity="center_horizontal"
+        android:text="Your sms will reside on your device and will not be retrieved or copied to cloud"
+        android:textColor="#919191"
+        android:textSize="@dimen/tagline_text_size" />
+
+
+</FrameLayout>

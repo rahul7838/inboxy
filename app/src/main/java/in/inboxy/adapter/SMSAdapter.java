@@ -1,4 +1,4 @@
-package in.inboxy.Adapter;
+package in.inboxy.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -51,4 +51,9 @@ public class SMSAdapter extends RecyclerView.Adapter<SMSViewHolder> {
   public int getItemViewType(int position){
     return (messages.get(position).read) ? READ : UNREAD;
   }
+
+  public void setMessage(List<Message> messages){
+    this.messages = messages;
+  }
 }
+

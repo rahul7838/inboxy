@@ -1,0 +1,38 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d5000000"
+    tools:context="in.inboxy.activity.WelcomeActivity">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/title_margin_top"
+        android:gravity="center_horizontal"
+        android:text="Welcome to SMS Lite!!"
+        android:textColor="@android:color/white"
+        android:textSize="24sp" />
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_text_sms"/>
+
+    <TextView
+        android:id="@+id/tagline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/tagline_margin_bottom"
+        android:layout_marginEnd="@dimen/tagline_horizontal_margin"
+        android:layout_marginStart="@dimen/tagline_horizontal_margin"
+        android:gravity="center_horizontal"
+        android:text="Smart SMS app for your Smart Phone"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/tagline_text_size" />
+
+
+</FrameLayout>

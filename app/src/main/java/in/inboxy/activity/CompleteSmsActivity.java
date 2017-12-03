@@ -1,28 +1,54 @@
 package in.inboxy.activity;
 
+import android.Manifest;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import java.util.List;
 
-import in.inboxy.Adapter.CompleteSmsAdapter;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import in.inboxy.R;
+import in.inboxy.adapter.CompleteSmsAdapter;
+import in.inboxy.contacts.Contact;
+import in.inboxy.contacts.PhoneContact;
 import in.inboxy.db.Message;
+import in.inboxy.utils.ContactUtils;
 import in.inboxy.viewModel.CompleteSmsActivityViewModel;
 
 public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
-//  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+  //  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
 //  private Contact contact;
-//  private View coView;
+  @BindView(R.id.coordinator_layout) View coView;
+  @BindView(R.id.toolbar) Toolbar toolbar;
+  final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
   public static String address;
-  RecyclerView  completeSmsRecycleView;
+  @BindView(R.id.complete_sms_recycle_view) RecyclerView completeSmsRecycleView;
   CompleteSmsActivityViewModel completeSmsActivityViewModel;
+  public static String phoneNumber;
+  Contact contact;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +56,9 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
     Bundle bundle = getIntent().getExtras();
     address = bundle.getString(getString(R.string.address_id));
+    PhoneContact.init(getApplicationContext());
+    contact = ContactUtils.getContact(address, this, true);
+    phoneNumber = contact.getNumber().replace(" ", "");
 //    contact = ContactUtils.getContact(address, this, true);
     completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
 //    ButterKnife.bind(this);
@@ -47,7 +76,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
   public void showUi(List<Message> messages) {
     setContentView(R.layout.activity_sms_complete);
-    completeSmsRecycleView = (RecyclerView) findViewById(R.id.complete_sms_recycle_view);
+    ButterKnife.bind(this);
+//    completeSmsRecycleView = (RecyclerView) findViewById(R.id.complete_sms_recycle_view);
     LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     llm.setStackFromEnd(true);
@@ -55,23 +85,30 @@ public class CompleteSmsActivity extends AppCompatActivity {
     CompleteSmsAdapter completeSmsAdapter = new CompleteSmsAdapter(messages);
 
 
-//    setToolbar();
+    setToolbar();
 //    coView = findViewById(R.id.coordinator_layout);
     completeSmsRecycleView.setLayoutManager(llm);
     completeSmsRecycleView.setHasFixedSize(true);
     completeSmsRecycleView.setAdapter(completeSmsAdapter);
   }
-}
 
- /* public void setToolbar() {
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+ /* public List<Message> getSmsList(Contact contact) {
+    *//*if(contact.getThreadId() != null) {
+      return MessageUtils.getConversationListByThreadId(contact.getThreadId());
+    }*//*
+    return MessageUtils.getConversationListByAddress(contact.getNumber());
+  }*/
+
+
+  public void setToolbar() {
+//    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     ActionBar bar = getSupportActionBar();
     if (bar != null) {
       bar.setDisplayHomeAsUpEnabled(true);
     }
     setTitle(contact.getDisplayName());
-  }*/
+  }
 
 /*
   public List<Message> getSmsList(String address) {
@@ -80,7 +117,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   }
 */
 
-  /*@Override
+  @Override
   public boolean onCreateOptionsMenu(Menu menu) {
 
     getMenuInflater().inflate(R.menu.activity_completesms, menu);
@@ -109,9 +146,9 @@ public class CompleteSmsActivity extends AppCompatActivity {
       onBackPressed();
     }
     return true;
-  }*/
+  }
 
- /* public void checkCallPermission() {
+  public void checkCallPermission() {
     int permissionCheckCall = ContextCompat.checkSelfPermission(CompleteSmsActivity.this,
             Manifest.permission.CALL_PHONE);
     if (permissionCheckCall != PackageManager.PERMISSION_GRANTED) {
@@ -190,7 +227,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
     Intent callIntent = new Intent(Intent.ACTION_CALL);
     callIntent.setData(Uri.parse("tel:" + contact.getNumber()));
     startActivity(callIntent);
-  }*/
+  }
+}
 
 
 

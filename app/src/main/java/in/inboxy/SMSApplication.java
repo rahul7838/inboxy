@@ -1,6 +1,8 @@
 package in.inboxy;
 
 import android.app.Application;
+import android.content.Context;
+import android.telephony.TelephonyManager;
 
 import com.facebook.stetho.Stetho;
 
@@ -9,8 +11,23 @@ import com.facebook.stetho.Stetho;
  */
 
 public class SMSApplication extends Application {
+  private static SMSApplication sSMSApp = null;
+  private String mCountryIso;
   public void onCreate() {
     super.onCreate();
+    sSMSApp = this;
     Stetho.initializeWithDefaults(this);
+  }
+
+  synchronized public static SMSApplication getApplication() {
+    return sSMSApp;
+  }
+
+  public String getCurrentCountryIso() {
+    if (mCountryIso == null) {
+      TelephonyManager tm = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
+      mCountryIso = tm.getNetworkCountryIso();
+    }
+    return mCountryIso;
   }
 }

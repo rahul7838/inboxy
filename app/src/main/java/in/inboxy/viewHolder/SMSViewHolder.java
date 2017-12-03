@@ -2,6 +2,9 @@ package in.inboxy.viewHolder;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -11,6 +14,9 @@ import java.util.Date;
 
 import in.inboxy.R;
 import in.inboxy.activity.CompleteSmsActivity;
+import in.inboxy.contacts.Contact;
+import in.inboxy.contacts.PhoneContact;
+import in.inboxy.utils.ContactUtils;
 import in.inboxy.utils.TimeUtils;
 
 /**
@@ -43,10 +49,10 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
       address = "Unknown Sender";
     }
     this.address = address;
-    titleView.setText(address);
-    /*Contact contact = ContactUtils.getContact(address, mContext, true);
+//    titleView.setText(address);
+    Contact contact = ContactUtils.getContact(address, mContext, true);
     titleView.setText(contact.getDisplayName());
-    setAvatar(contact);*/
+    setAvatar(contact);
   }
 
   public void setSummary(String smsBody) {
@@ -66,4 +72,38 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     i.putExtra(view.getResources().getString(R.string.address_id), address);
     mContext.startActivity(i);
   }
-}
+
+  private void setAvatar(Contact contact) {
+   /* if (Contact.Source.FIREBASE.equals(contact.getSource())) {
+      CompanyContact companyContact = (CompanyContact) contact;
+      Glide.with(mContext)
+              .using(new FirebaseImageLoader())
+              .load(FirebaseUtils.getStorageRef().child(companyContact.getUriPhoto()))
+              .placeholder(R.drawable.ic_account)
+              .error(R.drawable.ic_account)
+              .into(imageView);
+    } else {*/
+      Drawable drawable = contact.getAvatar(mContext);
+      imageView.setImageDrawable(drawable);
+      imageView.setOnClickListener(onImageClick(contact));
+    }
+
+  private View.OnClickListener onImageClick(final Contact contact) {
+    return new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (Contact.Source.PHONE.equals(contact.getSource())) {
+          PhoneContact phoneContact = (PhoneContact) contact;
+          ContactsContract.QuickContact.showQuickContact(mContext, view,
+                  phoneContact.getUri(),
+                  ContactsContract.QuickContact.MODE_LARGE, null);
+        } else {
+          Intent intent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT,
+                  Uri.fromParts("tel", address, null));
+          v.getContext().startActivity(intent);
+        }
+      }
+    };
+  }
+  }
+

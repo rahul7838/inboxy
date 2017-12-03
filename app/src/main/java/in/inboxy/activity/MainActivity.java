@@ -4,76 +4,112 @@ import android.Manifest;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import in.inboxy.Adapter.SMSAdapter;
+import in.inboxy.BottomNavigationViewHelper;
 import in.inboxy.R;
+import in.inboxy.adapter.SMSAdapter;
+import in.inboxy.contacts.Contact;
+import in.inboxy.contacts.PhoneContact;
 import in.inboxy.db.Message;
+import in.inboxy.utils.AppStartUtils;
 import in.inboxy.viewModel.LocalMessageDbViewModel;
 
 public class MainActivity extends AppCompatActivity {
-  LocalMessageDbViewModel localMessageDbViewModel;
+  public static LocalMessageDbViewModel localMessageDbViewModel;
   Context context;
+  SMSAdapter smsAdapter;
+  @BindView(R.id.toolbar)
+  Toolbar toolbar;
+  @BindView(R.id.empty_main_view)
+  RelativeLayout emptyView;
+  @BindView(R.id.empty_text_view)
+  TextView emptyText;
+  @BindView(R.id.empty_image_view)
+  ImageView emptyImage;
+  @BindView(R.id.bottom_navigation)
+  BottomNavigationView bottomNavigationView;
   @BindView(R.id.sms_list) RecyclerView recyclerView;
   final int MY_PERMISSIONS_REQUEST_READ_SMS = 0;
+  List<String> permissionNeeded;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_SMS);
-    if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS}, MY_PERMISSIONS_REQUEST_READ_SMS);
-    }
-    else{
-      setContentView(R.layout.activity_main);
-      localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
-      ButterKnife.bind(this);
-      subscribeUi();
-    }
-
-  }
-
-  @Override
-  public void onRequestPermissionsResult(int requestCode,
-                                         String permissions[], int[] grantResults) {
-    switch (requestCode) {
-      case MY_PERMISSIONS_REQUEST_READ_SMS: {
-        // If request is cancelled, the result arrays are empty.
-        if (grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          setContentView(R.layout.activity_main);
-          localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
-          ButterKnife.bind(this);
-          subscribeUi();
-          // permission was granted, yay! Do the
-          // contacts-related task you need to do.
-
-        } else {
-
-          // permission denied, boo! Disable the
-          // functionality that depends on this permission.
-        }
-        return;
-      }
-
-      // other 'case' lines to check for other
-      // permissions this app might request
+    localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
+    SharedPreferences sharedPreferences = PreferenceManager
+            .getDefaultSharedPreferences(this);
+    boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized),
+            false);
+    switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
+      case FIRST_TIME_VERSION:
+        // TODO show what's new
+        break;
+      case FIRST_TIME:
+      default:
+        checkPermission(smsCategorized);
+        break;
     }
   }
 
-  public void subscribeUi() {
-    localMessageDbViewModel.messageLiveData.observe(this, new Observer<List<Message>>() {
+
+  public void checkPermission(boolean smsCategorized) {
+    permissionNeeded = new ArrayList<>();
+    int permissionCheckSms = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_SMS);
+    int permissionCheckContact = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CONTACTS);
+    if (permissionCheckSms != PackageManager.PERMISSION_GRANTED) {
+      permissionNeeded.add(Manifest.permission.READ_SMS);
+    }
+    if (permissionCheckContact != PackageManager.PERMISSION_GRANTED) {
+      permissionNeeded.add(Manifest.permission.READ_CONTACTS);
+    }
+    if (!permissionNeeded.isEmpty() || !smsCategorized) {
+//    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_SMS);
+      Intent intent = new Intent(this, WelcomeActivity.class);
+      startActivity(intent);
+      finish();
+    } else {
+      initiUi();
+    }
+  }
+
+  private void initiUi() {
+    setContentView(R.layout.activity_main);
+    setToolbar();
+    PhoneContact.init(this);
+    ButterKnife.bind(this);
+    subscribeUi(Contact.PRIMARY);
+  }
+
+  private void setToolbar() {
+    toolbar = (Toolbar) findViewById(R.id.toolbar);
+    toolbar.setTitle(R.string.title_primary);
+    setSupportActionBar(toolbar);
+  }
+
+  public void subscribeUi(int category) {
+    localMessageDbViewModel.getMessageListByCategory(category).observe(this, new Observer<List<Message>>() {
       @Override
       public void onChanged(@Nullable List<Message> messages) {
         showUi(messages);
@@ -86,9 +122,63 @@ public class MainActivity extends AppCompatActivity {
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     recyclerView.setLayoutManager(llm);
     recyclerView.setHasFixedSize(true);
-    SMSAdapter smsAdapter = new SMSAdapter(messages);
+    smsAdapter = new SMSAdapter(messages);
     recyclerView.setAdapter(smsAdapter);
+    setBottomNavigation(messages);
+  }
 
+  private void setBottomNavigation(final List<Message> messages) {
+//    bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+    BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
+    bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+      @Override
+      public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.bottomNav_primary) {
+          setMessageList(messages, Contact.PRIMARY);
+          toolbar.setTitle(R.string.title_primary);
+        } else if (id == R.id.bottomNav_finance) {
+          setMessageList(messages, Contact.FINANCE);
+          toolbar.setTitle(R.string.title_finance);
+        } else if (id == R.id.bottomNav_promotion) {
+          setMessageList(messages, Contact.PROMOTIONS);
+          toolbar.setTitle(R.string.title_promotions);
+        } else if (id == R.id.bottomNav_updates) {
+          setMessageList(messages, Contact.UPDATES);
+          toolbar.setTitle(R.string.title_updates);
+        }
+        return true;
+      }
+    });
+  }
+
+  private void setMessageList(List<Message> messageList, int category) {
+    if (messageList.isEmpty()) {
+      switch (category) {
+        case Contact.PRIMARY:
+          emptyText.setText(R.string.empty_primary_text);
+          emptyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_primary, null));
+          break;
+        case Contact.FINANCE:
+          emptyText.setText(R.string.empty_finance_text);
+          emptyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_finance, null));
+          break;
+        case Contact.PROMOTIONS:
+          emptyText.setText(R.string.empty_promotion_text);
+          emptyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_promotions, null));
+          break;
+        case Contact.UPDATES:
+          emptyText.setText(R.string.empty_update_text);
+          emptyImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_updates, null));
+          break;
+      }
+      recyclerView.setVisibility(View.GONE);
+      emptyView.setVisibility(View.VISIBLE);
+    } else {
+      emptyView.setVisibility(View.GONE);
+      recyclerView.setVisibility(View.VISIBLE);
+      subscribeUi(category);
+    }
   }
 }
 

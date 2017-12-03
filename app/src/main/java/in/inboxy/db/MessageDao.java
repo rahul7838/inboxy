@@ -21,4 +21,7 @@ public interface MessageDao {
 
   @Query("Select * from Message Where address = :address order by timestamp asc")
   public LiveData<List<Message>> getMessageListByAddress(String address);
+
+  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
+  public LiveData<List<Message>> getMessageListByCategory(int category);
 }

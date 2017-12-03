@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/bottomNav_primary"
+        android:title="@string/title_primary"
+        android:icon="@drawable/ic_menu_primary"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/bottomNav_finance"
+        android:title="@string/title_finance"
+        android:icon="@drawable/ic_menu_finance"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/bottomNav_promotion"
+        android:title="@string/title_promotions"
+        android:icon="@drawable/ic_menu_promotions"
+        app:showAsAction="ifRoom"/>
+    <item
+        app:showAsAction="ifRoom"
+        android:id="@+id/bottomNav_updates"
+        android:title="@string/title_updates"
+        android:icon="@drawable/ic_menu_updates"/>
+</menu>

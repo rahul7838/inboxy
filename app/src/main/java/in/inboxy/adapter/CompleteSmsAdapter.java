@@ -1,4 +1,4 @@
-package in.inboxy.Adapter;
+package in.inboxy.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

@@ -1,0 +1,97 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00bcd4"
+    tools:context="in.smslite.activity.WelcomeActivity">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/title_margin_top"
+        android:gravity="center_horizontal"
+        android:text="Organize SMS into categories"
+        android:textColor="@android:color/white"
+        android:textSize="24sp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="170dp"
+        android:src="@drawable/ic_welcome_primary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="220dp"
+        android:text="Primary Contacts"
+        android:textColor="@android:color/white" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="50dp"
+        android:src="@drawable/ic_welcome_finance" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="Financial SMS"
+        android:textColor="@android:color/white" />
+
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="50dp"
+        android:src="@drawable/ic_welcome_updates" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="30dp"
+        android:text="Updates"
+        android:textColor="@android:color/white" />
+
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="170dp"
+        android:src="@drawable/ic_welcome_promotions" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="155dp"
+        android:text="Promotional SMS"
+        android:textColor="@android:color/white" />
+
+
+    <TextView
+        android:id="@+id/tagline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/tagline_margin_bottom"
+        android:layout_marginEnd="@dimen/tagline_horizontal_margin"
+        android:layout_marginStart="@dimen/tagline_horizontal_margin"
+        android:gravity="center_horizontal"
+        android:text="Need contacts permission to recognize Primary Contacts"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/tagline_text_size" />
+
+
+</FrameLayout>

@@ -1,8 +1,12 @@
 package in.inboxy.contacts;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.text.TextUtils;
-
-import javax.xml.transform.Source;
 
 
 public class Contact {
@@ -17,8 +21,8 @@ public class Contact {
     protected String mName;
     protected int mCategory;
     protected Source mSource;
-//    protected RoundedBitmapDrawable mAvatar;
-//    protected byte[] mAvatarData;
+    protected RoundedBitmapDrawable mAvatar;
+    protected byte[] mAvatarData;
     protected String mNumber;
     protected String mThreadId;
 
@@ -59,22 +63,22 @@ public class Contact {
         return mNumber;
     }
 
-   /* public synchronized RoundedBitmapDrawable getAvatar(Context context) {
+    public synchronized RoundedBitmapDrawable getAvatar(Context context) {
         if (mAvatar == null) {
             Bitmap b;
             if (mAvatarData != null) {
                 b = BitmapFactory.decodeByteArray(mAvatarData, 0, mAvatarData.length);
             } else {
-                Drawable drawable = DataSource.getInstance(context).getDrawable(getDisplayName());
-                b = DrawableUtils.getBitmap(drawable);
+                Drawable drawable = in.inboxy.drawable.DataSource.getInstance(context).getDrawable(getDisplayName());
+                b = in.inboxy.utils.DrawableUtils.getBitmap(drawable);
             }
             mAvatar = RoundedBitmapDrawableFactory.create(context.getResources(), b);
             mAvatar.setCircular(true);
         }
         return mAvatar;
-    }*/
+    }
 
-   /* public int getCategory() {
+    public int getCategory() {
         return this.mCategory;
     }
 
@@ -84,11 +88,11 @@ public class Contact {
 
     public String getThreadId() {
         return mThreadId;
-    }*/
+    }
 
-    /*public enum Source {
+    public enum Source {
         PHONE, FIREBASE, OTHER
-    }*/
+    }
 
     /*public interface UpdateListener {
         void onUpdate(Contact contact);

@@ -3,6 +3,8 @@
           package="in.inboxy">
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:name=".SMSApplication"
@@ -20,7 +22,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.CompleteSmsActivity"/>
-        <receiver android:name="in.receiver.SmsReceiver">
+        <activity android:name=".activity.WelcomeActivity"/>
+        <receiver android:name="in.inboxy.receiver.SmsReceiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
