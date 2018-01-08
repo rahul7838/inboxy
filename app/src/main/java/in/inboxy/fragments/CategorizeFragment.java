@@ -13,6 +13,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import in.inboxy.R;
+import in.inboxy.activity.WelcomeActivity;
 import in.inboxy.contacts.PhoneContact;
 import in.inboxy.utils.MessageUtils;
 import me.everything.providers.android.telephony.Sms;
@@ -65,7 +66,7 @@ public class CategorizeFragment extends Fragment {
                         .getDefaultSharedPreferences(getActivity());
                 preferences.edit().putBoolean(getString(R.string.key_sms_categorized), true)
                         .apply();
-//                ((WelcomeActivity) getActivity()).openMainActivity(getActivity());
+                ((WelcomeActivity) getActivity()).openMainActivity(getActivity());
             }
         };
     }

@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
   public static LocalMessageDbViewModel localMessageDbViewModel;
   Context context;
   SMSAdapter smsAdapter;
+  @BindView(R.id.fab)
+  FloatingActionButton fab;
   @BindView(R.id.toolbar)
   Toolbar toolbar;
   @BindView(R.id.empty_main_view)
@@ -95,11 +98,23 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initiUi() {
+    context = getApplicationContext();
     setContentView(R.layout.activity_main);
     setToolbar();
     PhoneContact.init(this);
     ButterKnife.bind(this);
     subscribeUi(Contact.PRIMARY);
+    setClickListener();
+  }
+
+  private void setClickListener() {
+    fab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(context, ComposeSmsActivity.class);
+        startActivity(intent);
+      }
+    });
   }
 
   private void setToolbar() {

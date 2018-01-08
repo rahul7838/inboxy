@@ -8,6 +8,7 @@ import java.util.List;
 
 import in.inboxy.db.Message;
 import in.inboxy.db.MessageDatabase;
+import me.everything.providers.android.contacts.ContactsProvider;
 
 
 /**
@@ -17,12 +18,13 @@ import in.inboxy.db.MessageDatabase;
 public class LocalMessageDbViewModel extends AndroidViewModel {
   public LiveData<List<Message>> categoryMsgLiveData;
   public MessageDatabase mDB;
-  public LocalMessageDbViewModel(Application application){
+
+  public LocalMessageDbViewModel(Application application) {
     super(application);
     mDB = MessageDatabase.getInMemoryDatabase(this.getApplication());
 //    CDB();
 //    messageLiveData = mDB.messageDao().getMessage();
- }
+  }
 
   /*public void CDB(){
 //    SharedPreferences sharedPreferences = PreferenceManager
@@ -36,7 +38,12 @@ public class LocalMessageDbViewModel extends AndroidViewModel {
 //    editor.commit();
 //  }*/
 
-  public LiveData<List<Message>> getMessageListByCategory(int category){
+  public LiveData<List<Message>> getMessageListByCategory(int category) {
     return categoryMsgLiveData = mDB.messageDao().getMessageListByCategory(category);
+  }
+
+  public List<me.everything.providers.android.contacts.Contact> getAllContact(){
+    ContactsProvider provider = new ContactsProvider(this.getApplication());
+    return provider.getContacts().getList();
   }
 }
