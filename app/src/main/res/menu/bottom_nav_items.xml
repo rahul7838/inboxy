@@ -5,21 +5,29 @@
         android:id="@+id/bottomNav_primary"
         android:title="@string/title_primary"
         android:icon="@drawable/ic_menu_primary"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        android:checkable="true"
+        android:enabled="true"/>
     <item
         android:id="@+id/bottomNav_finance"
         android:title="@string/title_finance"
         android:icon="@drawable/ic_menu_finance"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        android:enabled="true"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/bottomNav_promotion"
         android:title="@string/title_promotions"
         android:icon="@drawable/ic_menu_promotions"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        android:enabled="true"
+        android:checkable="true"/>
     <item
         app:showAsAction="ifRoom"
         android:id="@+id/bottomNav_updates"
         android:title="@string/title_updates"
-        android:icon="@drawable/ic_menu_updates"/>
+        android:icon="@drawable/ic_menu_updates"
+        android:enabled="true"
+        android:checkable="true"/>
 </menu>

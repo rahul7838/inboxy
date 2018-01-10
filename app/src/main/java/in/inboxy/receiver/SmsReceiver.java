@@ -26,12 +26,13 @@ public class SmsReceiver extends BroadcastReceiver{
     SmsMessage[] messages = Telephony.Sms.Intents.getMessagesFromIntent(intent);
     StringBuilder bodyText = new StringBuilder();
     String number = "0";
+    String body = "";
     Contact contact = ContactUtils.getContact(messages[0].getDisplayOriginatingAddress(),context,true);
     Message message = new Message();
 
     for (SmsMessage sms : messages) {
       bodyText.append(sms.getMessageBody());
-      String body = bodyText.toString();
+      body = bodyText.toString();
       number = sms.getDisplayOriginatingAddress();
       message.body = body;
       message.address = number;
@@ -42,6 +43,7 @@ public class SmsReceiver extends BroadcastReceiver{
       message.type = Message.MessageType.INBOX;
       message.category = contact.getCategory();
     }
-    new BroadcastMessageAsyncTask(context, message).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    new BroadcastMessageAsyncTask(message, contact).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, context);
+
   }
 }

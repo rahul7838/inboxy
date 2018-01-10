@@ -11,13 +11,13 @@ import in.inboxy.R;
  * Created by rahul1993 on 1/7/2018.
  */
 
-public class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+public class ComposeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
   private View view;
   private TextView contactNameView;
   private TextView contactNumberView;
   private ImageView avatarView;
 
-  public ContactViewHolder(View itemView) {
+  public ComposeViewHolder(View itemView) {
     super(itemView);
     view = itemView;
     contactNameView =(TextView) view.findViewById(R.id.contact_name);
@@ -28,19 +28,19 @@ public class ContactViewHolder extends RecyclerView.ViewHolder implements View.O
 
   }
 
-  public void setContactNameView(in.inboxy.contacts.Contact contact){
-    contactNameView.setText(contact.getDisplayName());
-  }
-
+//  public void setContactNameView(in.inboxy.contacts.Contact contact){
+//    contactNameView.setText(contact.mName);
+//  }
+//
 //  public  void setContactNumberView( in.inboxy.contacts.Contact contact){
-//    contactNumberView.setText(contact.phone);
+//    contactNumberView.setText(contact.mNumber);
 //  }
 
 //  public void setAvatarView(Contact contact){
-//    String uri = contact.uriPhoto;
+//    String uri = contact.uriPhoto
 //
 //  }
-
+//
   @Override
   public void onClick(View v) {
 

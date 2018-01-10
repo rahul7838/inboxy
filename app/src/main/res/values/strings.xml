@@ -111,6 +111,8 @@
 
     <string name="key_sms_categorized">sms_categorized</string>
     <string name="share_message">Let me recommend a smart sms app for your smart phone.\n\n </string>
-
+    <string name="title_share">Share</string>
+    <string name="title_rateus">Rate Us</string>
+    <string name="title_setting">Setting</string>
     <string name="title_activity_contact">New Conversation</string>
 </resources>

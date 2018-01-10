@@ -5,6 +5,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.database.Cursor;
 
 import java.util.List;
 
@@ -24,4 +25,10 @@ public interface MessageDao {
 
   @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
   public LiveData<List<Message>> getMessageListByCategory(int category);
+
+  @Query("Select * from Message Where read = 0 and seen = 0 and Category = :category")
+  public Cursor getUnreadSmsCount(int category);
+
+  @Query("Select * from Message Where read = 0 and seen = 0 and Category = :category")
+  public List<Message> getNotificationSummary(int category);
 }

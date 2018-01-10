@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="@string/pref_key_notification_category"
+        android:title="@string/pref_sms_notification_title">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_notification"
+            android:title="@string/pref_title_new_message_notifications"/>
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/default_notification_category"
+            android:entries="@array/notification_category"
+            android:entryValues="@array/notification_category"
+            android:key="@string/pref_key_category"
+            android:negativeButtonText="cancel"
+            android:positiveButtonText="ok"
+            android:dependency="@string/pref_key_notification"
+            android:title="@string/choose_notification_category_title"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_notification_LED"
+            android:title="@string/pref_title_notification_LED"
+            android:dependency="@string/pref_key_notification"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_notification_sound"
+            android:title="@string/pref_title_notification_sound"
+            android:dependency="@string/pref_key_notification"/>
+
+        <!--<RingtonePreference
+            android:defaultValue="true"
+            android:title="@string/pref_title_notification__ringtone"
+            android:summary="@string/pref_summary_notification_ringtone"
+            android:dependency="@string/pref_key_notification_sound"/>-->
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_notification_vibration"
+            android:title="@string/pref_title_vibration"
+            android:summary="@string/pref_summary_notification_vibration"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

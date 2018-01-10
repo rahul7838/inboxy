@@ -32,7 +32,7 @@ public class ComposeSmsActivity extends AppCompatActivity {
     linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
     recyclerView.setLayoutManager(linearLayoutManager);
     recyclerView.setHasFixedSize(true);
-//    ContactAdapter adapter = new ContactAdapter();
+//    ComposeAdapter adapter = new ComposeAdapter();
 //    recyclerView.setAdapter(adapter);
 
   }
@@ -42,7 +42,6 @@ public class ComposeSmsActivity extends AppCompatActivity {
     toolbar.setTitle(R.string.title_activity_contact);
     setSupportActionBar(toolbar);
   }
-
 
 /*  public static class ContactAsyncTask extends AsyncTask<Context, Void, List<Contact>> {
 
@@ -54,7 +53,7 @@ public class ComposeSmsActivity extends AppCompatActivity {
     @Override
     protected void onPostExecute(List<Contact> contactList) {
       super.onPostExecute(contactList);
-      ContactAdapter adapter = new ContactAdapter(contactList);
+      ComposeAdapter adapter = new ComposeAdapter(contactList);
       recyclerView.setAdapter(adapter);
     }
   }*/

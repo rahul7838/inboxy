@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -18,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -103,7 +106,14 @@ public class MainActivity extends AppCompatActivity {
     setToolbar();
     PhoneContact.init(this);
     ButterKnife.bind(this);
-    subscribeUi(Contact.PRIMARY);
+    if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt("passCategory") != 0) {
+      Bundle bundle = getIntent().getExtras();
+      int passCategory = bundle.getInt("passCategory");
+      subscribeUi(passCategory);
+      setItemMenuChecked(passCategory);
+    } else {
+      subscribeUi(Contact.PRIMARY);
+    }
     setClickListener();
   }
 
@@ -139,7 +149,40 @@ public class MainActivity extends AppCompatActivity {
     recyclerView.setHasFixedSize(true);
     smsAdapter = new SMSAdapter(messages);
     recyclerView.setAdapter(smsAdapter);
-    setBottomNavigation(messages);
+    /*if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt("passCategory") != 0) {
+      Bundle bundle = getIntent().getExtras();
+      int passCategory = bundle.getInt("passCategory");
+      setItemMenu(passCategory, messages);
+    } else {*/
+////      Message.markAllSeen(passCategory);
+          setBottomNavigation(messages);
+//    }
+  }
+
+  public void setItemMenuChecked(int category) {
+    BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
+    switch (category) {
+      case 1:
+        bottomNavigationView.getMenu().getItem(0).setChecked(true);
+        toolbar.setTitle(R.string.title_primary);
+//        setMessageList(messages, category);
+        break;
+      case 2:
+        bottomNavigationView.getMenu().getItem(1).setChecked(true);
+        toolbar.setTitle(R.string.title_finance);
+//        setMessageList(messages, category);
+        break;
+      case 3:
+        bottomNavigationView.getMenu().getItem(2).setChecked(true);
+        toolbar.setTitle(R.string.title_promotions);
+//        setMessageList(messages, category);
+        break;
+      case 4:
+        bottomNavigationView.getMenu().getItem(3).setChecked(true);
+        toolbar.setTitle(R.string.title_updates);
+//        setMessageList(messages, category);
+        break;
+    }
   }
 
   private void setBottomNavigation(final List<Message> messages) {
@@ -194,6 +237,51 @@ public class MainActivity extends AppCompatActivity {
       recyclerView.setVisibility(View.VISIBLE);
       subscribeUi(category);
     }
+  }
+
+  /*private void subscribeUi2(int category) {
+    localMessageDbViewModel.getMessageListByCategory(category).observe(this, new Observer<List<Message>>() {
+      @Override
+      public void onChanged(@Nullable List<Message> messages) {
+        showUi2(messages);
+      }
+    });
+  }
+
+  private void showUi2(List<Message> messages) {
+    smsAdapter.setMessage(messages);
+    smsAdapter.notifyDataSetChanged();
+    setBottomNavigation(messages);
+  }*/
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    super.onOptionsItemSelected(item);
+    int id = item.getItemId();
+    if(id == R.id.menu_share){
+      Intent shareIntent = new Intent(Intent.ACTION_SEND);
+      shareIntent.setType("text/plain");
+      String message = getString(R.string.share_message);
+      message = message + Html.fromHtml(getString(R.string.playstore_link));
+      shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, message);
+      startActivity(Intent.createChooser(shareIntent, getString(R.string.send_to)));
+    } else if(id == R.id.menu_rate_us){
+      Intent rateIntent = new Intent(Intent.ACTION_VIEW,
+              Uri.parse(getString(R.string.playstore_link)));
+      startActivity(rateIntent);
+    } else if(id == R.id.menu_settings){
+      Intent intent = new Intent(this, SettingsActivity.class);
+      startActivity(intent);
+    }
+    return true;
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    super.onCreateOptionsMenu(menu);
+    getMenuInflater().inflate(R.menu.menu_main, menu);
+
+    return true;
   }
 }
 
