@@ -13,7 +13,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +25,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +41,16 @@ import in.inboxy.contacts.PhoneContact;
 import in.inboxy.db.Message;
 import in.inboxy.utils.AppStartUtils;
 import in.inboxy.viewModel.LocalMessageDbViewModel;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
   public static LocalMessageDbViewModel localMessageDbViewModel;
+  private int currentVisiblePostion = 0;
+  LinearLayoutManager llm;
   Context context;
   SMSAdapter smsAdapter;
-  @BindView(R.id.fab)
-  FloatingActionButton fab;
+//  @BindView(R.id.fab)
+//  FloatingActionButton fab;
   @BindView(R.id.toolbar)
   Toolbar toolbar;
   @BindView(R.id.empty_main_view)
@@ -63,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Fabric.with(this, new Crashlytics());
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     SharedPreferences sharedPreferences = PreferenceManager
             .getDefaultSharedPreferences(this);
@@ -100,6 +105,18 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+//  @Override
+//  protected void onPause() {
+//    super.onPause();
+//    currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
+//  }
+
+//  @Override
+//  protected void onResume() {
+//    super.onResume();
+//    llm.scrollToPosition(currentVisiblePostion);
+//  }
+
   private void initiUi() {
     context = getApplicationContext();
     setContentView(R.layout.activity_main);
@@ -109,22 +126,32 @@ public class MainActivity extends AppCompatActivity {
     if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt("passCategory") != 0) {
       Bundle bundle = getIntent().getExtras();
       int passCategory = bundle.getInt("passCategory");
+      setLinearLayout();
       subscribeUi(passCategory);
       setItemMenuChecked(passCategory);
     } else {
+      setLinearLayout();
       subscribeUi(Contact.PRIMARY);
     }
-    setClickListener();
+    setBottomNavigation();
+//    setClickListener();
   }
 
-  private void setClickListener() {
-    fab.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Intent intent = new Intent(context, ComposeSmsActivity.class);
-        startActivity(intent);
-      }
-    });
+  private void setLinearLayout(){
+    llm = new LinearLayoutManager(this);
+    llm.setOrientation(LinearLayoutManager.VERTICAL);
+    recyclerView.setLayoutManager(llm);
+    recyclerView.setHasFixedSize(true);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
   }
 
   private void setToolbar() {
@@ -133,59 +160,22 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
   }
 
-  public void subscribeUi(int category) {
+  public void subscribeUi(final int category) {
     localMessageDbViewModel.getMessageListByCategory(category).observe(this, new Observer<List<Message>>() {
       @Override
       public void onChanged(@Nullable List<Message> messages) {
-        showUi(messages);
+//        showUi(messages);
+        setMessageList(messages, category);
       }
     });
   }
 
-  public void showUi(List<Message> messages) {
-    LinearLayoutManager llm = new LinearLayoutManager(this);
-    llm.setOrientation(LinearLayoutManager.VERTICAL);
-    recyclerView.setLayoutManager(llm);
-    recyclerView.setHasFixedSize(true);
-    smsAdapter = new SMSAdapter(messages);
-    recyclerView.setAdapter(smsAdapter);
-    /*if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt("passCategory") != 0) {
-      Bundle bundle = getIntent().getExtras();
-      int passCategory = bundle.getInt("passCategory");
-      setItemMenu(passCategory, messages);
-    } else {*/
-////      Message.markAllSeen(passCategory);
-          setBottomNavigation(messages);
-//    }
-  }
+  /*public void showUi(List<Message> messages) {
 
-  public void setItemMenuChecked(int category) {
-    BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
-    switch (category) {
-      case 1:
-        bottomNavigationView.getMenu().getItem(0).setChecked(true);
-        toolbar.setTitle(R.string.title_primary);
-//        setMessageList(messages, category);
-        break;
-      case 2:
-        bottomNavigationView.getMenu().getItem(1).setChecked(true);
-        toolbar.setTitle(R.string.title_finance);
-//        setMessageList(messages, category);
-        break;
-      case 3:
-        bottomNavigationView.getMenu().getItem(2).setChecked(true);
-        toolbar.setTitle(R.string.title_promotions);
-//        setMessageList(messages, category);
-        break;
-      case 4:
-        bottomNavigationView.getMenu().getItem(3).setChecked(true);
-        toolbar.setTitle(R.string.title_updates);
-//        setMessageList(messages, category);
-        break;
-    }
-  }
+    setBottomNavigation(messages);
+  }*/
 
-  private void setBottomNavigation(final List<Message> messages) {
+  private void setBottomNavigation() {
 //    bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
     BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
     bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -193,16 +183,20 @@ public class MainActivity extends AppCompatActivity {
       public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.bottomNav_primary) {
-          setMessageList(messages, Contact.PRIMARY);
+          subscribeUi(Contact.PRIMARY);
+//          setMessageList(messages, Contact.PRIMARY);
           toolbar.setTitle(R.string.title_primary);
         } else if (id == R.id.bottomNav_finance) {
-          setMessageList(messages, Contact.FINANCE);
+          subscribeUi(Contact.FINANCE);
+//          setMessageList(messages, Contact.FINANCE);
           toolbar.setTitle(R.string.title_finance);
         } else if (id == R.id.bottomNav_promotion) {
-          setMessageList(messages, Contact.PROMOTIONS);
+          subscribeUi(Contact.PROMOTIONS);
+//          setMessageList(messages, Contact.PROMOTIONS);
           toolbar.setTitle(R.string.title_promotions);
         } else if (id == R.id.bottomNav_updates) {
-          setMessageList(messages, Contact.UPDATES);
+          subscribeUi(Contact.UPDATES);
+//          setMessageList(messages, Contact.UPDATES);
           toolbar.setTitle(R.string.title_updates);
         }
         return true;
@@ -235,25 +229,36 @@ public class MainActivity extends AppCompatActivity {
     } else {
       emptyView.setVisibility(View.GONE);
       recyclerView.setVisibility(View.VISIBLE);
-      subscribeUi(category);
+      smsAdapter = new SMSAdapter(messageList);
+      recyclerView.setAdapter(smsAdapter);
     }
   }
 
-  /*private void subscribeUi2(int category) {
-    localMessageDbViewModel.getMessageListByCategory(category).observe(this, new Observer<List<Message>>() {
-      @Override
-      public void onChanged(@Nullable List<Message> messages) {
-        showUi2(messages);
-      }
-    });
+  public void setItemMenuChecked(int category) {
+    BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
+    switch (category) {
+      case 1:
+        bottomNavigationView.getMenu().getItem(0).setChecked(true);
+        toolbar.setTitle(R.string.title_primary);
+//        setMessageList(messages, category);
+        break;
+      case 2:
+        bottomNavigationView.getMenu().getItem(1).setChecked(true);
+        toolbar.setTitle(R.string.title_finance);
+//        setMessageList(messages, category);
+        break;
+      case 3:
+        bottomNavigationView.getMenu().getItem(2).setChecked(true);
+        toolbar.setTitle(R.string.title_promotions);
+//        setMessageList(messages, category);
+        break;
+      case 4:
+        bottomNavigationView.getMenu().getItem(3).setChecked(true);
+        toolbar.setTitle(R.string.title_updates);
+//        setMessageList(messages, category);
+        break;
+    }
   }
-
-  private void showUi2(List<Message> messages) {
-    smsAdapter.setMessage(messages);
-    smsAdapter.notifyDataSetChanged();
-    setBottomNavigation(messages);
-  }*/
-
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
@@ -280,7 +285,6 @@ public class MainActivity extends AppCompatActivity {
   public boolean onCreateOptionsMenu(Menu menu) {
     super.onCreateOptionsMenu(menu);
     getMenuInflater().inflate(R.menu.menu_main, menu);
-
     return true;
   }
 }

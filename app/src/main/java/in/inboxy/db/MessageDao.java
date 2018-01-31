@@ -29,6 +29,12 @@ public interface MessageDao {
   @Query("Select * from Message Where read = 0 and seen = 0 and Category = :category")
   public Cursor getUnreadSmsCount(int category);
 
-  @Query("Select * from Message Where read = 0 and seen = 0 and Category = :category")
+  @Query("Select * from Message Where read = 0 and seen = 0 and Category = :category order by timestamp desc")
   public List<Message> getNotificationSummary(int category);
+
+  @Query("Update Message Set seen = 1 Where Category = :category")
+  public void markAllSeen(int category);
+
+  @Query("Update Message Set read = 1 Where address = :address")
+  public void markAllRead(String address);
 }

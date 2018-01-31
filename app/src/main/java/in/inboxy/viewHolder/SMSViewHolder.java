@@ -16,6 +16,7 @@ import in.inboxy.R;
 import in.inboxy.activity.CompleteSmsActivity;
 import in.inboxy.contacts.Contact;
 import in.inboxy.contacts.PhoneContact;
+import in.inboxy.db.MessageDatabase;
 import in.inboxy.utils.ContactUtils;
 import in.inboxy.utils.TimeUtils;
 
@@ -25,13 +26,14 @@ import in.inboxy.utils.TimeUtils;
 
 public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
   private static final String TAG = "SMSViewHolder";
-  View view;
-  String address;
-  Context mContext;
-  TextView summaryView;
-  TextView titleView;
-  TextView timeView;
-  ImageView imageView;
+  private View view;
+  private String address;
+  private Context mContext;
+  private TextView summaryView;
+  private TextView titleView;
+  private TextView timeView;
+  private ImageView imageView;
+  SMSViewHolder smsViewHolder;
 
   public SMSViewHolder(View itemView, Context mContext) {
     super(itemView);
@@ -68,6 +70,7 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
 
   @Override
   public void onClick(View view) {
+    new Thread(new UpdateDB()).start();
     Intent i = new Intent(mContext, CompleteSmsActivity.class);
     i.putExtra(view.getResources().getString(R.string.address_id), address);
     mContext.startActivity(i);
@@ -105,5 +108,14 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
       }
     };
   }
+
+  public class UpdateDB implements Runnable{
+      @Override
+      public void run() {
+        MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(mContext);
+//        Log.i(TAG," done");
+        mDB.messageDao().markAllRead(address);
+      }
+    };
   }
 

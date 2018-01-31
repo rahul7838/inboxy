@@ -41,13 +41,14 @@ public class NotificationUtils {
 
 
   public static void sendGroupedNotification(Context context, Contact contact, final String body) {
+    MessageDatabase mDB;
     String displayName = contact.getDisplayName();
     RoundedBitmapDrawable drawable = contact.getAvatar(context);
     int category = contact.getCategory();
 
     ArrayList<String> listCategory = new ArrayList<String>(Arrays.asList("0", "Primary", "Finance", "Promotion", "Updates"));
     ArrayList<Integer> listId = new ArrayList<>(Arrays.asList(0, priID, finID, proID, updID));
-    MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
+    mDB = MessageDatabase.getInMemoryDatabase(context);
     Cursor cursor = mDB.messageDao().getUnreadSmsCount(contact.getCategory());
     int countUnreadSMS = cursor.getCount();
 
@@ -64,7 +65,7 @@ public class NotificationUtils {
               .setAutoCancel(true)
               .setCategory(Notification.CATEGORY_MESSAGE)
               .setColor(ContextCompat.getColor(context, R.color.colorLogo))
-              .setSmallIcon(R.drawable.ic_account)
+              .setSmallIcon(R.drawable.ic_stat_ic_launcher_1)
               .setLargeIcon(drawable.getBitmap());
 
       if (sharedPreferences.getBoolean(context.getString(R.string.pref_key_notification_vibration), false)) {
@@ -99,6 +100,7 @@ public class NotificationUtils {
       if(countUnreadSMS > 1) {
         Intent intent = new Intent(context, MainActivity.class)
                 .putExtra("passCategory", category);
+        mDB.messageDao().markAllSeen(category);
         taskStackBuilder.addNextIntent(intent);
         taskStackBuilder.addParentStack(MainActivity.class);
         PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(NID, PendingIntent.FLAG_UPDATE_CURRENT);

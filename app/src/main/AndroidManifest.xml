@@ -5,23 +5,24 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".SMSApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity"
+        <activity android:name="in.inboxy.activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activity.CompleteSmsActivity"/>
+        <activity android:name="in.inboxy.activity.CompleteSmsActivity"
+            android:parentActivityName="in.inboxy.activity.MainActivity"/>
         <activity android:name=".activity.WelcomeActivity"/>
         <activity
             android:name=".activity.SettingsActivity"
@@ -31,20 +32,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="in.inboxy.activity.MainActivity" />
         </activity>
-        <activity android:name="in.inboxy.activity.ComposeSmsActivity"
+        <!--<activity android:name="in.inboxy.activity.ComposeSmsActivity"
             android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <!--<action android:name="android.intent.action.SEND" />-->
+                &lt;!&ndash;<action android:name="android.intent.action.SEND" />&ndash;&gt;
                 <action android:name="android.intent.action.SENDTO" />
-                <!--<category android:name="android.intent.category.DEFAULT" />-->
-                <!--<category android:name="android.intent.category.BROWSABLE" />-->
+                &lt;!&ndash;<category android:name="android.intent.category.DEFAULT" />&ndash;&gt;
+                &lt;!&ndash;<category android:name="android.intent.category.BROWSABLE" />&ndash;&gt;
                 <data android:scheme="sms" />
                 <data android:scheme="smsto" />
                 <data android:scheme="mms" />
                 <data android:scheme="mmsto" />
             </intent-filter>
-        </activity>
+        </activity>-->
 
         <receiver android:name="in.inboxy.receiver.SmsReceiver"
             android:permission="android.permission.BROADCAST_SMS">
@@ -70,6 +71,9 @@
                 <data android:scheme="mmsto"/>
             </intent-filter>
         </service>-->
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="f5a1861d21d3b9ce0399ae18c0cb05e8e26c8a0f"/>
 
     </application>
 

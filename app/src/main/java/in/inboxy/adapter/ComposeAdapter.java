@@ -1,21 +1,10 @@
 package in.inboxy.adapter;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.util.List;
-
-import in.inboxy.R;
-import in.inboxy.contacts.PhoneContact;
-import in.inboxy.viewHolder.ComposeViewHolder;
-
 /**
  * Created by rahul1993 on 1/7/2018.
  */
 
-public class ComposeAdapter extends RecyclerView.Adapter<ComposeViewHolder>{
+/*public class ComposeAdapter extends RecyclerView.Adapter<ComposeViewHolder>{
   private List<PhoneContact> contactList;
   public ComposeAdapter(List<PhoneContact> contactList){
     this.contactList = contactList;
@@ -39,4 +28,4 @@ public class ComposeAdapter extends RecyclerView.Adapter<ComposeViewHolder>{
   public int getItemCount() {
     return contactList.size();
   }
-}
+}*/

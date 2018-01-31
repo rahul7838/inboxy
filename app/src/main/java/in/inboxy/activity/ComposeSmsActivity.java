@@ -1,19 +1,10 @@
 package in.inboxy.activity;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-
-import in.inboxy.R;
-
 /**
  * Created by rahul1993 on 1/7/2018.
  */
 
+/*
 public class ComposeSmsActivity extends AppCompatActivity {
 //  static List<Contact> mContactList;
   Context context;
@@ -43,6 +34,7 @@ public class ComposeSmsActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
   }
 
+*/
 /*  public static class ContactAsyncTask extends AsyncTask<Context, Void, List<Contact>> {
 
     @Override
@@ -56,5 +48,7 @@ public class ComposeSmsActivity extends AppCompatActivity {
       ComposeAdapter adapter = new ComposeAdapter(contactList);
       recyclerView.setAdapter(adapter);
     }
-  }*/
+  }*//*
+
 }
+*/

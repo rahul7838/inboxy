@@ -1,31 +1,10 @@
 package in.inboxy.threads;
 
-import android.app.Application;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.widget.Toast;
-
-import java.util.List;
-
-import in.inboxy.R;
-import in.inboxy.activity.MainActivity;
-import in.inboxy.contacts.Contact;
-import in.inboxy.contacts.PhoneContact;
-import in.inboxy.db.Message;
-import in.inboxy.db.MessageDatabase;
-import in.inboxy.utils.ContactUtils;
-import in.inboxy.utils.MessageUtils;
-import me.everything.providers.android.telephony.Sms;
-
-import static in.inboxy.db.Message.MessageType.INBOX;
-import static in.inboxy.db.Message.MessageType.SENT;
-
 /**
  * Created by rahul1993 on 11/11/2017.
  */
 
+/*
 public class MyAyncTask extends AsyncTask<Void,Void,Void> {
   MessageDatabase mDB;
   Application application;
@@ -74,4 +53,4 @@ public class MyAyncTask extends AsyncTask<Void,Void,Void> {
     application.startActivity(intent);
 
   }
-}
+}*/

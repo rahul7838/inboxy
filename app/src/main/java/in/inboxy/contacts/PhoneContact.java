@@ -26,7 +26,7 @@ import java.util.Locale;
 import in.inboxy.LogTag;
 import in.inboxy.R;
 import in.inboxy.SMSApplication;
-import in.inboxy.activity.ComposeSmsActivity;
+//import in.inboxy.activity.ComposeSmsActivity;
 import in.inboxy.utils.MessageUtils;
 
 
