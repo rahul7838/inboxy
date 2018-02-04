@@ -1,6 +1,7 @@
 package in.inboxy.activity;
 
 import android.Manifest;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -46,6 +47,8 @@ import io.fabric.sdk.android.Fabric;
 public class MainActivity extends AppCompatActivity {
   public static LocalMessageDbViewModel localMessageDbViewModel;
   private int currentVisiblePostion = 0;
+  LiveData<List<Message>> liveDataListMsg;
+  Observer<List<Message>> observer = null;
   LinearLayoutManager llm;
   Context context;
   SMSAdapter smsAdapter;
@@ -105,17 +108,17 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-//  @Override
-//  protected void onPause() {
-//    super.onPause();
-//    currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
-//  }
+  @Override
+  protected void onPause() {
+    super.onPause();
+    currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
+  }
 
-//  @Override
-//  protected void onResume() {
-//    super.onResume();
-//    llm.scrollToPosition(currentVisiblePostion);
-//  }
+  @Override
+  protected void onResume() {
+    super.onResume();
+    llm.scrollToPosition(currentVisiblePostion);
+  }
 
   private void initiUi() {
     context = getApplicationContext();
@@ -144,16 +147,6 @@ public class MainActivity extends AppCompatActivity {
     recyclerView.setHasFixedSize(true);
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-  }
-
-  @Override
-  protected void onStart() {
-    super.onStart();
-  }
-
   private void setToolbar() {
     toolbar = (Toolbar) findViewById(R.id.toolbar);
     toolbar.setTitle(R.string.title_primary);
@@ -161,19 +154,18 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public void subscribeUi(final int category) {
-    localMessageDbViewModel.getMessageListByCategory(category).observe(this, new Observer<List<Message>>() {
+    if(observer != null){
+      liveDataListMsg.removeObserver(observer);
+    }
+    liveDataListMsg = localMessageDbViewModel.getMessageListByCategory(category);
+    observer = new Observer<List<Message>>() {
       @Override
       public void onChanged(@Nullable List<Message> messages) {
-//        showUi(messages);
         setMessageList(messages, category);
       }
-    });
+    };
+    liveDataListMsg.observe(this,observer);
   }
-
-  /*public void showUi(List<Message> messages) {
-
-    setBottomNavigation(messages);
-  }*/
 
   private void setBottomNavigation() {
 //    bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
