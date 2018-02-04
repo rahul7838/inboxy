@@ -65,7 +65,7 @@ public class NotificationUtils {
               .setAutoCancel(true)
               .setCategory(Notification.CATEGORY_MESSAGE)
               .setColor(ContextCompat.getColor(context, R.color.colorLogo))
-              .setSmallIcon(R.drawable.ic_stat_ic_launcher_1)
+              .setSmallIcon(R.drawable.ic_notification)
               .setLargeIcon(drawable.getBitmap());
 
       if (sharedPreferences.getBoolean(context.getString(R.string.pref_key_notification_vibration), false)) {
@@ -126,14 +126,14 @@ public class NotificationUtils {
     }
   }
 
-  public void accessDbForNoti(final Context context) {
+  /*public void accessDbForNoti(final Context context) {
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
         MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
       }
     };
-  }
+  }*/
 }
 
 
