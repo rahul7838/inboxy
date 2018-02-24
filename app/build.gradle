@@ -18,10 +18,10 @@ repositories {
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "in.inboxy"
+        applicationId "in.smslite"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 2
+        versionCode 4
         versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

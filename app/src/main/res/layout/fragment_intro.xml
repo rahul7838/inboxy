@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#d5000000"
-    tools:context="in.inboxy.activity.WelcomeActivity">
+    tools:context="in.smslite.activity.WelcomeActivity">
 
     <TextView
         android:id="@+id/title"
