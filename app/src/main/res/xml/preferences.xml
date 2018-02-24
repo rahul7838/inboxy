@@ -10,9 +10,9 @@
 
         <MultiSelectListPreference
             android:defaultValue="@array/default_notification_category"
+            android:key="@string/pref_key_category"
             android:entries="@array/notification_category"
             android:entryValues="@array/notification_category"
-            android:key="@string/pref_key_category"
             android:negativeButtonText="cancel"
             android:positiveButtonText="ok"
             android:dependency="@string/pref_key_notification"

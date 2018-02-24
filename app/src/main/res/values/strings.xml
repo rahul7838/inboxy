@@ -87,6 +87,7 @@
         <item>Primary</item>
         <item>Finance</item>
         <item>Updates</item>
+        <item>Promotion</item>
     </string-array>
 
     <string name="empty_primary_text">Primary inbox is empty</string>

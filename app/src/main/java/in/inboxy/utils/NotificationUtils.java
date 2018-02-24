@@ -57,7 +57,10 @@ public class NotificationUtils {
     Set<String> defValues = new HashSet<String>();
     defValues.add("Promotion");
     defValues.add("Finance");
+    defValues.add("Primary");
+    defValues.add("Updates");
     Set<String> set = sharedPreferences.getStringSet(context.getString(R.string.pref_key_category), defValues);
+    Log.i("Notification", Integer.toString(set.size()));
     String category1 = listCategory.get(category);
     if (set.contains(category1)) {
       NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -125,15 +128,5 @@ public class NotificationUtils {
       notificationManager.notify(listId.get(category), builder.build());
     }
   }
-
-  /*public void accessDbForNoti(final Context context) {
-    Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
-      }
-    };
-  }*/
 }
-
 

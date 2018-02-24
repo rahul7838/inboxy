@@ -20,6 +20,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,9 +29,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,12 +74,19 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    Fabric.with(this, new Crashlytics());
+//    Fabric.with(this, new Crashlytics());
+    // Set up Crashlytics, disabled for debug builds
+    Crashlytics crashlyticsKit = new Crashlytics.Builder()
+            .core(new CrashlyticsCore.Builder().disabled(in.inboxy.BuildConfig.DEBUG).build())
+            .build();
+// Initialize Fabric with the debug-disabled crashlytics.
+    Fabric.with(this, crashlyticsKit);
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     SharedPreferences sharedPreferences = PreferenceManager
             .getDefaultSharedPreferences(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized),
             false);
+    PreferenceManager.setDefaultValues(this, R.xml.preferences,false);
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
       case FIRST_TIME_VERSION:
         // TODO show what's new
@@ -121,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initiUi() {
-    context = getApplicationContext();
+
     setContentView(R.layout.activity_main);
     setToolbar();
     PhoneContact.init(this);
@@ -223,6 +234,13 @@ public class MainActivity extends AppCompatActivity {
       recyclerView.setVisibility(View.VISIBLE);
       smsAdapter = new SMSAdapter(messageList);
       recyclerView.setAdapter(smsAdapter);
+      context = getApplicationContext();
+      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+      Set<String> defValues = new HashSet<String>();
+      defValues.add("rahul");
+      Set<String> set = sharedPreferences.getStringSet(getString(R.string.pref_key_category), defValues);
+//
+      Log.i("MainActivity", Integer.toString(set.size()));
     }
   }
 
