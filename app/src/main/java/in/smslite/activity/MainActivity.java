@@ -20,7 +20,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,9 +31,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -128,23 +125,25 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    llm.scrollToPosition(currentVisiblePostion);
+     llm.scrollToPosition(currentVisiblePostion);
   }
 
   private void initiUi() {
-
     setContentView(R.layout.activity_main);
+    ButterKnife.bind(this);
+    setLinearLayout();
+
     setToolbar();
     PhoneContact.init(this);
-    ButterKnife.bind(this);
+//    ButterKnife.bind(this);
     if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt("passCategory") != 0) {
       Bundle bundle = getIntent().getExtras();
       int passCategory = bundle.getInt("passCategory");
-      setLinearLayout();
       subscribeUi(passCategory);
       setItemMenuChecked(passCategory);
+//      setLinearLayout();
     } else {
-      setLinearLayout();
+//      setLinearLayout();
       subscribeUi(Contact.PRIMARY);
     }
     setBottomNavigation();
@@ -234,13 +233,13 @@ public class MainActivity extends AppCompatActivity {
       recyclerView.setVisibility(View.VISIBLE);
       smsAdapter = new SMSAdapter(messageList);
       recyclerView.setAdapter(smsAdapter);
-      context = getApplicationContext();
-      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+//      context = getApplicationContext();
+      /*SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
       Set<String> defValues = new HashSet<String>();
       defValues.add("rahul");
-      Set<String> set = sharedPreferences.getStringSet(getString(R.string.pref_key_category), defValues);
+      Set<String> set = sharedPreferences.getStringSet(getString(R.string.pref_key_category), defValues);*/
 //
-      Log.i("MainActivity", Integer.toString(set.size()));
+//      Log.i("MainActivity", Integer.toString(set.size()));
     }
   }
 
