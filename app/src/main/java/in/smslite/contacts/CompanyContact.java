@@ -76,14 +76,14 @@ public class CompanyContact extends Contact {
         }
     }
 
-    private int categorizeSMS(String shortcode, Context context) {
+    private int categorizeSMS(String address, Context context) {
         List<String> shortcodeList = Arrays.asList(context
                 .getResources()
                 .getStringArray(R.array.finance_short_codes));
-        String bankCode = ContactUtils.getShortcode(shortcode.toLowerCase());
-        if (bankCode != null && shortcodeList.contains(bankCode)) {
+        String shortCode = ContactUtils.getShortcode(address.toLowerCase());
+        if (shortCode != null && shortcodeList.contains(shortCode)) {
             return FINANCE;
-        } else if (shortcode != null && shortcode.toLowerCase()
+        } else if (shortCode != null && shortCode.toLowerCase()
                 .matches("[a-zA-Z]+")) {
             return UPDATES;
         } else {
