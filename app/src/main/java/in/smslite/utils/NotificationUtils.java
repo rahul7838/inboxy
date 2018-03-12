@@ -67,8 +67,8 @@ public class NotificationUtils {
       builder
               .setAutoCancel(true)
               .setCategory(Notification.CATEGORY_MESSAGE)
-              .setColor(ContextCompat.getColor(context, R.color.colorLogo))
-              .setSmallIcon(R.drawable.ic_notification)
+              .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+              .setSmallIcon(R.drawable.ic_stat_name)
               .setLargeIcon(drawable.getBitmap());
 
       if (sharedPreferences.getBoolean(context.getString(R.string.pref_key_notification_vibration), false)) {
