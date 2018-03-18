@@ -10,4 +10,7 @@
     <color name="colorInbox">#e8e8e8</color>
     <color name="colorTimestamp">#aeaeae</color>
     <color name="colorSent">#00897B</color>
+
+    <!--custom Notification color-->
+    <color name="colorLightBlack">#999999</color>
 </resources>

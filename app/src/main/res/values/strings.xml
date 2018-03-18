@@ -62,6 +62,16 @@
         <item>sbiinb</item>
         <item>idbibk</item>
         <item>citibk</item>
+        <item>dbsbnk</item>
+        <item>sbipsg</item>
+    </string-array>
+
+    <string-array name="OTP_keyword">
+        <item>code</item>
+        <item>pin</item>
+        <item>OTP</item>
+        <item>(OTP)</item>
+        <item>Onetime password</item>
     </string-array>
 
     <string name="choose_notification_category_title">Notify me for</string>
@@ -116,4 +126,5 @@
     <string name="title_rateus">Rate Us</string>
     <string name="title_setting">Setting</string>
     <string name="title_activity_contact">New Conversation</string>
+
 </resources>

@@ -17,16 +17,20 @@ public class BroadcastMessageAsyncTask extends AsyncTask<Context, Void, Void> {
 //  private Context context;
   private Message message;
   private Contact contact;
-  public BroadcastMessageAsyncTask(Message message, Contact contact){
+  Boolean customNotification;
+  public BroadcastMessageAsyncTask(Message message, Contact contact, Boolean customNotification){
     this.message = message;
     this.contact = contact;
+    this.customNotification = customNotification;
   }
 
   @Override
   protected Void doInBackground(Context... contexts) {
     MessageDatabase db = MessageDatabase.getInMemoryDatabase(contexts[0]);
     db.messageDao().insertMessage(message);
-    NotificationUtils.sendGroupedNotification(contexts[0], contact, message.body);
+    if(!customNotification) {
+      NotificationUtils.sendGroupedNotification(contexts[0], contact, message.body);
+    }
     return null;
   }
 }

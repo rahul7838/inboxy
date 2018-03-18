@@ -42,7 +42,7 @@ public class MessageUtils {
       message.body = sms.body;
       message.address = sms.address;
       message.read = sms.read;
-      message.seen = sms.seen;
+      message.seen = true;
       message.threadId = sms.threadId;
       message.type = type;
       message.timestamp = timeStamp;
