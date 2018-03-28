@@ -4,16 +4,20 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Patterns;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import in.smslite.R;
 import in.smslite.contacts.Contact;
 import in.smslite.db.Message;
-import in.smslite.db.MessageDatabase;
 import me.everything.providers.android.telephony.Sms;
 import me.everything.providers.android.telephony.TelephonyProvider;
 
+import static in.smslite.activity.MainActivity.WIDGET_UPDATE_DB_COLUMN_KEY;
+import static in.smslite.activity.MainActivity.db;
+import static in.smslite.activity.MainActivity.sharedPreferences;
 import static in.smslite.db.Message.MessageType.INBOX;
 import static in.smslite.db.Message.MessageType.SENT;
 
@@ -47,7 +51,8 @@ public class MessageUtils {
       message.type = type;
       message.timestamp = timeStamp;
       message.category = contact.getCategory();
-      MessageDatabase db = MessageDatabase.getInMemoryDatabase(context);
+      message.widget = isWidgetMessage(context, message.body);
+      sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
       db.messageDao().insertMessage(message);
     }
   }
@@ -76,6 +81,19 @@ public class MessageUtils {
       return match.group(2);
     }
     return address;
+  }
+
+  public static boolean isWidgetMessage(Context context, String body) {
+    boolean isWidgetMessage = false;
+    List<String> widgetKeyword = Arrays.asList(context.getResources().getStringArray(R.array.widget_keyword));
+    int widgetKeywordListSize = widgetKeyword.size();
+    for (int j = 0; j < widgetKeywordListSize; j++) {
+      if (body.toLowerCase().contains(widgetKeyword.get(j))) {
+        isWidgetMessage = true;
+        break;
+      }
+    }
+    return isWidgetMessage;
   }
 }
 

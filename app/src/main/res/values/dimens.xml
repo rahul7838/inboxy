@@ -14,4 +14,7 @@
     <dimen name="tagline_margin_bottom">100dp</dimen>
     <dimen name="tagline_text_size">14sp</dimen>
     <dimen name="tagline_horizontal_margin">40dp</dimen>
+    
+    <!--dimension for app widget-->
+    <dimen name="widget_margin">0dp</dimen>
 </resources>

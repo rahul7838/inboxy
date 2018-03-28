@@ -52,10 +52,13 @@ public class CompleteSmsActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    /*if(getIntent().hasExtra(ARG_THREAD_ID)){
+      Log.i(TAG, "widgetSmsAddress");
+    }*/
     Bundle bundle = getIntent().getExtras();
     address = bundle.getString(getString(R.string.address_id));
-    PhoneContact.init(getApplicationContext());
+    Log.i(TAG, address + "213");
+    PhoneContact.init(this);
     contact = ContactUtils.getContact(address, this, true);
     phoneNumber = contact.getNumber().replace(" ", "");
 //    contact = ContactUtils.getContact(address, this, true);

@@ -23,30 +23,19 @@
             </intent-filter>
         </activity>
         <activity android:name="in.smslite.activity.CompleteSmsActivity"
-            android:parentActivityName="in.smslite.activity.MainActivity"/>
-        <activity android:name="in.smslite.activity.WelcomeActivity"/>
+            android:parentActivityName="in.smslite.activity.MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name="in.smslite.activity.WelcomeActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name="in.smslite.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait"
             android:parentActivityName="in.smslite.activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="in.smslite.activity.MainActivity" />
         </activity>
-        <!--<activity android:name="in.inboxy.activity.ComposeSmsActivity"
-            android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                &lt;!&ndash;<action android:name="android.intent.action.SEND" />&ndash;&gt;
-                <action android:name="android.intent.action.SENDTO" />
-                &lt;!&ndash;<category android:name="android.intent.category.DEFAULT" />&ndash;&gt;
-                &lt;!&ndash;<category android:name="android.intent.category.BROWSABLE" />&ndash;&gt;
-                <data android:scheme="sms" />
-                <data android:scheme="smsto" />
-                <data android:scheme="mms" />
-                <data android:scheme="mmsto" />
-            </intent-filter>
-        </activity>-->
 
         <receiver android:name="in.smslite.receiver.SmsReceiver"
             android:permission="android.permission.BROADCAST_SMS">
@@ -55,8 +44,29 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".widget.SmsWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_provider_info"/>
+        </receiver>
+
         <service android:name=".services.OTPService">
         </service>
+        <!--<service android:name=".services.WidgetService"></service>-->
+
+        <service android:name=".services.ListWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="f5a1861d21d3b9ce0399ae18c0cb05e8e26c8a0f"/>
+
+    </application>
+
+</manifest>
         <!--<receiver android:name="in.inboxy.receiver.MMSReceiver"
                   android:permission="android.permission.BROADCAST_WAP_PUSH">
             <intent-filter>
@@ -75,10 +85,18 @@
                 <data android:scheme="mmsto"/>
             </intent-filter>
         </service>-->
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="f5a1861d21d3b9ce0399ae18c0cb05e8e26c8a0f"/>
 
-    </application>
-
-</manifest>
+        <!--<activity android:name="in.inboxy.activity.ComposeSmsActivity"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                &lt;!&ndash;<action android:name="android.intent.action.SEND" />&ndash;&gt;
+                <action android:name="android.intent.action.SENDTO" />
+                &lt;!&ndash;<category android:name="android.intent.category.DEFAULT" />&ndash;&gt;
+                &lt;!&ndash;<category android:name="android.intent.category.BROWSABLE" />&ndash;&gt;
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </activity>-->

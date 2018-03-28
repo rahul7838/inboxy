@@ -8,15 +8,13 @@ import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import java.util.Arrays;
-import java.util.List;
-
-import in.smslite.R;
 import in.smslite.contacts.Contact;
+import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.threads.BroadcastMessageAsyncTask;
 import in.smslite.utils.ContactUtils;
-import in.smslite.utils.NotificationUtils;
+
+import static in.smslite.utils.MessageUtils.isWidgetMessage;
 
 
 /**
@@ -28,15 +26,15 @@ public class SmsReceiver extends BroadcastReceiver{
   @Override
   public void onReceive(Context context, Intent intent) {
     Log.i("SmsReceiver", "Executed");
-    List<String> OTPKeywords = Arrays.asList(context.getResources().getStringArray(R.array.OTP_keyword));
+
     SmsMessage[] messages = Telephony.Sms.Intents.getMessagesFromIntent(intent);
     StringBuilder bodyText = new StringBuilder();
     String number = "0";
     String body = "";
+    PhoneContact.init(context);
     Contact contact = ContactUtils.getContact(messages[0].getDisplayOriginatingAddress(),context,true);
     Message message = new Message();
     Boolean customNotification = false;
-
     for (SmsMessage sms : messages) {
       bodyText.append(sms.getMessageBody());
       body = bodyText.toString();
@@ -49,14 +47,9 @@ public class SmsReceiver extends BroadcastReceiver{
       message.threadId = 123;
       message.type = Message.MessageType.INBOX;
       message.category = contact.getCategory();
+      message.widget = isWidgetMessage(context, message.body);
     }
-    if(message.category != Contact.PRIMARY)
-    for(int i = 0; i<OTPKeywords.size();i++) {
-      if (body.contains(OTPKeywords.get(i))) {
-        NotificationUtils.sendCustomNotification(context, message.address, message.body, message.timestamp);
-        customNotification = true;
-      }
-    }
+
     new BroadcastMessageAsyncTask(message, contact, customNotification).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, context);
 
   }

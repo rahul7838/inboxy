@@ -4,7 +4,6 @@ import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -16,10 +15,12 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,17 +43,19 @@ import in.smslite.adapter.SMSAdapter;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
+import in.smslite.db.MessageDatabase;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.viewModel.LocalMessageDbViewModel;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
+  public static MessageDatabase db;
+  public static final String WIDGET_UPDATE_DB_COLUMN_KEY = "updateWidgetDb";
   public static LocalMessageDbViewModel localMessageDbViewModel;
   private int currentVisiblePostion = 0;
   LiveData<List<Message>> liveDataListMsg;
   Observer<List<Message>> observer = null;
   LinearLayoutManager llm;
-  Context context;
   SMSAdapter smsAdapter;
 //  @BindView(R.id.fab)
 //  FloatingActionButton fab;
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
   @BindView(R.id.sms_list) RecyclerView recyclerView;
   final int MY_PERMISSIONS_REQUEST_READ_SMS = 0;
   List<String> permissionNeeded;
+  public static SharedPreferences sharedPreferences;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -79,10 +84,9 @@ public class MainActivity extends AppCompatActivity {
 // Initialize Fabric with the debug-disabled crashlytics.
     Fabric.with(this, crashlyticsKit);
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
-    SharedPreferences sharedPreferences = PreferenceManager
-            .getDefaultSharedPreferences(this);
-    boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized),
-            false);
+    db = MessageDatabase.getInMemoryDatabase(this);
+    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
     PreferenceManager.setDefaultValues(this, R.xml.preferences,false);
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
       case FIRST_TIME_VERSION:
@@ -95,6 +99,24 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  private void updateWidgetColumn() {
+    boolean updateWidgetColumnDb = sharedPreferences.getBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, true);
+    if(updateWidgetColumnDb){
+      new Runnable() {
+        @Override
+        public void run() {
+          List<String> widgetKeyword = Arrays.asList(getApplicationContext().getResources().getStringArray(R.array.widget_keyword));
+          int size = widgetKeyword.size();
+          for(int i=0; i<size; i++) {
+            String name = "%" + widgetKeyword.get(i) + "%";
+            Log.i("Mainactivity", name);
+            db.messageDao().updateWidgetMessage(name);
+            }
+          sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
+          }
+      };
+    }
+  }
 
   public void checkPermission(boolean smsCategorized) {
     permissionNeeded = new ArrayList<>();
@@ -129,9 +151,13 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initiUi() {
+    updateWidgetColumn();
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     setLinearLayout();
+    //divide recycler view item
+    DividerItemDecoration  dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), llm.getOrientation());
+    recyclerView.addItemDecoration(dividerItemDecoration);
 
     setToolbar();
     PhoneContact.init(this);
@@ -296,5 +322,8 @@ public class MainActivity extends AppCompatActivity {
     getMenuInflater().inflate(R.menu.menu_main, menu);
     return true;
   }
+
+
+
 }
 

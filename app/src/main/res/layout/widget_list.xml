@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+<FrameLayout
+
+    android:layout_height="48dp"
+    android:layout_width="match_parent"
+    android:background="@color/colorPrimary">
+
+    <TextView
+        android:id="@+id/widget_label"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:freezesText="true"
+        android:paddingLeft="24dp"
+        android:paddingEnd="24dp"
+        android:singleLine="true"
+        android:textSize="20sp"
+        android:textColor="@android:color/white"
+        android:text="Inboxy"
+        android:paddingTop="8dp"
+        />
+</FrameLayout>
+
+<FrameLayout android:layout_height="0dp"
+             android:layout_weight="1"
+             android:layout_width="match_parent">
+
+
+<ListView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/widget_list_id"
+    android:background="@android:color/white"
+    android:divider="#e5e5e5"
+    android:dividerHeight="1px">
+
+</ListView>
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/widget_empty_view"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:textColor="@android:color/black"
+              android:textStyle="bold"
+              android:text="empty_view_text"
+              android:textSize="20sp"
+              android:visibility="gone"/>
+</FrameLayout>
+
+    </LinearLayout>

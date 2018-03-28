@@ -69,9 +69,17 @@
     <string-array name="OTP_keyword">
         <item>code</item>
         <item>pin</item>
-        <item>OTP</item>
-        <item>(OTP)</item>
-        <item>Onetime password</item>
+        <item>pin:</item>
+        <item>otp</item>
+        <item>(otp)</item>
+        <item>onetime password</item>
+        <item>verification</item>
+    </string-array>
+
+    <string-array name="widget_keyword">
+        <item>booking</item>
+        <item>delivered</item>
+        <item>pnr</item>
     </string-array>
 
     <string name="choose_notification_category_title">Notify me for</string>

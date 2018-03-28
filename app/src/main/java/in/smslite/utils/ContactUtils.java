@@ -18,7 +18,7 @@ public class ContactUtils {
     public static Contact getContact(String number, Context context, boolean canBlock) {
       if (number == null) {
           return CompanyContact.get(number,context);
-      } else if (number.length() >= 10) {
+      } else if (number.matches("(\\+)?(0|91)?[798][0-9]{9}")) {
           return PhoneContact.get(number, canBlock);
       } else {
           return CompanyContact.get(number, context);

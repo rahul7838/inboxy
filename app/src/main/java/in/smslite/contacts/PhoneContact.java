@@ -120,6 +120,7 @@ public class PhoneContact extends Contact {
     }
 
     public static PhoneContact get(String number, boolean canBlock) {
+
         PhoneContact contact = sContactCache.get(number, canBlock);
 //        callListeners(contact);
         return contact;

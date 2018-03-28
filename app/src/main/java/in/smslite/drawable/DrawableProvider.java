@@ -10,11 +10,11 @@ class DrawableProvider {
   static final int SAMPLE_ROUND = 2;
 
   private final ColorGenerator mGenerator;
-  private Context mContext;
+//  private Context mContext;
 
   DrawableProvider(Context context) {
 
-    mContext = context;
+//    mContext = context;
     mGenerator = ColorGenerator.MATERIAL;
   }
 

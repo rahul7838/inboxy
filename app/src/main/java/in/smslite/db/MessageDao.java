@@ -37,4 +37,10 @@ public interface MessageDao {
 
   @Query("Update Message Set read = 1 Where address = :address")
   public void markAllRead(String address);
+
+  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
+  public List<Message> getWidgetMessage();
+
+  @Query("Update Message set widget = 1 where body like :name ")
+  public void updateWidgetMessage(String name);
 }

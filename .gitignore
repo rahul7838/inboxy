@@ -1,9 +1,41 @@
-*.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
+
 /captures
+
+
+
+#built application files
+*.apk
+#*.ap_ (this is covered by build)
+
+# files for the dex VM
+#*.dex (this is covered by build)
+
+# Java class files
+#*.class (this is covered by build)
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
+
+# Android Studio
+*.iml
+.idea
+#.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
+.gradle
+build/
+.navigation
+captures/
+output.json
+
+#NDK
+#obj/ (covered by build)
 .externalNativeBuild

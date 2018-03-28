@@ -52,6 +52,7 @@ public class CategorizeFragment extends Fragment {
             public void run() {
                 List<Sms> smsList = MessageUtils.getAllMessages(getContext());
                 MessageUtils.sync(getContext(), smsList);
+//                Context.runOnUiThread()
                 getActivity().runOnUiThread(complete());
             }
         });
