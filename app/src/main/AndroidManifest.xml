@@ -44,9 +44,10 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".widget.SmsWidgetProvider">
+        <receiver android:name=".widget.SmsWidgetProvider"
+            android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"

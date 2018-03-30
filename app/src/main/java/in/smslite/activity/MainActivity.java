@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initiUi() {
-    updateWidgetColumn();
+//    updateWidgetColumn();
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     setLinearLayout();

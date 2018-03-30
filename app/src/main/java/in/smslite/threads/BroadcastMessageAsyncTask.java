@@ -10,6 +10,7 @@ import java.util.List;
 import in.smslite.R;
 import in.smslite.contacts.Contact;
 import in.smslite.db.Message;
+import in.smslite.db.MessageDatabase;
 import in.smslite.utils.NotificationUtils;
 
 import static in.smslite.activity.MainActivity.db;
@@ -35,6 +36,7 @@ public class BroadcastMessageAsyncTask extends AsyncTask<Context, Void, Void> {
   protected Void doInBackground(Context... contexts) {
     List<String> OTPKeywords = Arrays.asList(contexts[0].getResources().getStringArray(R.array.OTP_keyword));
     int OTPKeywordsSize = OTPKeywords.size();
+    db = MessageDatabase.getInMemoryDatabase(contexts[0]);
     if(message.category != Contact.PRIMARY) {
       for (int i = 0; i < OTPKeywordsSize; i++) {
         if (message.body.toLowerCase().contains(OTPKeywords.get(i))) {

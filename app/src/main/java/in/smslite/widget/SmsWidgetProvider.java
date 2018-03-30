@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.provider.Telephony;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -15,6 +16,8 @@ import in.smslite.R;
 import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.activity.MainActivity;
 import in.smslite.services.ListWidgetService;
+
+import static android.provider.Telephony.Sms.Intents.SMS_RECEIVED_ACTION;
 
 /**
  * Created by rahul1993 on 3/22/2018.
@@ -58,7 +61,7 @@ public class SmsWidgetProvider extends AppWidgetProvider {
       remoteViews.setPendingIntentTemplate(R.id.widget_list_id, activityPendingIntent);
 
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds,R.id.widget_list_id);
-        Log.i(TAG, " onUpdate");
+        Log.d(TAG, " onUpdate");
       appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
     }
 
@@ -67,14 +70,15 @@ public class SmsWidgetProvider extends AppWidgetProvider {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    super.onReceive(context, intent);
-    Log.i(TAG, " Widget received broadcast of sms");
-    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-    ComponentName provider = new ComponentName(context.getPackageName(), SmsWidgetProvider.class.getName());
-    int[] appWidgetIds = appWidgetManager.getAppWidgetIds(provider);
-    onUpdate(context,appWidgetManager, appWidgetIds);
+      super.onReceive(context, intent);
+      if (intent.getAction() == SMS_RECEIVED_ACTION) {
+          Log.d(TAG, " Widget received broadcast of sms");
+          AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+          ComponentName provider = new ComponentName(context.getPackageName(), SmsWidgetProvider.class.getName());
+          int[] appWidgetIds = appWidgetManager.getAppWidgetIds(provider);
+          onUpdate(context, appWidgetManager, appWidgetIds);
+      }
   }
-
   @Override
   public void onDeleted(Context context, int[] appWidgetIds) {
     super.onDeleted(context, appWidgetIds);
