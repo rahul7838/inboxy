@@ -5,10 +5,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
@@ -35,67 +39,76 @@ import in.smslite.db.Message;
 import in.smslite.services.OTPService;
 import in.smslite.services.SwipeToDismissNoti;
 
+import static in.smslite.activity.MainActivity.MAINACTIVTY_CATEGORY_TASKSTACK_KEY;
 import static in.smslite.activity.MainActivity.db;
-import static in.smslite.activity.MainActivity.sharedPreferences;
+
+import static in.smslite.services.SwipeToDismissNoti.SWIPE_TO_DISMISS_CATEGORY_KEY;
 
 
 public class NotificationUtils {
 
-  private static final int NID = 122;
-  private static final int priID = 123;
-  private static final int finID = 124;
-  private static final int proID = 125;
-  private static final int updID = 126;
   private static Boolean vibrate = true;
   private static Boolean led = true;
   private static Boolean sound = true;
   private static Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
   public static final int CUSTOM_NOTIFICATION_ID = 7898;
   public static final String BUNDLE_OTP_KEY = "159";
+  public static final String BROADCAST_SMS_CATEGORY_KEY = "category";
+  public static final String NOTIFICATION_BUNDLE_CATEGORY_KEY = "category";
+  private static final String GROUP_KEY = "key";
+  private static final String TAG = NotificationUtils.class.getSimpleName();
+  public static Bundle notificationBundle = new Bundle();
 
-
-  public static void sendGroupedNotification(Context context, Contact contact, final String body) {
+  public static void sendGroupedNotification(Context context, Contact contact, Message message) {
 
     String displayName = contact.getDisplayName();
     RoundedBitmapDrawable drawable = contact.getAvatar(context);
     int category = contact.getCategory();
+    int timeStamp = (int) message.timestamp;
 
-    ArrayList<String> listCategory = new ArrayList<String>(Arrays.asList("0", "Primary", "Finance", "Promotion", "Updates"));
-    ArrayList<Integer> listId = new ArrayList<>(Arrays.asList(0, priID, finID, proID, updID));
+//    ArrayList<Integer> listCategoryIntValue = new ArrayList<Integer>(Arrays.asList(Contact.UNCATEGORIZED, Contact.PRIMARY, Contact.FINANCE, Contact.PROMOTIONS, Contact.UPDATES));
+//    ArrayList<Integer> listId = new ArrayList<>(Arrays.asList(0, priID, finID, proID, updID));
+    List<String> listCategoryStringValue = new ArrayList<String>(Arrays.asList("0", "Primary", "Finance", "Promotion", "Updates"));
 
-    Cursor cursor = db.messageDao().getUnreadSmsCount(contact.getCategory());
-    int countUnreadSMS = cursor.getCount();
+    Cursor cursor = db.messageDao().getUnseenSmsCount(contact.getCategory());
+    int countUnseenSMS = cursor.getCount();
+    Log.i(TAG, Integer.toString(countUnseenSMS) + " countUnseenSMS");
 
-
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     vibrate = sharedPreferences.getBoolean(context.getString(R.string.pref_key_notification_vibration), true);
     led = sharedPreferences.getBoolean(context.getString(R.string.pref_key_notification_LED), true);
+
     sound = sharedPreferences.getBoolean(context.getString(R.string.pref_key_notification_sound), true);
     Set<String> defValues = new HashSet<String>();
-    defValues.add("Promotion");
-    defValues.add("Finance");
     defValues.add("Primary");
+    defValues.add("Finance");
+    defValues.add("Promotion");
     defValues.add("Updates");
     Set<String> set = sharedPreferences.getStringSet(context.getString(R.string.pref_key_category), defValues);
-    Log.i("Notification", Integer.toString(set.size()));
-    String category1 = listCategory.get(category);
+    Log.i(TAG, Integer.toString(set.size())+ "setSize");
+    String categoryStringValue = listCategoryStringValue.get(category);
+
+    // swipe to dismiss notification makes seen=1(true)
     Intent swipeToDismissNotiIntent = new Intent(context, SwipeToDismissNoti.class);
-    swipeToDismissNotiIntent.putExtra("Category", category1);
-    PendingIntent swipeToDismissNotiPendingIntent = PendingIntent.getService(context,12,swipeToDismissNotiIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-    if (set.contains(category1)) {
+    swipeToDismissNotiIntent.putExtra(SWIPE_TO_DISMISS_CATEGORY_KEY, category);
+    PendingIntent swipeToDismissNotiPendingIntent = PendingIntent.getService(context, 12, swipeToDismissNotiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    if (set.contains(categoryStringValue)) {
       NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
       builder
-              .setAutoCancel(true)
-              .setCategory(Notification.CATEGORY_MESSAGE)
-              .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-              .setSmallIcon(R.drawable.ic_stat_name)
-              .setLargeIcon(drawable.getBitmap())
-              .setDeleteIntent(swipeToDismissNotiPendingIntent);
+          .setAutoCancel(true)
+          .setCategory(Notification.CATEGORY_MESSAGE)
+          .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+          .setSmallIcon(R.drawable.ic_stat_name)
+          .setLargeIcon(drawable.getBitmap())
+          .setDeleteIntent(swipeToDismissNotiPendingIntent);
       if (vibrate) {
         builder.setVibrate(new long[]{300, 300, 300, 300});
       }
 
       if (led) {
-        builder.setLights(Color.WHITE,300,1000);
+        builder.setLights(Color.WHITE, 300, 1000);
+        Log.i(TAG, Boolean.toString(led) + " ledPreferenceValue");
       }
 
       if (sound) {
@@ -103,59 +116,92 @@ public class NotificationUtils {
       }
 
       final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//      builder.setContentText("You have " + String.valueOf(countUnreadSMS) + " unread "+ "message");
 
-      TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
-      NotificationCompat.InboxStyle inboxStyle= new NotificationCompat.InboxStyle();
-      List<Message> notificationSummary = db.messageDao().getNotificationSummary(category);
+      //Mainactivity Pending Intent
+      TaskStackBuilder taskStackBuilderMainActivity = TaskStackBuilder.create(context);
+      Intent MainActivityintent = new Intent(context, MainActivity.class)
+          .putExtra(BROADCAST_SMS_CATEGORY_KEY, category);
+      taskStackBuilderMainActivity.addNextIntent(MainActivityintent);
+      taskStackBuilderMainActivity.addParentStack(MainActivity.class);
+//      PendingIntent mainActivityPendingIntent = PendingIntent.getActivity(context, 12, MainActivityintent, PendingIntent.FLAG_UPDATE_CURRENT);
+      PendingIntent mainActivityPendingIntent = taskStackBuilderMainActivity.getPendingIntent(12, PendingIntent.FLAG_UPDATE_CURRENT);
 
-      for(int i=0; i<notificationSummary.size() && i<=7; i++){
-        inboxStyle.addLine(notificationSummary.get(i).getAddress()+":"+notificationSummary.get(i).getBody());
-      }
-      inboxStyle.setBigContentTitle(notificationSummary.size() + " Unread " + listCategory.get(category) + " messages");
+      //Complete Sms Activity Pending Intent
+      TaskStackBuilder taskStackBuilderCompleteSmsActivity = TaskStackBuilder.create(context);
+      Intent completeSmsActivityintent = new Intent(context, CompleteSmsActivity.class)
+          .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
+      // to get category for mainactivity when opened through this task stack builder.
+      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
+      notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, category);
+      taskStackBuilderCompleteSmsActivity.addNextIntentWithParentStack(completeSmsActivityintent);
+      PendingIntent completeSmsActivityPendingIntent = taskStackBuilderCompleteSmsActivity.getPendingIntent(54, PendingIntent.FLAG_UPDATE_CURRENT);
 
-      if(notificationSummary.size() > 7){
-        inboxStyle.setSummaryText(Math.abs(notificationSummary.size() - 7) + " more messages");
-      }
+      // Inbox notification style for api 24 and 25 (Nought)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 
-      if(countUnreadSMS > 1) {
-        Intent intent = new Intent(context, MainActivity.class)
-                .putExtra("passCategory", category);
-        db.messageDao().markAllSeen(category);
-        taskStackBuilder.addNextIntent(intent);
-        taskStackBuilder.addParentStack(MainActivity.class);
-        PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(NID, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentText("You have " + String.valueOf(countUnreadSMS) + " unread " + listCategory.get(category) + " message")
-                .setContentTitle("Unread Messages")
-                .setContentIntent(pendingIntent)
-                .setStyle(inboxStyle);
+        builder.setContentTitle(contact.getDisplayName())
+            .setContentText(message.body)
+            .setContentIntent(completeSmsActivityPendingIntent)
+            .setGroup(categoryStringValue);
+
+        NotificationCompat.Builder bundleBuilder = new NotificationCompat.Builder(context)
+//            .setContentText(notificationSummary.get(0).getAddress() + ": " + notificationSummary.get(0).getBody())
+            .setGroupSummary(true)
+            .setAutoCancel(true)
+            .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+            .setGroup(categoryStringValue)
+            .setSmallIcon(R.drawable.ic_stat_name)
+//            .setSubText(String.valueOf(countUnseenSMS) + " new messages")
+            .setContentIntent(mainActivityPendingIntent);
+//
+        Log.d(TAG, "api 25");
+        notificationManager.notify(timeStamp, builder.build());
+        notificationManager.notify(category, bundleBuilder.build());
+
       } else {
-        Intent intent1 = new Intent(context, CompleteSmsActivity.class)
-                .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
-        taskStackBuilder.addParentStack(CompleteSmsActivity.class);
-        taskStackBuilder.addNextIntent(intent1);
-        PendingIntent pendingIntent1 = taskStackBuilder.getPendingIntent(NID, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentText(body)
-                .setContentTitle(displayName)
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(body))
-                .setContentIntent(pendingIntent1);
+        List<Message> notificationSummary = db.messageDao().getNotificationSummary(category);
+        int sizeSummary = notificationSummary.size();
+        Log.i(TAG, Integer.toString(sizeSummary)+ "sizeSummary");
+        if (sizeSummary>1) {
+          Log.d(TAG, "inboxStyleSms");
+          NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+          for (int i = 0; i < notificationSummary.size() && i < 7; i++) {
+            inboxStyle.addLine(notificationSummary.get(i).getAddress() + ":" + notificationSummary.get(i).getBody());
+          }
+          inboxStyle.setBigContentTitle(notificationSummary.size() + " new " + categoryStringValue + " messages");
+          if (notificationSummary.size() > 7) {
+            inboxStyle.setSummaryText(Math.abs(notificationSummary.size() - 7) + " more messages");
+          }
+          Log.i(TAG, "API 22+23");
+          builder.setContentText(notificationSummary.get(0).getAddress() + ": " + notificationSummary.get(0).getBody())
+              .setContentIntent(mainActivityPendingIntent)
+              .setContentTitle(String.valueOf(countUnseenSMS) + " new messages")
+              .setStyle(inboxStyle);
+        } else {
+          Log.d(TAG, "singleSmsDisplay");
+          builder.setContentText(message.body)
+              .setContentTitle(displayName)
+              .setStyle(new NotificationCompat.BigTextStyle()
+                  .bigText(message.body))
+              .setContentIntent(completeSmsActivityPendingIntent);
+        }
+        Log.i(TAG, "NotificationExecuted");
+        notificationManager.notify(category, builder.build());
       }
-
-      Log.i("NotificationUtils", "NotificationExecuted");
-      notificationManager.notify(listId.get(category), builder.build());
     }
   }
 
-  public static void sendCustomNotification(Context context, String address, String body, Long timeStamp, Contact contact){
+
+  public static void sendCustomNotification(Context context, String address, String body, Long timeStamp, Contact contact) {
     String textString = body;
     String OTP = null;
-    textString = textString.replaceAll("[Rr]{1}[Ss]{1}[.]{1}[\\s]?[0-9]*\\.[0-9]*","");
-    textString= textString.replaceAll("[Ii]{1}[Nn]{1}[Rr]{1}[\\s]?[0-9]*\\.[0-9]*", "");
+    textString = textString.replaceAll("[Rr]{1}[Ss]{1}[.]{1}[\\s]?[0-9]*\\.[0-9]*", "");
+    textString = textString.replaceAll("[Ii]{1}[Nn]{1}[Rr]{1}[\\s]?[0-9]*\\.[0-9]*", "");
+    textString = textString.replaceAll("[a-zA-Z]{1}[0-9]{4}", "");
     Pattern p = Pattern.compile("[0-9]{6}|[0-9]{8}|[0-9]{4}");
     Matcher m = p.matcher(textString);
-    if(m.find()){
-        OTP = m.group();
+    if (m.find()) {
+      OTP = m.group();
     }
     String OTPID = OTP;
     NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
@@ -169,11 +215,11 @@ public class NotificationUtils {
     notificationLayout.setTextViewText(R.id.custom_noti_text, OTP);
     Intent intent = new Intent(context, OTPService.class);
     intent.putExtra(BUNDLE_OTP_KEY, OTP);
-    PendingIntent pendingIntent = PendingIntent.getService(context,12, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent pendingIntent = PendingIntent.getService(context, 12, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     notificationLayout.setOnClickPendingIntent(R.id.relative_layout_copy, pendingIntent);
 
     if (OTP != null) {
-      OTP =OTP.replaceAll("", "  ").trim();
+      OTP = OTP.replaceAll("", "  ").trim();
     }
     RemoteViews bigNotificationLayout = new RemoteViews(context.getPackageName(), R.layout.custom_notification_big);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_title, address);
@@ -181,35 +227,38 @@ public class NotificationUtils {
     bigNotificationLayout.setOnClickPendingIntent(R.id.layout_big_noti_child2, pendingIntent);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_time, formattedDate);
 
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
     Intent intent1 = new Intent(context, CompleteSmsActivity.class)
-            .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber())
-            .setAction(Long.toString(System.currentTimeMillis()));
+        .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
+    // to get category for mainactivity when opened through this task stack builder.
+    sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
+    notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, contact.getCategory());
+//        .setAction(Long.toString(System.currentTimeMillis()));
 //            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-    taskStackBuilder.addParentStack(MainActivity.class);
-    taskStackBuilder.addNextIntent(intent1);
-    PendingIntent contentPendingIntent = taskStackBuilder.getPendingIntent(15,PendingIntent.FLAG_UPDATE_CURRENT);
+    taskStackBuilder.addNextIntentWithParentStack(intent1);
+    PendingIntent contentPendingIntent = taskStackBuilder.getPendingIntent(15, PendingIntent.FLAG_UPDATE_CURRENT);
     NotificationCompat.Builder customNotification = new NotificationCompat.Builder(context);
-          customNotification
-                  .setSmallIcon(R.drawable.ic_stat_name)
-                  .setCustomContentView(notificationLayout)
-                  .setCustomBigContentView(bigNotificationLayout)
-                  .setContentIntent(contentPendingIntent)
-                  .setAutoCancel(true);
+    customNotification
+        .setSmallIcon(R.drawable.ic_stat_name)
+        .setCustomContentView(notificationLayout)
+        .setCustomBigContentView(bigNotificationLayout)
+        .setContentIntent(contentPendingIntent)
+        .setAutoCancel(true);
     if (vibrate) {
       customNotification.setVibrate(new long[]{300, 300, 300, 300});
     }
 
     if (led) {
-      customNotification.setLights(Color.WHITE,300,1000);
+      customNotification.setLights(Color.WHITE, 300, 1000);
     }
 
-    if(sound){
+    if (sound) {
       customNotification.setSound(uri);
     }
 
 
-    notificationManager.notify(Integer.parseInt(OTPID),customNotification.build());
+    notificationManager.notify(Integer.parseInt(OTPID), customNotification.build());
   }
 }
 

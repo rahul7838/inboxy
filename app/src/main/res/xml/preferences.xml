@@ -15,8 +15,8 @@
             android:entryValues="@array/notification_category"
             android:negativeButtonText="cancel"
             android:positiveButtonText="ok"
-            android:dependency="@string/pref_key_notification"
-            android:title="@string/choose_notification_category_title"/>
+            android:title="@string/choose_notification_category_title"
+            android:dependency="@string/pref_key_notification"/>
 
         <SwitchPreference
             android:defaultValue="true"

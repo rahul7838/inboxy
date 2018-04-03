@@ -1,6 +1,7 @@
 package in.smslite.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class TimeUtils {
@@ -11,14 +12,20 @@ public class TimeUtils {
   private final static String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
   private final static String[] months = {"Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-  public static String getPrettyElapsedTime(Date createdAt) {
+  public static String getPrettyElapsedTime(Long timeStamp) {
+    Date createdAt = new Date(timeStamp);
     Long currentTime = System.currentTimeMillis();
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(timeStamp);
     SimpleDateFormat sdf = new SimpleDateFormat("hh:mm aa");
     String time = sdf.format(createdAt);
+    // java.lang.ArrayIndexOutOfBoundsException: length=7; index=7 for below line when u install first time
+    // it will give error at message Sync screen
+//    int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
     int currentDay = createdAt.getDay();
-    int currentMonth = createdAt.getMonth();
-    int currentDate = createdAt.getDate();
-    int currentYear = createdAt.getYear();
+    int currentMonth = calendar.get(Calendar.MONTH);
+    int currentDate = calendar.get(Calendar.DAY_OF_MONTH);
+    int currentYear = calendar.get(Calendar.YEAR);
     Long elapsedTimeSecs = (currentTime - createdAt.getTime()) / 1000;
     if (elapsedTimeSecs < 60) {
       return units[0];
@@ -54,6 +61,6 @@ public class TimeUtils {
   }
 
   private static String getCorrectYear(int month, int date, int year, String time) {
-    return months[month]+ "," + String.valueOf(date)+ "," + String.valueOf(year)+ " "+ String.valueOf(time);
+    return months[month]+ " " + String.valueOf(date)+ ", " + String.valueOf(year)+ " "+ String.valueOf(time);
   }
 }

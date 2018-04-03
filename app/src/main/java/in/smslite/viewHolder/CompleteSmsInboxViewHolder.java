@@ -23,8 +23,8 @@ public class CompleteSmsInboxViewHolder extends RecyclerView.ViewHolder {
   }
 
   public void setTime(long x){
-    Date date = new Date(x);
-      String prettyTime = TimeUtils.getPrettyElapsedTime(date);
+//    Date date = new Date(x);
+      String prettyTime = TimeUtils.getPrettyElapsedTime(x);
       timestampView.setText(prettyTime);
 
   }

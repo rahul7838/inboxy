@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ import in.smslite.contacts.PhoneContact;
 import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.TimeUtils;
+
+import static in.smslite.activity.MainActivity.db;
 
 /**
  * Created by rahul1993 on 11/15/2017.
@@ -62,15 +65,21 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
   }
 
   public void setTime(long x) {
-    Date date = new Date(x);// we have to pass Date in getPrettyElaspsedTime, convert long into Date.
-    String time = TimeUtils.getPrettyElapsedTime(date);
+//    Date date = new Date(x);// we have to pass Date in getPrettyElaspsedTime, convert long into Date.
+    String time = TimeUtils.getPrettyElapsedTime(x);
 //        Log.i(TAG, time);
     timeView.setText(time);
   }
 
   @Override
   public void onClick(View view) {
-    new Thread(new UpdateDB()).start();
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        db.messageDao().markAllRead(address);
+        Log.i(TAG, "markAllRead");
+      }
+    }).start();
     Intent i = new Intent(mContext, CompleteSmsActivity.class);
     i.putExtra(view.getResources().getString(R.string.address_id), address);
     mContext.startActivity(i);
@@ -109,13 +118,13 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     };
   }
 
-  public class UpdateDB implements Runnable{
+ /* public class UpdateDB implements Runnable{
       @Override
       public void run() {
         MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(mContext);
 //        Log.i(TAG," done");
         mDB.messageDao().markAllRead(address);
       }
-    };
+    };*/
   }
 

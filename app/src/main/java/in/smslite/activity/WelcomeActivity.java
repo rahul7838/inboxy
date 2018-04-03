@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -22,7 +23,11 @@ import android.widget.Toast;
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.util.LogHelper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.util.Properties;
 
 import in.smslite.R;
 import in.smslite.fragments.CategorizeFragment;
@@ -145,5 +150,39 @@ public class WelcomeActivity extends AppIntro {
             getPager().setCurrentItem(getPager().getCurrentItem() + 1);
         }
     }
+/*
+    private void onDisplayPopupPermission() {
 
+        try {
+            // MIUI 8
+            Intent localIntent = new Intent("miui.intent.action.APP_PERM_EDITOR");
+            localIntent.setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity");
+            localIntent.putExtra("extra_pkgname", getPackageName());
+            localIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            localIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(localIntent);
+
+
+        } catch (Exception e) {
+            try {
+                // MIUI 5/6/7
+                Intent localIntent = new Intent("miui.intent.action.APP_PERM_EDITOR");
+                localIntent.setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.AppPermissionsEditorActivity");
+                localIntent.putExtra("extra_pkgname", getPackageName());
+                localIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                localIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(localIntent);
+
+
+            } catch (Exception e1) {
+                // Otherwise jump to application details
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        }
+
+    }
+*/
 }

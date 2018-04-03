@@ -26,8 +26,8 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder {
   }
 
   public void setTime(long x){
-    Date date = new Date(x);
-    String timea = TimeUtils.getPrettyElapsedTime(date);
+//    Date date = new Date(x);
+    String timea = TimeUtils.getPrettyElapsedTime(x);
     timeView.setText(timea);
 
   }

@@ -1,6 +1,8 @@
 package in.smslite.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Patterns;
 
@@ -17,7 +19,7 @@ import me.everything.providers.android.telephony.TelephonyProvider;
 
 import static in.smslite.activity.MainActivity.WIDGET_UPDATE_DB_COLUMN_KEY;
 import static in.smslite.activity.MainActivity.db;
-import static in.smslite.activity.MainActivity.sharedPreferences;
+
 import static in.smslite.db.Message.MessageType.INBOX;
 import static in.smslite.db.Message.MessageType.SENT;
 
@@ -26,7 +28,7 @@ import static in.smslite.db.Message.MessageType.SENT;
  */
 
 public class MessageUtils {
-
+  private static SharedPreferences sharedPreferences;
   private static final Pattern NAME_ADDR_EMAIL_PATTERN =
           Pattern.compile("\\s*(\"[^\"]*\"|[^<>\"]+)\\s*<([^<>]+)>\\s*");
 
@@ -37,6 +39,7 @@ public class MessageUtils {
   }
 
   public static void sync(Context context, List<Sms> smses) {
+    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     Message message = new Message();
     for (int i = 0; i < smses.size(); i++) {
       Sms sms = smses.get(i);

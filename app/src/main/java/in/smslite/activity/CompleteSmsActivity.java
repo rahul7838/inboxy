@@ -36,6 +36,8 @@ import in.smslite.db.Message;
 import in.smslite.utils.ContactUtils;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
 
+import static in.smslite.activity.MainActivity.db;
+
 public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
   //  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
@@ -57,7 +59,14 @@ public class CompleteSmsActivity extends AppCompatActivity {
     }*/
     Bundle bundle = getIntent().getExtras();
     address = bundle.getString(getString(R.string.address_id));
-    Log.i(TAG, address + "213");
+//     Thread to update read and seen field of db when clicking on notification
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        db.messageDao().markAllRead(address);
+      }
+    }).start();
+    Log.i(TAG, address + "address");
     PhoneContact.init(this);
     contact = ContactUtils.getContact(address, this, true);
     phoneNumber = contact.getNumber().replace(" ", "");

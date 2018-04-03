@@ -60,27 +60,28 @@
     </RelativeLayout>
 
     <RelativeLayout android:layout_height="48dp"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:background="@color/colorPrimary"
                     android:id="@+id/layout_big_noti_child2"
                     android:layout_below="@id/layout_big_noti_child1"
-                    android:layout_alignParentBottom="true">
+                    android:layout_alignParentBottom="true"
+                    android:orientation="horizontal">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_content_copy"
             android:id="@+id/imageView_big_noti_copy"
-            android:layout_marginStart="106dp"
-            android:layout_centerVertical="true"/>
+            android:layout_centerInParent="true"
+            android:paddingRight="20dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="Copy"
             android:textColor="@android:color/white"
-            android:layout_marginStart="140dp"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/imageView_big_noti_copy"/>
     </RelativeLayout>
 
 </RelativeLayout>

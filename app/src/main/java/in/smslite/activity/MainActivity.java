@@ -48,9 +48,15 @@ import in.smslite.utils.AppStartUtils;
 import in.smslite.viewModel.LocalMessageDbViewModel;
 import io.fabric.sdk.android.Fabric;
 
+import static in.smslite.utils.NotificationUtils.BROADCAST_SMS_CATEGORY_KEY;
+import static in.smslite.utils.NotificationUtils.NOTIFICATION_BUNDLE_CATEGORY_KEY;
+import static in.smslite.utils.NotificationUtils.notificationBundle;
+
 public class MainActivity extends AppCompatActivity {
+  private static final String TAG = MainActivity.class.getSimpleName();
   public static MessageDatabase db;
   public static final String WIDGET_UPDATE_DB_COLUMN_KEY = "updateWidgetDb";
+  public static final String MAINACTIVTY_CATEGORY_TASKSTACK_KEY = "category";
   public static LocalMessageDbViewModel localMessageDbViewModel;
   private int currentVisiblePostion = 0;
   LiveData<List<Message>> liveDataListMsg;
@@ -72,11 +78,15 @@ public class MainActivity extends AppCompatActivity {
   @BindView(R.id.sms_list) RecyclerView recyclerView;
   final int MY_PERMISSIONS_REQUEST_READ_SMS = 0;
   List<String> permissionNeeded;
-  public static SharedPreferences sharedPreferences;
+  public SharedPreferences sharedPreferences;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-//    Fabric.with(this, new Crashlytics());
+    // setDefaultValue should be defined at a place from where app can enter first.
+    PreferenceManager.setDefaultValues(this, R.xml.preferences,false);
+    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//    Fabric.with(this, new Crashlytics());---- setup crashlytics for debug and release build
+
     // Set up Crashlytics, disabled for debug builds
     Crashlytics crashlyticsKit = new Crashlytics.Builder()
             .core(new CrashlyticsCore.Builder().disabled(in.smslite.BuildConfig.DEBUG).build())
@@ -85,9 +95,10 @@ public class MainActivity extends AppCompatActivity {
     Fabric.with(this, crashlyticsKit);
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
-    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
-    PreferenceManager.setDefaultValues(this, R.xml.preferences,false);
+    if(!sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false)) {
+      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false).apply();
+    }
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
       case FIRST_TIME_VERSION:
         // TODO show what's new
@@ -161,17 +172,33 @@ public class MainActivity extends AppCompatActivity {
 
     setToolbar();
     PhoneContact.init(this);
-//    ButterKnife.bind(this);
-    if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt("passCategory") != 0) {
-      Bundle bundle = getIntent().getExtras();
-      int passCategory = bundle.getInt("passCategory");
-      subscribeUi(passCategory);
-      setItemMenuChecked(passCategory);
+
+//    if Mainactivity is open through pending intent, this ensure which sms category to display.
+      if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt(BROADCAST_SMS_CATEGORY_KEY) != 0) {
+        Bundle bundle = getIntent().getExtras();
+        final int broadcastSmsCategory = bundle.getInt(BROADCAST_SMS_CATEGORY_KEY);
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            db.messageDao().markAllSeen(broadcastSmsCategory);
+            Log.i("MainActivity", "markAllseenDone");
+          }
+        }).start();
+        subscribeUi(broadcastSmsCategory);
+        setItemMenuChecked(broadcastSmsCategory);
+        Log.i(TAG, "BRoadcast");
+    } else if(sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false)) {
+        Log.i(TAG, "Mainactivity open through taskStack");
+        sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false).apply();
+        int category = notificationBundle.getInt(NOTIFICATION_BUNDLE_CATEGORY_KEY);
+        subscribeUi(category);
+        setItemMenuChecked(category);
+      }
+    else {
 //      setLinearLayout();
-    } else {
-//      setLinearLayout();
-      subscribeUi(Contact.PRIMARY);
-    }
+        subscribeUi(Contact.PRIMARY);
+        Log.i(TAG, "addParentStack");
+      }
     setBottomNavigation();
 //    setClickListener();
   }

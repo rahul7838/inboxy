@@ -28,7 +28,7 @@ public class ThreadUtils {
     @Override
     protected Integer doInBackground(Void... voids) {
       MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
-      Cursor cursor = mDB.messageDao().getUnreadSmsCount(contact.getCategory());
+      Cursor cursor = mDB.messageDao().getUnseenSmsCount(contact.getCategory());
       int countUnreadSMS = cursor.getCount();
       return countUnreadSMS;
     }
