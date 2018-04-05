@@ -96,9 +96,6 @@ public class MainActivity extends AppCompatActivity {
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
-//    if(!sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false)) {
-//      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false).apply();
-//    }
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
 //      case FIRST_TIME_VERSION:
 //        // TODO show what's new

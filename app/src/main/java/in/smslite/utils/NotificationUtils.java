@@ -131,9 +131,6 @@ public class NotificationUtils {
       TaskStackBuilder taskStackBuilderCompleteSmsActivity = TaskStackBuilder.create(context);
       Intent completeSmsActivityintent = new Intent(context, CompleteSmsActivity.class)
           .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
-      // to get category for mainactivity when opened through this task stack builder.
-//      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
-//      notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, category);
       taskStackBuilderCompleteSmsActivity.addNextIntent(mainActivityintent);
       taskStackBuilderCompleteSmsActivity.addNextIntent(completeSmsActivityintent);
       PendingIntent completeSmsActivityPendingIntent = taskStackBuilderCompleteSmsActivity.getPendingIntent(54, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -233,12 +230,12 @@ public class NotificationUtils {
     TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
     Intent intent1 = new Intent(context, CompleteSmsActivity.class)
         .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
-    // to get category for mainactivity when opened through this task stack builder.
-    sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
-    notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, contact.getCategory());
+    Intent mainactivityIntent = new Intent(context, MainActivity.class);
+    mainactivityIntent.putExtra(BROADCAST_SMS_CATEGORY_KEY,contact.getCategory());
 //        .setAction(Long.toString(System.currentTimeMillis()));
 //            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-    taskStackBuilder.addNextIntentWithParentStack(intent1);
+    taskStackBuilder.addNextIntent(mainactivityIntent);
+    taskStackBuilder.addNextIntent(intent1);
     PendingIntent contentPendingIntent = taskStackBuilder.getPendingIntent(15, PendingIntent.FLAG_UPDATE_CURRENT);
     NotificationCompat.Builder customNotification = new NotificationCompat.Builder(context);
     customNotification
