@@ -43,6 +43,7 @@ import in.smslite.services.SwipeToDismissNoti;
 import static in.smslite.activity.MainActivity.MAINACTIVTY_CATEGORY_TASKSTACK_KEY;
 import static in.smslite.activity.MainActivity.db;
 
+import static in.smslite.services.OTPService.NOTIFICATION_ID;
 import static in.smslite.services.SwipeToDismissNoti.SWIPE_TO_DISMISS_CATEGORY_KEY;
 
 
@@ -52,8 +53,7 @@ public class NotificationUtils {
   private static Boolean led = true;
   private static Boolean sound = true;
   private static Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-  public static final int CUSTOM_NOTIFICATION_ID = 7898;
-  public static final String BUNDLE_OTP_KEY = "159";
+  public static final String BUNDLE_OTP_KEY = "notification id key";
   public static final String BROADCAST_SMS_CATEGORY_KEY = "category";
   public static final String NOTIFICATION_BUNDLE_CATEGORY_KEY = "category";
   private static final String GROUP_KEY = "key";
@@ -193,6 +193,7 @@ public class NotificationUtils {
 
   public static void sendCustomNotification(Context context, String address, String body, Long timeStamp, Contact contact) {
     String textString = body;
+    int notiId = (int)System.currentTimeMillis();
     String OTP = null;
     textString = textString.replaceAll("[Rr]{1}[Ss]{1}[.]{1}[\\s]?[0-9]*\\.[0-9]*", "");
     textString = textString.replaceAll("[Ii]{1}[Nn]{1}[Rr]{1}[\\s]?[0-9]*\\.[0-9]*", "");
@@ -208,18 +209,19 @@ public class NotificationUtils {
     SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
     sdf.setTimeZone(TimeZone.getDefault());
     String formattedDate = sdf.format(date);
-
+    if (OTP != null) {
+      OTP = OTP.replaceAll("", "    ").trim();
+    }
     RemoteViews notificationLayout = new RemoteViews(context.getPackageName(), R.layout.custom_noti);
     notificationLayout.setTextViewText(R.id.custom_noti_title, address);
     notificationLayout.setTextViewText(R.id.custom_noti_text, OTP);
     Intent intent = new Intent(context, OTPService.class);
-    intent.putExtra(BUNDLE_OTP_KEY, OTP);
+    intent.putExtra(NOTIFICATION_ID, notiId);
+    intent.putExtra(BUNDLE_OTP_KEY, OTPID);
     PendingIntent pendingIntent = PendingIntent.getService(context, 12, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     notificationLayout.setOnClickPendingIntent(R.id.relative_layout_copy, pendingIntent);
 
-    if (OTP != null) {
-      OTP = OTP.replaceAll("", "  ").trim();
-    }
+
     RemoteViews bigNotificationLayout = new RemoteViews(context.getPackageName(), R.layout.custom_notification_big);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_title, address);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_OTP, OTP);
@@ -257,7 +259,7 @@ public class NotificationUtils {
     }
 
 
-    notificationManager.notify(Integer.parseInt(OTPID), customNotification.build());
+    notificationManager.notify(notiId, customNotification.build());
   }
 }
 
