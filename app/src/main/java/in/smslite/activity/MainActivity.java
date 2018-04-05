@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     PreferenceManager.setDefaultValues(this, R.xml.preferences,false);
     sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 //    Fabric.with(this, new Crashlytics());---- setup crashlytics for debug and release build
-
+    Log.i(TAG, "onCreate");
     // Set up Crashlytics, disabled for debug builds
     Crashlytics crashlyticsKit = new Crashlytics.Builder()
             .core(new CrashlyticsCore.Builder().disabled(in.smslite.BuildConfig.DEBUG).build())
@@ -96,9 +96,9 @@ public class MainActivity extends AppCompatActivity {
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
-    if(!sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false)) {
-      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false).apply();
-    }
+//    if(!sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false)) {
+//      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false).apply();
+//    }
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
       case FIRST_TIME_VERSION:
         // TODO show what's new
@@ -110,26 +110,27 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  private void updateWidgetColumn() {
-    boolean updateWidgetColumnDb = sharedPreferences.getBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, true);
-    if(updateWidgetColumnDb){
-      new Runnable() {
-        @Override
-        public void run() {
-          List<String> widgetKeyword = Arrays.asList(getApplicationContext().getResources().getStringArray(R.array.widget_keyword));
-          int size = widgetKeyword.size();
-          for(int i=0; i<size; i++) {
-            String name = "%" + widgetKeyword.get(i) + "%";
-            Log.i("Mainactivity", name);
-            db.messageDao().updateWidgetMessage(name);
-            }
-          sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
-          }
-      };
-    }
-  }
+//  private void updateWidgetColumn() {
+//    boolean updateWidgetColumnDb = sharedPreferences.getBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, true);
+//    if(updateWidgetColumnDb){
+//      new Runnable() {
+//        @Override
+//        public void run() {
+//          List<String> widgetKeyword = Arrays.asList(getApplicationContext().getResources().getStringArray(R.array.widget_keyword));
+//          int size = widgetKeyword.size();
+//          for(int i=0; i<size; i++) {
+//            String name = "%" + widgetKeyword.get(i) + "%";
+//            Log.i("Mainactivity", name);
+//            db.messageDao().updateWidgetMessage(name);
+//            }
+//          sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
+//          }
+//      };
+//    }
+//  }
 
   public void checkPermission(boolean smsCategorized) {
+    Log.i(TAG, "checkPermission");
     permissionNeeded = new ArrayList<>();
     int permissionCheckSms = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_SMS);
     int permissionCheckContact = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CONTACTS);
@@ -152,17 +153,24 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onPause() {
     super.onPause();
-    currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
+//    if (llm != null) {
+//      currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
+//    }
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-     llm.scrollToPosition(currentVisiblePostion);
+    Log.i(TAG, "onResume");
+//    if (llm != null) {
+//      llm.scrollToPosition(currentVisiblePostion);
+//    }
   }
 
   private void initiUi() {
 //    updateWidgetColumn();
+
+    Log.i(TAG, "initiUi");
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     setLinearLayout();
@@ -173,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     setToolbar();
     PhoneContact.init(this);
 
-//    if Mainactivity is open through pending intent, this ensure which sms category to display.
+//    if Mainactivity is open through pending intent, the below code ensure which sms category to display.
       if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt(BROADCAST_SMS_CATEGORY_KEY) != 0) {
         Bundle bundle = getIntent().getExtras();
         final int broadcastSmsCategory = bundle.getInt(BROADCAST_SMS_CATEGORY_KEY);
@@ -187,12 +195,12 @@ public class MainActivity extends AppCompatActivity {
         subscribeUi(broadcastSmsCategory);
         setItemMenuChecked(broadcastSmsCategory);
         Log.i(TAG, "BRoadcast");
-    } else if(sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false)) {
-        Log.i(TAG, "Mainactivity open through taskStack");
-        sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false).apply();
-        int category = notificationBundle.getInt(NOTIFICATION_BUNDLE_CATEGORY_KEY);
-        subscribeUi(category);
-        setItemMenuChecked(category);
+//    } else if(sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false)) {
+//        Log.i(TAG, "Mainactivity open through taskStack");
+//        sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false).apply();
+//        int category = notificationBundle.getInt(NOTIFICATION_BUNDLE_CATEGORY_KEY);
+//        subscribeUi(category);
+//        setItemMenuChecked(category);
       }
     else {
 //      setLinearLayout();

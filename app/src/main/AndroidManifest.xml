@@ -47,15 +47,15 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".widget.SmsWidgetProvider"
-            android:permission="android.permission.BROADCAST_SMS">
-            <intent-filter>
-                <!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/app_widget_provider_info"/>
-        </receiver>
+        <!--<receiver android:name=".widget.SmsWidgetProvider"-->
+            <!--android:permission="android.permission.BROADCAST_SMS">-->
+            <!--<intent-filter>-->
+                <!--&lt;!&ndash;<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>&ndash;&gt;-->
+                <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
+            <!--</intent-filter>-->
+            <!--<meta-data android:name="android.appwidget.provider"-->
+                <!--android:resource="@xml/app_widget_provider_info"/>-->
+        <!--</receiver>-->
 
         <service android:name=".services.OTPService">
         </service>
@@ -63,8 +63,8 @@
 
         <service android:name=".services.SwipeToDismissNoti"/>
 
-        <service android:name=".services.ListWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+        <!--<service android:name=".services.ListWidgetService"-->
+            <!--android:permission="android.permission.BIND_REMOTEVIEWS"/>-->
 
         <meta-data
             android:name="io.fabric.ApiKey"

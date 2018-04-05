@@ -54,7 +54,7 @@ public class MessageUtils {
       message.type = type;
       message.timestamp = timeStamp;
       message.category = contact.getCategory();
-      message.widget = isWidgetMessage(context, message.body);
+//      message.widget = isWidgetMessage(context, message.body);
       sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
       db.messageDao().insertMessage(message);
     }
@@ -86,18 +86,18 @@ public class MessageUtils {
     return address;
   }
 
-  public static boolean isWidgetMessage(Context context, String body) {
-    boolean isWidgetMessage = false;
-    List<String> widgetKeyword = Arrays.asList(context.getResources().getStringArray(R.array.widget_keyword));
-    int widgetKeywordListSize = widgetKeyword.size();
-    for (int j = 0; j < widgetKeywordListSize; j++) {
-      if (body.toLowerCase().contains(widgetKeyword.get(j))) {
-        isWidgetMessage = true;
-        break;
-      }
-    }
-    return isWidgetMessage;
-  }
+//  public static boolean isWidgetMessage(Context context, String body) {
+//    boolean isWidgetMessage = false;
+//    List<String> widgetKeyword = Arrays.asList(context.getResources().getStringArray(R.array.widget_keyword));
+//    int widgetKeywordListSize = widgetKeyword.size();
+//    for (int j = 0; j < widgetKeywordListSize; j++) {
+//      if (body.toLowerCase().contains(widgetKeyword.get(j))) {
+//        isWidgetMessage = true;
+//        break;
+//      }
+//    }
+//    return isWidgetMessage;
+//  }
 }
 
 /*@Override

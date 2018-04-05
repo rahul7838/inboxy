@@ -29,6 +29,6 @@
 
     <!--<include layout="@layout/card_inbox" />-->
 
-    <include layout="@layout/full_sms_recycle_view" />
+    <include layout="@layout/complete_sms_recycle_view" />
 
 </android.support.design.widget.CoordinatorLayout>

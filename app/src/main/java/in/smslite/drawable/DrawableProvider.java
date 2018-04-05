@@ -21,6 +21,10 @@ class DrawableProvider {
   TextDrawable getSampleRound(String text) {
     return TextDrawable.builder().buildRound(text.substring(0, 1), mGenerator.getColor(text));
   }
+// For Number or any other char apart from alphabetical
+  TextDrawable getSampleRoundNumber(String text){
+    return TextDrawable.builder().buildRound(text, mGenerator.getRandomColor());
+  }
 
 }
 

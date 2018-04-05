@@ -131,8 +131,8 @@ public class NotificationUtils {
       Intent completeSmsActivityintent = new Intent(context, CompleteSmsActivity.class)
           .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
       // to get category for mainactivity when opened through this task stack builder.
-      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
-      notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, category);
+//      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
+//      notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, category);
       taskStackBuilderCompleteSmsActivity.addNextIntentWithParentStack(completeSmsActivityintent);
       PendingIntent completeSmsActivityPendingIntent = taskStackBuilderCompleteSmsActivity.getPendingIntent(54, PendingIntent.FLAG_UPDATE_CURRENT);
 

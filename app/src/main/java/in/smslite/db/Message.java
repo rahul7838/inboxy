@@ -22,7 +22,7 @@ public class Message {
   @PrimaryKey(autoGenerate = true)
   int id;
 
-  public boolean widget;
+//  public boolean widget;
 
   public String getBody() {
     return body;
@@ -96,13 +96,13 @@ public class Message {
     this.id = id;
   }
 
-  public boolean isWidget() {
-    return widget;
-  }
+//  public boolean isWidget() {
+//    return widget;
+//  }
 
-  public void setWidget(boolean widget) {
-    this.widget = widget;
-  }
+//  public void setWidget(boolean widget) {
+//    this.widget = widget;
+//  }
 
   public enum MessageType {
     All(Telephony.TextBasedSmsColumns.MESSAGE_TYPE_ALL),

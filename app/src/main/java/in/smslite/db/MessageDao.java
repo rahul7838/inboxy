@@ -24,7 +24,9 @@ public interface MessageDao {
   @Query("Select * from Message Where address = :address order by timestamp asc")
   public LiveData<List<Message>> getMessageListByAddress(String address);
 
-  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
+//  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
+@Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
+    "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where category = :category order by timestamp desc")
   public LiveData<List<Message>> getMessageListByCategory(int category);
 
   @Query("Select * from Message Where seen = 0 and Category = :category")
@@ -39,9 +41,9 @@ public interface MessageDao {
   @Query("Update Message Set seen=1, read = 1 Where address = :address")
   public void markAllRead(String address);
 
-  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
-  public List<Message> getWidgetMessage();
-
-  @Query("Update Message set widget = 1 where body like :name ")
-  public void updateWidgetMessage(String name);
+//  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
+//  public List<Message> getWidgetMessage();
+//
+//  @Query("Update Message set widget = 1 where body like :name ")
+//  public void updateWidgetMessage(String name);
 }

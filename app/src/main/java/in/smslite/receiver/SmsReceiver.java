@@ -14,8 +14,6 @@ import in.smslite.db.Message;
 import in.smslite.threads.BroadcastMessageAsyncTask;
 import in.smslite.utils.ContactUtils;
 
-import static in.smslite.utils.MessageUtils.isWidgetMessage;
-
 
 /**
  * Created by rahul1993 on 11/12/2017.
@@ -47,7 +45,7 @@ public class SmsReceiver extends BroadcastReceiver{
       message.threadId = 123;
       message.type = Message.MessageType.INBOX;
       message.category = contact.getCategory();
-      message.widget = isWidgetMessage(context, message.body);
+//      message.widget = isWidgetMessage(context, message.body);
     }
 
     new BroadcastMessageAsyncTask(message, contact, customNotification).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, context);

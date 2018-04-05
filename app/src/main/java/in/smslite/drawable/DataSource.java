@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import in.smslite.R;
+import in.smslite.utils.ColorGenerator;
 
 
 public class DataSource {
@@ -35,6 +36,12 @@ public class DataSource {
     } else if (displayName != null && isAlphabet(displayName.charAt(0))) {
       Drawable drawable = mProvider.getSampleRound(displayName);
       drawableMap.put(displayName, drawable);
+      return drawable;
+    } else if(displayName != null){
+      ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
+//      Drawable drawable = TextDrawable.builder().buildRound("#", colorGenerator.getRandomColor());
+      Drawable drawable = mProvider.getSampleRoundNumber("#");
+      drawableMap.put(displayName,drawable);
       return drawable;
     }
     return defaultDrawable;

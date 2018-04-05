@@ -57,7 +57,7 @@ public class TimeUtils {
   }
 
   private static String getCorrectMonth(int month, int date, String time) {
-    return months[month] + "," + String.valueOf(date) +" "+ String.valueOf(time);
+    return months[month] + " " + String.valueOf(date) +" "+ String.valueOf(time);
   }
 
   private static String getCorrectYear(int month, int date, int year, String time) {
