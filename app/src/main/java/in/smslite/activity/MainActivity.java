@@ -100,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
 //      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, false).apply();
 //    }
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
-      case FIRST_TIME_VERSION:
-        // TODO show what's new
-        break;
-      case FIRST_TIME:
+//      case FIRST_TIME_VERSION:
+//        // TODO show what's new
+//        break;
+//      case FIRST_TIME:
       default:
         checkPermission(smsCategorized);
         break;

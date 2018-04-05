@@ -20,6 +20,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,11 +120,11 @@ public class NotificationUtils {
 
       //Mainactivity Pending Intent
       TaskStackBuilder taskStackBuilderMainActivity = TaskStackBuilder.create(context);
-      Intent MainActivityintent = new Intent(context, MainActivity.class)
+      Intent mainActivityintent = new Intent(context, MainActivity.class)
           .putExtra(BROADCAST_SMS_CATEGORY_KEY, category);
-      taskStackBuilderMainActivity.addNextIntent(MainActivityintent);
+      taskStackBuilderMainActivity.addNextIntent(mainActivityintent);
       taskStackBuilderMainActivity.addParentStack(MainActivity.class);
-//      PendingIntent mainActivityPendingIntent = PendingIntent.getActivity(context, 12, MainActivityintent, PendingIntent.FLAG_UPDATE_CURRENT);
+//      PendingIntent mainActivityPendingIntent = PendingIntent.getActivity(context, 12, mainActivityintent, PendingIntent.FLAG_UPDATE_CURRENT);
       PendingIntent mainActivityPendingIntent = taskStackBuilderMainActivity.getPendingIntent(12, PendingIntent.FLAG_UPDATE_CURRENT);
 
       //Complete Sms Activity Pending Intent
@@ -133,7 +134,8 @@ public class NotificationUtils {
       // to get category for mainactivity when opened through this task stack builder.
 //      sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY, true).apply();
 //      notificationBundle.putInt(NOTIFICATION_BUNDLE_CATEGORY_KEY, category);
-      taskStackBuilderCompleteSmsActivity.addNextIntentWithParentStack(completeSmsActivityintent);
+      taskStackBuilderCompleteSmsActivity.addNextIntent(mainActivityintent);
+      taskStackBuilderCompleteSmsActivity.addNextIntent(completeSmsActivityintent);
       PendingIntent completeSmsActivityPendingIntent = taskStackBuilderCompleteSmsActivity.getPendingIntent(54, PendingIntent.FLAG_UPDATE_CURRENT);
 
       // Inbox notification style for api 24 and 25 (Nought)
