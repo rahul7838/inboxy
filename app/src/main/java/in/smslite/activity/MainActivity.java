@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -44,6 +45,7 @@ import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
+import in.smslite.receiver.SmsReceiver;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.viewModel.LocalMessageDbViewModel;
 import io.fabric.sdk.android.Fabric;
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
             .build();
 // Initialize Fabric with the debug-disabled crashlytics.
     Fabric.with(this, crashlyticsKit);
+    registerReceiverForSmsBroadCast();
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
@@ -105,6 +108,15 @@ public class MainActivity extends AppCompatActivity {
         checkPermission(smsCategorized);
         break;
     }
+  }
+
+  private void registerReceiverForSmsBroadCast() {
+    IntentFilter intentFilter = new IntentFilter();
+    intentFilter.setPriority(2147483647);
+    intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
+    SmsReceiver smsReceiver = new SmsReceiver();
+//    smsReceiver.clearAbortBroadcast();
+    this.registerReceiver(smsReceiver,intentFilter);
   }
 
 //  private void updateWidgetColumn() {
@@ -150,18 +162,18 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onPause() {
     super.onPause();
-//    if (llm != null) {
-//      currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
-//    }
+    if (llm != null) {
+      currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
+    }
   }
 
   @Override
   protected void onResume() {
     super.onResume();
     Log.i(TAG, "onResume");
-//    if (llm != null) {
-//      llm.scrollToPosition(currentVisiblePostion);
-//    }
+    if (llm != null) {
+      llm.scrollToPosition(currentVisiblePostion);
+    }
   }
 
   private void initiUi() {
@@ -192,12 +204,6 @@ public class MainActivity extends AppCompatActivity {
         subscribeUi(broadcastSmsCategory);
         setItemMenuChecked(broadcastSmsCategory);
         Log.i(TAG, "BRoadcast");
-//    } else if(sharedPreferences.getBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false)) {
-//        Log.i(TAG, "Mainactivity open through taskStack");
-//        sharedPreferences.edit().putBoolean(MAINACTIVTY_CATEGORY_TASKSTACK_KEY,false).apply();
-//        int category = notificationBundle.getInt(NOTIFICATION_BUNDLE_CATEGORY_KEY);
-//        subscribeUi(category);
-//        setItemMenuChecked(category);
       }
     else {
 //      setLinearLayout();
@@ -205,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "addParentStack");
       }
     setBottomNavigation();
-//    setClickListener();
   }
 
   private void setLinearLayout(){

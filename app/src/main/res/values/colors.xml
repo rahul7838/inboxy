@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0288d1</color>
-    <color name="colorPrimaryDark">#026da7</color>
-    <color name="colorAccent">#0288d1</color>
+    <!--<color name="colorPrimary">#0288d1</color>-->
+    <!--<color name="colorPrimaryDark">#026da7</color>-->
+    <!--<color name="colorAccent">#0288d1</color>-->
+    <color name="colorPrimary">#19198c</color>
+    <color name="colorPrimaryDark">#000080</color>
+    <color name="colorAccent">#19198c</color>
     <color name="colorLogo">#25bf94</color>
 
     <!-- card_inbox and card_sent colors -->

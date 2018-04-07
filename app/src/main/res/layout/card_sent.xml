@@ -28,5 +28,6 @@
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:autoLink="all"
+        android:textColorLink="@color/white_pure"
         android:textIsSelectable="true"/>
 </RelativeLayout>

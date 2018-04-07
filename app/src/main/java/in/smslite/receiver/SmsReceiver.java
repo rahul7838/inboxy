@@ -23,8 +23,9 @@ public class SmsReceiver extends BroadcastReceiver{
 
   @Override
   public void onReceive(Context context, Intent intent) {
+//    this.abortBroadcast();
+//    this.setResultData(null);
     Log.i("SmsReceiver", "Executed");
-
     SmsMessage[] messages = Telephony.Sms.Intents.getMessagesFromIntent(intent);
     StringBuilder bodyText = new StringBuilder();
     String number = "0";

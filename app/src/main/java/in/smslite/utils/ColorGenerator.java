@@ -1,5 +1,7 @@
 package in.smslite.utils;
 
+import android.graphics.Color;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -61,9 +63,11 @@ public class ColorGenerator {
 
   public int getRandomColor() {
     return mColors.get(mRandom.nextInt(mColors.size()));
+//    return Color.parseColor("#19198c");
   }
 
   public int getColor(Object key) {
     return mColors.get(Math.abs(key.hashCode()) % mColors.size());
+//    return Color.parseColor("#19198c");
   }
 }

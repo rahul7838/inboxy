@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
             android:textSize="16sp"
-            android:textColor="#4c4c4c"
+            android:textColor="@color/black_pure"
             android:textStyle="bold" />
 
         <TextView
@@ -44,7 +44,8 @@
             android:fontFamily="sans-serif"
             android:maxLines="3"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="#4c4c4c"/>
 
         <TextView
             android:id="@+id/sms_time"
