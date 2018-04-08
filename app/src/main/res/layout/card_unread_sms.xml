@@ -45,13 +45,14 @@
             android:maxLines="3"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#4c4c4c"/>
+            android:textColor="@color/regular_gray"
+            android:paddingEnd="16dp"/>
 
         <TextView
             android:id="@+id/sms_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 </RelativeLayout>
