@@ -40,6 +40,21 @@
                 android:value="in.smslite.activity.MainActivity" />
         </activity>
 
+        <activity android:name="in.smslite.activity.ComposeSmsActivity"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.SEND" />-->
+                <!--<action android:name="android.intent.action.SENDTO" />-->
+                <!--<category android:name="android.intent.category.DEFAULT" />-->
+                <!--<category android:name="android.intent.category.BROWSABLE" />-->
+                <!--<data android:scheme="sms" />-->
+                <!--<data android:scheme="smsto" />-->
+                <!--<data android:scheme="mms" />-->
+                <!--<data android:scheme="mmsto" />-->
+            <!--</intent-filter>-->
+        </activity>
+
         <!--<receiver android:name="in.smslite.receiver.SmsReceiver"-->
             <!--android:permission="android.permission.BROADCAST_SMS">-->
             <!--<intent-filter android:priority="10">-->
@@ -98,17 +113,4 @@
             </intent-filter>
         </service>-->
 
-        <!--<activity android:name="in.inboxy.activity.ComposeSmsActivity"
-            android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                &lt;!&ndash;<action android:name="android.intent.action.SEND" />&ndash;&gt;
-                <action android:name="android.intent.action.SENDTO" />
-                &lt;!&ndash;<category android:name="android.intent.category.DEFAULT" />&ndash;&gt;
-                &lt;!&ndash;<category android:name="android.intent.category.BROWSABLE" />&ndash;&gt;
-                <data android:scheme="sms" />
-                <data android:scheme="smsto" />
-                <data android:scheme="mms" />
-                <data android:scheme="mmsto" />
-            </intent-filter>
-        </activity>-->
+

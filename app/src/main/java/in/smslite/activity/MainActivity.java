@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,6 +22,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.FloatProperty;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -79,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
   BottomNavigationView bottomNavigationView;
   @BindView(R.id.sms_list) RecyclerView recyclerView;
   final int MY_PERMISSIONS_REQUEST_READ_SMS = 0;
+  @BindView(R.id.fab)
+  FloatingActionButton fab;
   List<String> permissionNeeded;
   public SharedPreferences sharedPreferences;
   @Override
@@ -189,6 +193,13 @@ public class MainActivity extends AppCompatActivity {
 
     setToolbar();
     PhoneContact.init(this);
+    fab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(getApplicationContext(), ComposeSmsActivity.class);
+        startActivity(intent);
+      }
+    });
 
 //    if Mainactivity is open through pending intent, the below code ensure which sms category to display.
       if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt(BROADCAST_SMS_CATEGORY_KEY) != 0) {
@@ -224,6 +235,10 @@ public class MainActivity extends AppCompatActivity {
     toolbar = (Toolbar) findViewById(R.id.toolbar);
     toolbar.setTitle(R.string.title_primary);
     setSupportActionBar(toolbar);
+  }
+
+  public void callContactActivity(){
+
   }
 
   public void subscribeUi(final int category) {
