@@ -44,6 +44,7 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
       CompleteSmsSentViewHolder completeSmsSentViewHolder = (CompleteSmsSentViewHolder) holder;
       completeSmsSentViewHolder.setCompleteMsg(SmsConversation.get(position).body);
       completeSmsSentViewHolder.setTime(SmsConversation.get(position).timestamp);
+      completeSmsSentViewHolder.setSmsStatus("text");
     }
   }
 

@@ -50,6 +50,5 @@ public class SmsReceiver extends BroadcastReceiver{
     }
 
     new BroadcastMessageAsyncTask(message, contact, customNotification).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, context);
-
   }
 }

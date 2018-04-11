@@ -11,9 +11,11 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -65,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
   Observer<List<Message>> observer = null;
   LinearLayoutManager llm;
   SMSAdapter smsAdapter;
-//  @BindView(R.id.fab)
-//  FloatingActionButton fab;
+  @BindView(R.id.fab)
+  FloatingActionButton fab;
   @BindView(R.id.toolbar)
   Toolbar toolbar;
   @BindView(R.id.empty_main_view)
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             .build();
 // Initialize Fabric with the debug-disabled crashlytics.
     Fabric.with(this, crashlyticsKit);
-    registerReceiverForSmsBroadCast();
+//    registerReceiverForSmsBroadCast();
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
@@ -110,14 +112,15 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  private void registerReceiverForSmsBroadCast() {
-    IntentFilter intentFilter = new IntentFilter();
-    intentFilter.setPriority(2147483647);
-    intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
-    SmsReceiver smsReceiver = new SmsReceiver();
-//    smsReceiver.clearAbortBroadcast();
-    this.registerReceiver(smsReceiver,intentFilter);
-  }
+//  private void registerReceiverForSmsBroadCast() {
+//    IntentFilter intentFilter = new IntentFilter();
+//    intentFilter.setPriority(2147483647);
+//    intentFilter.addAction("android.provider.Telephony.SMS_DELIVER");
+//
+//    SmsReceiver smsReceiver = new SmsReceiver();
+////    smsReceiver.clearAbortBroadcast();
+//    this.registerReceiver(smsReceiver,intentFilter);
+//  }
 
 //  private void updateWidgetColumn() {
 //    boolean updateWidgetColumnDb = sharedPreferences.getBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, true);
@@ -188,6 +191,13 @@ public class MainActivity extends AppCompatActivity {
     recyclerView.addItemDecoration(dividerItemDecoration);
 
     setToolbar();
+    fab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent =  new Intent(getApplicationContext(), ComposeSmsActivity.class);
+        startActivity(intent);
+      }
+    });
     PhoneContact.init(this);
 
 //    if Mainactivity is open through pending intent, the below code ensure which sms category to display.

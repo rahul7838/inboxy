@@ -11,7 +11,30 @@
         android:id="@+id/complete_sms_recycle_view"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical"
+        android:paddingBottom="64dp"/>
 
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:layout_gravity="bottom"
+    android:layout_marginStart="56dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/sms_reply_edit_text">
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/reply_sms_edit_text_box_id"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        app:backgroundTint="@color/light_blue" />
+    <ImageButton
+        android:id="@+id/send_button_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_send_black_24dp"
+        android:layout_toEndOf="@+id/reply_sms_edit_text_box_id"
+        android:layout_marginTop="10dp"/>
+</RelativeLayout>
 
 </FrameLayout>

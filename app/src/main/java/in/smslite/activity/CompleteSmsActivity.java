@@ -1,15 +1,21 @@
 package in.smslite.activity;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.provider.Telephony;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -19,10 +25,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -34,22 +45,49 @@ import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.utils.ContactUtils;
+import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
 
+import static android.telephony.SmsManager.RESULT_ERROR_NULL_PDU;
 import static in.smslite.activity.MainActivity.db;
 
 public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
   //  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
 //  private Contact contact;
-  @BindView(R.id.coordinator_layout) View coView;
-  @BindView(R.id.toolbar) Toolbar toolbar;
+  private static final int SMS_SEND_INTENT_REQUEST = 100;
+  private static final int SMS_DELIVER_INTENT_REQUEST = 101;
+  @BindView(R.id.coordinator_layout)
+  View coView;
+  @BindView(R.id.toolbar)
+  Toolbar toolbar;
   final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
   public static String address;
-  @BindView(R.id.complete_sms_recycle_view) RecyclerView completeSmsRecycleView;
+  @BindView(R.id.complete_sms_recycle_view)
+  RecyclerView completeSmsRecycleView;
+  @BindView(R.id.reply_sms_edit_text_box_id)
+  EditText editText;
+  @BindView(R.id.send_button_id)
+  ImageButton imageButton;
   CompleteSmsActivityViewModel completeSmsActivityViewModel;
   public static String phoneNumber;
   Contact contact;
+  private Context context;
+  private IntentFilter sentSmsIntentFilter;
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    sentSmsIntentFilter = new IntentFilter();
+    sentSmsIntentFilter.addAction("in.smslite.SEND_SMS_ACTION");
+    registerReceiver(SendSmsBroadcastReceiver, sentSmsIntentFilter);
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    unregisterReceiver(SendSmsBroadcastReceiver);
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +95,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     /*if(getIntent().hasExtra(ARG_THREAD_ID)){
       Log.i(TAG, "widgetSmsAddress");
     }*/
+    context = this;
     Bundle bundle = getIntent().getExtras();
     address = bundle.getString(getString(R.string.address_id));
 //     Thread to update read and seen field of db when clicking on notification
@@ -95,6 +134,20 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
     CompleteSmsAdapter completeSmsAdapter = new CompleteSmsAdapter(messages);
 
+    imageButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (Telephony.Sms.getDefaultSmsPackage(context).equals(context.getPackageName())) {
+          sendTextSms();
+        } else {
+          Intent intent =
+              new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME,
+              context.getPackageName());
+          startActivity(intent);
+        }
+      }
+    });
 
     setToolbar();
 //    coView = findViewById(R.id.coordinator_layout);
@@ -102,6 +155,62 @@ public class CompleteSmsActivity extends AppCompatActivity {
     completeSmsRecycleView.setHasFixedSize(true);
     completeSmsRecycleView.setAdapter(completeSmsAdapter);
   }
+
+  private void sendTextSms() {
+    Editable editableText = editText.getText();
+    final String msg = editableText.toString();
+    editableText.clear();
+    Thread thread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        Message message = new Message();
+        message.address = address;
+        message.body = msg;
+        message.read = true;
+        message.seen = true;
+        message.category = contact.getCategory();
+        message.threadId = 0;
+        message.timestamp = System.currentTimeMillis();
+        message.type = Message.MessageType.OUTBOX;
+        db.messageDao().insertMessage(message);
+      }
+    });
+    thread.start();
+
+
+    Intent sentIntent = new Intent();
+    sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
+    PendingIntent sentPendingIntent = PendingIntent.
+        getBroadcast(this, SMS_SEND_INTENT_REQUEST, sentIntent, 0);
+
+    Intent deliveredIntent = new Intent();
+    deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
+    PendingIntent deliveredPendingIntent = PendingIntent.
+        getBroadcast(this, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
+
+    SmsManager smsManager = SmsManager.getDefault();
+    smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+  }
+
+  private BroadcastReceiver SendSmsBroadcastReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      switch (getResultCode()) {
+        case Activity.RESULT_OK:
+          CompleteSmsSentViewHolder.smsStatusVisiblity("sent");
+          Log.i(TAG, "sent sms successful");
+          break;
+        case RESULT_ERROR_NULL_PDU:
+          CompleteSmsSentViewHolder.smsStatusVisiblity("Not sent");
+          Log.i(TAG, "null pdu code");
+          break;
+        default:
+          Log.i(TAG, "default code");
+          break;
+      }
+    }
+  };
+
 
  /* public List<Message> getSmsList(Contact contact) {
     *//*if(contact.getThreadId() != null) {
@@ -141,16 +250,16 @@ public class CompleteSmsActivity extends AppCompatActivity {
     int id = item.getItemId();
     if (id == R.id.call_icon) {
       checkCallPermission();
-    } else if(id == R.id.contact_details) {
+    } else if (id == R.id.contact_details) {
       if (Contact.Source.PHONE.equals(contact.getSource()) && !contact.getNumber().equals(contact.getDisplayName())) {
         PhoneContact phoneContact = (PhoneContact) contact;
         Log.i(TAG, phoneContact.toString());
         ContactsContract.QuickContact.showQuickContact(CompleteSmsActivity.this, coView,
-                phoneContact.getUri(),
-                ContactsContract.QuickContact.MODE_LARGE, null);
+            phoneContact.getUri(),
+            ContactsContract.QuickContact.MODE_LARGE, null);
       } else {
         Intent intent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT,
-                Uri.fromParts("tel", contact.getNumber(), null));
+            Uri.fromParts("tel", contact.getNumber(), null));
         CompleteSmsActivity.this.startActivity(intent);
       }
     } else if (id == android.R.id.home) {
@@ -161,7 +270,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
   public void checkCallPermission() {
     int permissionCheckCall = ContextCompat.checkSelfPermission(CompleteSmsActivity.this,
-            Manifest.permission.CALL_PHONE);
+        Manifest.permission.CALL_PHONE);
     if (permissionCheckCall != PackageManager.PERMISSION_GRANTED) {
       requestPermissions();
     } else {
@@ -171,7 +280,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
   private void requestPermissions() {
     ActivityCompat.requestPermissions(CompleteSmsActivity.this,
-            new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_CALL_PHONE);
+        new String[]{Manifest.permission.CALL_PHONE}, MY_PERMISSIONS_REQUEST_CALL_PHONE);
   }
 
   @Override
@@ -181,7 +290,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
       case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
           performCalling();
         } else {
           if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
@@ -221,17 +330,17 @@ public class CompleteSmsActivity extends AppCompatActivity {
         System.exit(1);
       }
     })
-            .create()
-            .show();
+        .create()
+        .show();
   }
 
   private void showDialogOK(String message, DialogInterface.OnClickListener okListener) {
     new AlertDialog.Builder(CompleteSmsActivity.this)
-            .setMessage(message)
-            .setPositiveButton("OK", okListener)
-            .setNegativeButton("Cancel", okListener)
-            .create()
-            .show();
+        .setMessage(message)
+        .setPositiveButton("OK", okListener)
+        .setNegativeButton("Cancel", okListener)
+        .create()
+        .show();
   }
 
   private void performCalling() {
@@ -239,6 +348,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
     callIntent.setData(Uri.parse("tel:" + contact.getNumber()));
     startActivity(callIntent);
   }
+
+
 }
 
 
