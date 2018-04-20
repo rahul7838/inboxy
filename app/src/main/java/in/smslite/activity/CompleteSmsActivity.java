@@ -25,7 +25,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
@@ -33,9 +35,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,7 +49,10 @@ import in.smslite.adapter.CompleteSmsAdapter;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
+import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
+import in.smslite.utils.ContentProviderUtil;
+import in.smslite.utils.MessageUtils;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
 
@@ -57,6 +65,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
 //  private Contact contact;
   private static final int SMS_SEND_INTENT_REQUEST = 100;
   private static final int SMS_DELIVER_INTENT_REQUEST = 101;
+  private static final int SEND_TEXT_SMS_REQUEST = 102;
   @BindView(R.id.coordinator_layout)
   View coView;
   @BindView(R.id.toolbar)
@@ -73,47 +82,64 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public static String phoneNumber;
   Contact contact;
   private Context context;
-  private IntentFilter sentSmsIntentFilter;
-
-  @Override
-  protected void onResume() {
-    super.onResume();
-    sentSmsIntentFilter = new IntentFilter();
-    sentSmsIntentFilter.addAction("in.smslite.SEND_SMS_ACTION");
-    registerReceiver(SendSmsBroadcastReceiver, sentSmsIntentFilter);
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    unregisterReceiver(SendSmsBroadcastReceiver);
-  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    /*if(getIntent().hasExtra(ARG_THREAD_ID)){
-      Log.i(TAG, "widgetSmsAddress");
-    }*/
     context = this;
-    Bundle bundle = getIntent().getExtras();
-    address = bundle.getString(getString(R.string.address_id));
+    db = MessageDatabase.getInMemoryDatabase(context);
+    if (getIntent().getData() != null) {
+      getDataFromOtherAppIntent();
+    } else {
+      Bundle bundle = getIntent().getExtras();
+      address = bundle.getString(getString(R.string.address_id));
+    }
 //     Thread to update read and seen field of db when clicking on notification
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        db.messageDao().markAllRead(address);
-      }
-    }).start();
-    Log.i(TAG, address + "address");
+    UpdateDbNotiClickedThread.start();
+
     PhoneContact.init(this);
     contact = ContactUtils.getContact(address, this, true);
-    phoneNumber = contact.getNumber().replace(" ", "");
-//    contact = ContactUtils.getContact(address, this, true);
+
+
+    if(contact.getCategory() == Contact.PRIMARY) {
+      phoneNumber = ContactUtils.normalizeNumber(address);
+    } else {
+      phoneNumber = contact.getNumber();
+    }
+    Log.d(TAG, address + phoneNumber);
     completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
-//    ButterKnife.bind(this);
     subscribeUi();
   }
+
+  public void getDataFromOtherAppIntent() {
+    Uri uri = getIntent().getData();
+    String data = uri.toString();
+    Log.d(TAG, data);
+    String schema = getIntent().getData().getScheme();
+    if (schema.startsWith("smsto") || schema.startsWith("mmsto")) {
+      address = data.replace("smsto:", "").replace("mmsto:", "");
+    } else {
+      address = data.replace("sms:", "").replace("mms:", "");
+    }
+//      String locale = context.getResources().getConfiguration().locale.getCountry();
+    try {
+      address = URLDecoder.decode(address, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+//      address = "" + Html.fromHtml(address);
+    address = ContactUtils.formatAddress(address);
+//      address = PhoneNumberUtils.formatNumber(address, locale);
+  }
+
+  private Thread UpdateDbNotiClickedThread = new Thread() {
+    @Override
+    public void run() {
+      super.run();
+      db.messageDao().markAllRead(address);
+    }
+  };
+
 
   public void subscribeUi() {
     completeSmsActivityViewModel.messageListByAddress.observe(this, new Observer<List<Message>>() {
@@ -127,69 +153,98 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public void showUi(List<Message> messages) {
     setContentView(R.layout.activity_sms_complete);
     ButterKnife.bind(this);
-//    completeSmsRecycleView = (RecyclerView) findViewById(R.id.complete_sms_recycle_view);
     LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     llm.setStackFromEnd(true);
 
+    setToolbar();
+
     CompleteSmsAdapter completeSmsAdapter = new CompleteSmsAdapter(messages);
+    completeSmsRecycleView.setLayoutManager(llm);
+    completeSmsRecycleView.setHasFixedSize(true);
+    completeSmsRecycleView.setAdapter(completeSmsAdapter);
 
     imageButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if (Telephony.Sms.getDefaultSmsPackage(context).equals(context.getPackageName())) {
-          sendTextSms();
-        } else {
-          Intent intent =
-              new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME,
-              context.getPackageName());
-          startActivity(intent);
-        }
+        sendButtonClicked();
       }
     });
+  }
 
-    setToolbar();
-//    coView = findViewById(R.id.coordinator_layout);
-    completeSmsRecycleView.setLayoutManager(llm);
-    completeSmsRecycleView.setHasFixedSize(true);
-    completeSmsRecycleView.setAdapter(completeSmsAdapter);
+  private void sendButtonClicked() {
+    if (!Telephony.Sms.getDefaultSmsPackage(context).equals(context.getPackageName())) {
+      Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+      intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+      startActivityForResult(intent, SEND_TEXT_SMS_REQUEST);
+    } else {
+      sendTextSms();
+    }
   }
 
   private void sendTextSms() {
     Editable editableText = editText.getText();
     final String msg = editableText.toString();
-    editableText.clear();
-    Thread thread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        Message message = new Message();
-        message.address = address;
-        message.body = msg;
-        message.read = true;
-        message.seen = true;
-        message.category = contact.getCategory();
-        message.threadId = 0;
-        message.timestamp = System.currentTimeMillis();
-        message.type = Message.MessageType.OUTBOX;
-        db.messageDao().insertMessage(message);
+    if (!msg.isEmpty()) {
+      editableText.clear();
+//      write sent sms to local database
+      new thread(msg).start();
+
+      //
+      Intent sentIntent = new Intent();
+      sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
+      PendingIntent sentPendingIntent = PendingIntent.
+          getBroadcast(this, SMS_SEND_INTENT_REQUEST, sentIntent, 0);
+
+      Intent deliveredIntent = new Intent();
+      deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
+      PendingIntent deliveredPendingIntent = PendingIntent.
+          getBroadcast(this, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
+
+      SmsManager smsManager = SmsManager.getDefault();
+      smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+    } else {
+      Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  private class thread extends Thread {
+    String msg;
+
+    thread(String msg) {
+      this.msg = msg;
+    }
+
+    @Override
+    public void run() {
+      super.run();
+      Message message = new Message();
+      message.address = phoneNumber;
+      Log.i(TAG, phoneNumber);
+      message.body = msg;
+      message.read = true;
+      message.seen = true;
+      message.category = contact.getCategory();
+      message.threadId = 0;
+      message.timestamp = System.currentTimeMillis();
+      message.type = Message.MessageType.SENT;
+      db.messageDao().insertMessage(message);
+//      write sent sms to content provider
+      ContentProviderUtil.writeSentSms(message, context);
+    }
+  }
+
+  ;
+
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == SEND_TEXT_SMS_REQUEST) {
+      if (resultCode == RESULT_OK) {
+        sendTextSms();
       }
-    });
-    thread.start();
-
-
-    Intent sentIntent = new Intent();
-    sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
-    PendingIntent sentPendingIntent = PendingIntent.
-        getBroadcast(this, SMS_SEND_INTENT_REQUEST, sentIntent, 0);
-
-    Intent deliveredIntent = new Intent();
-    deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
-    PendingIntent deliveredPendingIntent = PendingIntent.
-        getBroadcast(this, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
-
-    SmsManager smsManager = SmsManager.getDefault();
-    smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+    }
   }
 
   private BroadcastReceiver SendSmsBroadcastReceiver = new BroadcastReceiver() {
@@ -197,7 +252,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     public void onReceive(Context context, Intent intent) {
       switch (getResultCode()) {
         case Activity.RESULT_OK:
-          CompleteSmsSentViewHolder.smsStatusVisiblity("sent");
+//          CompleteSmsSentViewHolder.smsStatusVisiblity("sent");
           Log.i(TAG, "sent sms successful");
           break;
         case RESULT_ERROR_NULL_PDU:
@@ -230,12 +285,25 @@ public class CompleteSmsActivity extends AppCompatActivity {
     setTitle(contact.getDisplayName());
   }
 
-/*
-  public List<Message> getSmsList(String address) {
+  /*
+    public List<Message> getSmsList(String address) {
 
-    return MessageDatabase.messageDao().getMessageListByAddress();
+      return MessageDatabase.messageDao().getMessageListByAddress();
+    }
+  */
+  @Override
+  protected void onResume() {
+    super.onResume();
+    IntentFilter sentSmsIntentFilter = new IntentFilter();
+    sentSmsIntentFilter.addAction("in.smslite.SEND_SMS_ACTION");
+    registerReceiver(SendSmsBroadcastReceiver, sentSmsIntentFilter);
   }
-*/
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    unregisterReceiver(SendSmsBroadcastReceiver);
+  }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {

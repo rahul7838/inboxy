@@ -30,13 +30,15 @@ public class ContactUtils {
         if (TextUtils.isEmpty(number)) {
             return number;
         }
-        String address = number.replace("-", "");
-        String first2Char = address.substring(0, 2).toLowerCase();
-        if (first2Char.matches("[a-z]+") && address.length() == 8) {
-            return address.substring(address.length() - 6).toLowerCase();
-        } else {
-            return address.toLowerCase();
-        }
+        String address;
+        address = number.replace("-","").replace(" ", "");
+        return address;
+//        String first2Char = address.substring(0, 2).toLowerCase();
+//        if (first2Char.matches("[a-z]+") && address.length() == 8) {
+//            return address.substring(address.length() - 6).toLowerCase();
+//        } else {
+//            return address.toLowerCase();
+//        }
     }
 
     public static String getShortcode(String address) {
@@ -49,7 +51,7 @@ public class ContactUtils {
     }
 
     @NonNull
-    private String normalizeNumber(String number) {
+    public static String normalizeNumber(String number) {
         if (number == null || number.isEmpty()) {
             throw new RuntimeException("Phone number can never be null");
         }

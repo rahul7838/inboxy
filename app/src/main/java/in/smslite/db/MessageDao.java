@@ -41,6 +41,12 @@ public interface MessageDao {
   @Query("Update Message Set seen=1, read = 1 Where address = :address")
   public void markAllRead(String address);
 
+  @Query("select * from message where Type Like 2 order by timestamp desc")
+  public Cursor getSentSmsCount();
+
+  @Query("select * from message where body Like \"%otp%\" group by address")
+  public List<Message> getOTPFOrTest();
+
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();
 //

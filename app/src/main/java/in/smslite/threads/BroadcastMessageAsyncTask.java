@@ -8,6 +8,8 @@ import android.util.Log;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import in.smslite.R;
 import in.smslite.contacts.Contact;
@@ -45,17 +47,25 @@ public class BroadcastMessageAsyncTask extends AsyncTask<Context, Void, Void> {
     int OTPKeywordsSize = OTPKeywords.size();
     db = MessageDatabase.getInMemoryDatabase(contexts[0]);
     db.messageDao().insertMessage(message);
-    Log.i(TAG, "insertMessageDone");
+    Log.d(TAG, "insertMessageDone");
 //    boolean l =sharedPreferences.getBoolean(contexts[0].getString(R.string.pref_key_notification), false);
 //    Log.d(TAG, String.valueOf(l)+" preferencel");
     if(sharedPreferences.getBoolean(contexts[0].getString(R.string.pref_key_notification), false)) {
     if(message.category != Contact.PRIMARY) {
       for (int i = 0; i < OTPKeywordsSize; i++) {
-        if (message.body.toLowerCase().contains(OTPKeywords.get(i))) {
-          NotificationUtils.sendCustomNotification(contexts[0], message.address, message.body, message.timestamp, contact);
-          customNotification = true;
-          db.messageDao().markAllSeen(contact.getCategory());
-          break;
+        Log.d(TAG, NotificationUtils.getOTPFromString(message.body)+ OTPKeywords.get(i));
+        Pattern pattern = Pattern.compile(OTPKeywords.get(i)+"[\\s]{1}");
+        Matcher match = pattern.matcher(message.body.toLowerCase());
+
+        if (match.find()) {
+          if (NotificationUtils.getOTPFromString(message.body) != null) {
+            NotificationUtils.sendCustomNotification(contexts[0], message.address, message.body, message.timestamp, contact);
+            customNotification = true;
+            db.messageDao().markAllSeen(contact.getCategory());
+            break;
+          } else {
+            NotificationUtils.sendGroupedNotification(contexts[0], contact, message);
+          }
         }
         }
       }

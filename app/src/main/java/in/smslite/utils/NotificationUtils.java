@@ -102,6 +102,7 @@ public class NotificationUtils {
           .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
           .setSmallIcon(R.drawable.ic_stat_name)
           .setLargeIcon(drawable.getBitmap())
+          .setPriority(Notification.PRIORITY_HIGH)
           .setDeleteIntent(swipeToDismissNotiPendingIntent);
       if (vibrate) {
         builder.setVibrate(new long[]{300, 300, 300, 300});
@@ -141,7 +142,9 @@ public class NotificationUtils {
         builder.setContentTitle(contact.getDisplayName())
             .setContentText(message.body)
             .setContentIntent(completeSmsActivityPendingIntent)
-            .setGroup(categoryStringValue);
+            .setGroup(categoryStringValue)
+            .setStyle(new NotificationCompat.BigTextStyle()
+                .bigText(message.body));
 
         NotificationCompat.Builder bundleBuilder = new NotificationCompat.Builder(context)
 //            .setContentText(notificationSummary.get(0).getAddress() + ": " + notificationSummary.get(0).getBody())
@@ -192,17 +195,8 @@ public class NotificationUtils {
 
 
   public static void sendCustomNotification(Context context, String address, String body, Long timeStamp, Contact contact) {
-    String textString = body;
     int notiId = (int)System.currentTimeMillis();
-    String OTP = null;
-    textString = textString.replaceAll("[Rr]{1}[Ss]{1}[.]{1}[\\s]?[0-9]*\\.[0-9]*", "");
-    textString = textString.replaceAll("[Ii]{1}[Nn]{1}[Rr]{1}[\\s]?[0-9]*\\.[0-9]*", "");
-    textString = textString.replaceAll("[a-zA-Z]{1}[0-9]{4}", "");
-    Pattern p = Pattern.compile("[0-9]{6}|[0-9]{8}|[0-9]{4}");
-    Matcher m = p.matcher(textString);
-    if (m.find()) {
-      OTP = m.group();
-    }
+    String OTP = getOTPFromString(body);
     String OTPID = OTP;
     NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
     Date date = new Date(timeStamp);
@@ -245,6 +239,7 @@ public class NotificationUtils {
         .setCustomContentView(notificationLayout)
         .setCustomBigContentView(bigNotificationLayout)
         .setContentIntent(contentPendingIntent)
+        .setPriority(Notification.PRIORITY_HIGH)
         .setAutoCancel(true);
     if (vibrate) {
       customNotification.setVibrate(new long[]{300, 300, 300, 300});
@@ -257,9 +252,21 @@ public class NotificationUtils {
     if (sound) {
       customNotification.setSound(uri);
     }
-
-
     notificationManager.notify(notiId, customNotification.build());
+  }
+
+  public static String  getOTPFromString(String body){
+    String textString = body;
+    String OTP = null;
+    textString = textString.replaceAll("[Rr]{1}[Ss]{1}[.]{1}[\\s]?[0-9]*\\.[0-9]*", "");
+    textString = textString.replaceAll("[Ii]{1}[Nn]{1}[Rr]{1}[\\s]?[0-9]*\\.[0-9]*", "");
+    textString = textString.replaceAll("[a-zA-Z]{1}[0-9]{4}", "");
+    Pattern p = Pattern.compile("[0-9]{6}|[0-9]{8}|[0-9]{4}|[0-9]{3}|[0-9]{5}");
+    Matcher m = p.matcher(textString);
+    if (m.find()) {
+      OTP = m.group();
+    }
+    return OTP;
   }
 }
 

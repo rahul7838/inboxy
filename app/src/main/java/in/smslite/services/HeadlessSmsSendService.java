@@ -23,6 +23,12 @@ public class HeadlessSmsSendService extends IntentService {
 
   @Override
   protected void onHandleIntent(@Nullable Intent intent) {
+    assert intent != null;
+    if(intent.getData()!=null){
+
+    } else {
+      return;
+    }
     Log.i(TAG, "respond to incoming phone calls");
   }
 }

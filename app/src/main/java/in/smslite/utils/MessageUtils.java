@@ -1,8 +1,10 @@
 package in.smslite.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.provider.Telephony;
 import android.text.TextUtils;
 import android.util.Patterns;
 
@@ -43,11 +45,16 @@ public class MessageUtils {
     Message message = new Message();
     for (int i = 0; i < smses.size(); i++) {
       Sms sms = smses.get(i);
+      String address = null;
       Contact contact = ContactUtils.getContact(sms.address, context, true);
       Message.MessageType type = Sms.MessageType.SENT.compareTo(sms.type) == 0 ? SENT : INBOX;
       final Long timeStamp = MessageUtils.getTimeStamp(sms.receivedDate, sms.sentDate, type);
       message.body = sms.body;
-      message.address = sms.address;
+      if(contact.getCategory()==Contact.PRIMARY){
+        message.address = ContactUtils.normalizeNumber(sms.address);
+      } else {
+        message.address = sms.address;
+      }
       message.read = sms.read;
       message.seen = true;
       message.threadId = sms.threadId;
@@ -55,7 +62,7 @@ public class MessageUtils {
       message.timestamp = timeStamp;
       message.category = contact.getCategory();
 //      message.widget = isWidgetMessage(context, message.body);
-      sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
+//      sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
       db.messageDao().insertMessage(message);
     }
   }
@@ -85,6 +92,17 @@ public class MessageUtils {
     }
     return address;
   }
+
+  public static boolean checkIfDefaultSms(Context context){
+    return Telephony.Sms.getDefaultSmsPackage(context).equals(context.getPackageName());
+  }
+
+  public static void setDefaultSms(Context context){
+
+      Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+      intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+      context.startActivity(intent);
+      }
 
 //  public static boolean isWidgetMessage(Context context, String body) {
 //    boolean isWidgetMessage = false;

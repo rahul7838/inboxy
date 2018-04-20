@@ -5,11 +5,13 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverter;
 import android.provider.Telephony;
 
+import java.io.Serializable;
+
 /**
  * Created by rahul1993 on 11/11/2017.
  */
 @Entity
-public class Message {
+public class Message implements Serializable {
 
   public String body;
   public String address;

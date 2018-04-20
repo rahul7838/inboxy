@@ -42,10 +42,9 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:fontFamily="sans-serif"
-            android:maxLines="3"
+            android:maxLines="1"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/regular_gray"
+            android:textColor="@color/black_pure"
             android:paddingEnd="16dp"/>
 
         <TextView

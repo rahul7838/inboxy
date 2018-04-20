@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="in.smslite">
-    <uses-permission android:name="android.permission.READ_SMS"/>
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    package="in.smslite">
+
+    <uses-sdk android:maxSdkVersion="25" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
+
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.WRITE_SMS"/>
 
     <application
         android:name="in.smslite.SMSApplication"
@@ -15,19 +27,22 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="in.smslite.activity.MainActivity"
+        <activity
+            android:name="in.smslite.activity.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
 
-        <activity android:name="in.smslite.activity.CompleteSmsActivity"
+        <activity
+            android:name="in.smslite.activity.CompleteSmsActivity"
             android:parentActivityName="in.smslite.activity.MainActivity"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <!--<action android:name="android.intent.action.SEND" />-->
@@ -41,88 +56,101 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="in.smslite.activity.WelcomeActivity"
+        <activity
+            android:name="in.smslite.activity.WelcomeActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="in.smslite.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:screenOrientation="portrait"
-            android:parentActivityName="in.smslite.activity.MainActivity">
+            android:parentActivityName="in.smslite.activity.MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="in.smslite.activity.MainActivity" />
         </activity>
 
-        <activity android:name="in.smslite.activity.ComposeSmsActivity"
+        <activity
+            android:name="in.smslite.activity.ComposeSmsActivity"
             android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.SEND" />-->
-                <!--<action android:name="android.intent.action.SENDTO" />-->
-                <!--<category android:name="android.intent.category.DEFAULT" />-->
-                <!--<category android:name="android.intent.category.BROWSABLE" />-->
-                <!--<data android:scheme="sms" />-->
-                <!--<data android:scheme="smsto" />-->
-                <!--<data android:scheme="mms" />-->
-                <!--<data android:scheme="mmsto" />-->
+            <!--<action android:name="android.intent.action.SEND" />-->
+            <!--<action android:name="android.intent.action.SENDTO" />-->
+            <!--<category android:name="android.intent.category.DEFAULT" />-->
+            <!--<category android:name="android.intent.category.BROWSABLE" />-->
+            <!--<data android:scheme="sms" />-->
+            <!--<data android:scheme="smsto" />-->
+            <!--<data android:scheme="mms" />-->
+            <!--<data android:scheme="mmsto" />-->
             <!--</intent-filter>-->
         </activity>
 
-<!--<receiver android:name="in.smslite.receiver.SendSmsBroadcastReceiver">-->
-<!--<intent-filter >-->
-    <!--<action android:name="in.smslite.SEND_SMS_ACTION"/>-->
-<!--</intent-filter>-->
-<!--</receiver>-->
+        <!--<receiver android:name="in.smslite.receiver.SendSmsBroadcastReceiver">-->
+        <!--<intent-filter >-->
+        <!--<action android:name="in.smslite.SEND_SMS_ACTION"/>-->
+        <!--</intent-filter>-->
+        <!--</receiver>-->
 
         <receiver android:name="in.smslite.receiver.DeliveredSmsBroadcastReceiver">
             <intent-filter>
-                <action android:name="in.smslite.DELIVERED_SMS_ACTION"/>
+                <action android:name="in.smslite.DELIVERED_SMS_ACTION" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="in.smslite.receiver.MMSReceiver"
-                  android:permission="android.permission.BROADCAST_WAP_PUSH">
+        <receiver
+            android:name="in.smslite.receiver.MMSReceiver"
+            android:permission="android.permission.BROADCAST_WAP_PUSH">
             <intent-filter>
-                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER"/>
-                <data android:mimeType="application/vnd.wap.mms-message"/>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
             </intent-filter>
         </receiver>
-        <receiver android:name="in.smslite.receiver.SmsReceiver"
-            android:permission="android.permission.BROADCAST_SMS">
-            <intent-filter android:priority="10">
-                <action android:name="android.provider.Telephony.SMS_DELIVER"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-            <!--<intent-filter-->
-                <!--android:priority="2147483647">-->
-                <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
-                <!--<category android:name="android.intent.category.DEFAULT"/>-->
+        <receiver
+        android:name="in.smslite.receiver.SmsBroadcastReceiver"
+        android:permission="android.permission.BROADCAST_SMS">
+        <intent-filter android:priority="2147483647">
+            <action android:name="android.provider.Telephony.SMS_DELIVER"/>
+            <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+        <!--<intent-filter-->
+            <!--android:priority="2147483647">-->
+            <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
+            <!--<category android:name="android.intent.category.DEFAULT"/>-->
             <!--</intent-filter>-->
         </receiver>
 
-        <!--<receiver android:name=".widget.SmsWidgetProvider"-->
-            <!--android:permission="android.permission.BROADCAST_SMS">-->
-            <!--<intent-filter>-->
-                <!--&lt;!&ndash;<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>&ndash;&gt;-->
-                <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
-            <!--</intent-filter>-->
-            <!--<meta-data android:name="android.appwidget.provider"-->
-                <!--android:resource="@xml/app_widget_provider_info"/>-->
+        <receiver android:name=".receiver.SmsReceiver">
+        <intent-filter
+        android:priority="2147483647">
+        <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+    </receiver>
+
+    <!--<receiver android:name=".widget.SmsWidgetProvider"-->
+        <!--android:permission="android.permission.BROADCAST_SMS">-->
+        <!--<intent-filter>-->
+        <!--&lt;!&ndash;<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>&ndash;&gt;-->
+        <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
+        <!--</intent-filter>-->
+        <!--<meta-data android:name="android.appwidget.provider"-->
+        <!--android:resource="@xml/app_widget_provider_info"/>-->
         <!--</receiver>-->
 
-        <service android:name=".services.OTPService">
-        </service>
+        <service android:name=".services.OTPService"></service>
         <!--<service android:name=".services.WidgetService"></service>-->
 
-        <service android:name=".services.SwipeToDismissNoti"/>
+        <service android:name=".services.SwipeToDismissNoti" />
 
         <!--<service android:name=".services.ListWidgetService"-->
-            <!--android:permission="android.permission.BIND_REMOTEVIEWS"/>-->
+        <!--android:permission="android.permission.BIND_REMOTEVIEWS"/>-->
 
-        <service android:name="in.smslite.services.HeadlessSmsSendService"
-            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
-            android:exported="true" >
+        <service
+            android:name="in.smslite.services.HeadlessSmsSendService"
+            android:exported="true"
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -135,7 +163,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="f5a1861d21d3b9ce0399ae18c0cb05e8e26c8a0f"/>
+            android:value="f5a1861d21d3b9ce0399ae18c0cb05e8e26c8a0f" />
 
     </application>
 

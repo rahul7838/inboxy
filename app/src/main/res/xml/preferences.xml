@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-        android:key="@string/pref_key_notification_category"
-        android:title="@string/pref_sms_notification_title">
+    <Preference android:title="Default SMS app"
+        android:key="defaultSms"/>
+
+    <!--<PreferenceCategory-->
+        <!--android:key="@string/pref_key_notification_category"-->
+        <!--android:title="@string/pref_sms_notification_title">-->
         <SwitchPreference
             android:defaultValue="true"
             android:key="@string/pref_key_notification"
@@ -42,5 +45,5 @@
             android:title="@string/pref_title_vibration"
             android:summary="@string/pref_summary_notification_vibration"/>
 
-    </PreferenceCategory>
+    <!--</PreferenceCategory>-->
 </PreferenceScreen>

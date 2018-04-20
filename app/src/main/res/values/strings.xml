@@ -33,6 +33,8 @@
 
     <string name="pref_title_notification_sound">Notification sound</string>
 
+    <string name="pref_make_Default_Sms_Key">Default Sms</string>
+
     <string name="send_to">Share text to</string>
 
     <string name="playstore_link">https://play.google.com/store/apps/details?id=in.smslite</string>
@@ -71,8 +73,9 @@
         <item>pin</item>
         <item>pin:</item>
         <item>otp</item>
-        <item>(otp)</item>
+        <item>[(]{1}otp[)]{1}</item>
         <item>onetime password</item>
+        <item>one time password</item>
         <item>verification</item>
     </string-array>
 
