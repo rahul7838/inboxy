@@ -20,8 +20,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/timestamp"
-        android:layout_margin="12dp"
-        android:background="@drawable/sms_sent_background"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/sms_sent_failed_background"
         android:lineSpacingExtra="4sp"
         android:maxWidth="255dp"
         android:padding="11dp"
@@ -29,15 +32,19 @@
         android:textSize="14sp"
         android:autoLink="all"
         android:textColorLink="@color/white_pure"
-        android:textIsSelectable="true"/>
+        android:textIsSelectable="true"
+        android:text="hi rahul ho are u"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/user_sms_status_id"
         android:layout_below="@id/body"
-        android:text="sent"
+        android:text="Not sent. Tap to try again."
+        android:clickable="true"
+        android:textSize="10dp"
+        android:textColor="@color/colorPrimary"
         android:layout_marginEnd="24dp"
         android:layout_alignParentEnd="true"
-        android:visibility="gone"/>
+        android:focusable="true" />
 </RelativeLayout>

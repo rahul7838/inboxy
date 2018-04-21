@@ -47,6 +47,14 @@ public interface MessageDao {
   @Query("select * from message where body Like \"%otp%\" group by address")
   public List<Message> getOTPFOrTest();
 
+  @Query("Update Message set type = 5 where timestamp = :time")
+  public void updateSentFailedSms(Long time);
+
+  @Query("Select body from Message where timestamp = :time")
+  public String getFailedSmsText(Long time);
+
+  @Query("Delete from message where timestamp = :time")
+  public void deleteFailedMsg(Long time);
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();
 //

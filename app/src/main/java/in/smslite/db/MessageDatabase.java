@@ -32,7 +32,7 @@ public abstract class MessageDatabase extends RoomDatabase{
           INSTANCE =
                   Room.databaseBuilder(context, MessageDatabase.class, "Message")
 //                          .addMigrations(MIGRATION_1_2)
-//                          .allowMainThreadQueries()
+                          .allowMainThreadQueries()
                           // To simplify the codelab, allow queries on the main thread.
                           // Don't do this on a real app! See PersistenceBasicSample for an example.
                           .build();

@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
@@ -74,14 +75,15 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public static String address;
   @BindView(R.id.complete_sms_recycle_view)
   RecyclerView completeSmsRecycleView;
-  @BindView(R.id.reply_sms_edit_text_box_id)
-  EditText editText;
+//  @BindView(R.id.reply_sms_edit_text_box_id)
+  static EditText editText;
   @BindView(R.id.send_button_id)
   ImageButton imageButton;
   CompleteSmsActivityViewModel completeSmsActivityViewModel;
   public static String phoneNumber;
-  Contact contact;
-  private Context context;
+  static Contact contact;
+  private static Context context;
+  static Message message;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +155,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public void showUi(List<Message> messages) {
     setContentView(R.layout.activity_sms_complete);
     ButterKnife.bind(this);
+    editText = (EditText) findViewById(R.id.reply_sms_edit_text_box_id);
     LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     llm.setStackFromEnd(true);
@@ -178,37 +181,45 @@ public class CompleteSmsActivity extends AppCompatActivity {
       intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
       startActivityForResult(intent, SEND_TEXT_SMS_REQUEST);
     } else {
-      sendTextSms();
+      long l = 0;
+      sendTextSms(l);
     }
   }
 
-  private void sendTextSms() {
+  public static void sendTextSms(Long time) {
+    String msg;
+    if(CompleteSmsSentViewHolder.tryFailedSms){
+      CompleteSmsSentViewHolder.tryFailedSms = false;
+      msg = db.messageDao().getFailedSmsText(time);
+      db.messageDao().deleteFailedMsg(time);
+      new thread(msg).start();
+    } else{
     Editable editableText = editText.getText();
-    final String msg = editableText.toString();
-    if (!msg.isEmpty()) {
+    msg = editableText.toString();
+//    if (!msg.isEmpty()) {
       editableText.clear();
 //      write sent sms to local database
       new thread(msg).start();
-
-      //
+    }
+      if(!msg.isEmpty()) {
       Intent sentIntent = new Intent();
       sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
       PendingIntent sentPendingIntent = PendingIntent.
-          getBroadcast(this, SMS_SEND_INTENT_REQUEST, sentIntent, 0);
+          getBroadcast(context, SMS_SEND_INTENT_REQUEST, sentIntent, 0);
 
       Intent deliveredIntent = new Intent();
       deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
       PendingIntent deliveredPendingIntent = PendingIntent.
-          getBroadcast(this, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
+          getBroadcast(context, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
 
       SmsManager smsManager = SmsManager.getDefault();
-      smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+      smsManager.sendTextMessage(phoneNumber, null, msg, sentPendingIntent, deliveredPendingIntent);
     } else {
       Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
     }
   }
 
-  private class thread extends Thread {
+  private static class thread extends Thread {
     String msg;
 
     thread(String msg) {
@@ -218,9 +229,9 @@ public class CompleteSmsActivity extends AppCompatActivity {
     @Override
     public void run() {
       super.run();
-      Message message = new Message();
+      message = new Message();
       message.address = phoneNumber;
-      Log.i(TAG, phoneNumber);
+      Log.d(TAG, phoneNumber);
       message.body = msg;
       message.read = true;
       message.seen = true;
@@ -229,8 +240,6 @@ public class CompleteSmsActivity extends AppCompatActivity {
       message.timestamp = System.currentTimeMillis();
       message.type = Message.MessageType.SENT;
       db.messageDao().insertMessage(message);
-//      write sent sms to content provider
-      ContentProviderUtil.writeSentSms(message, context);
     }
   }
 
@@ -242,7 +251,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == SEND_TEXT_SMS_REQUEST) {
       if (resultCode == RESULT_OK) {
-        sendTextSms();
+        long l = 0;
+        sendTextSms(l);
       }
     }
   }
@@ -253,14 +263,18 @@ public class CompleteSmsActivity extends AppCompatActivity {
       switch (getResultCode()) {
         case Activity.RESULT_OK:
 //          CompleteSmsSentViewHolder.smsStatusVisiblity("sent");
-          Log.i(TAG, "sent sms successful");
+          Log.d(TAG, "sent sms successful");
+//      write sent sms to content provider
+          ContentProviderUtil.writeSentSms(message, context);
           break;
         case RESULT_ERROR_NULL_PDU:
-          CompleteSmsSentViewHolder.smsStatusVisiblity("Not sent");
-          Log.i(TAG, "null pdu code");
+//          CompleteSmsSentViewHolder.smsStatusVisiblity("Not sent");
+          Log.d(TAG, "null pdu code");
           break;
         default:
-          Log.i(TAG, "default code");
+          Log.d(TAG, "default code");
+          message.type = Message.MessageType.FAILED;
+          db.messageDao().updateSentFailedSms(message.timestamp);
           break;
       }
     }
@@ -321,7 +335,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     } else if (id == R.id.contact_details) {
       if (Contact.Source.PHONE.equals(contact.getSource()) && !contact.getNumber().equals(contact.getDisplayName())) {
         PhoneContact phoneContact = (PhoneContact) contact;
-        Log.i(TAG, phoneContact.toString());
+        Log.d(TAG, phoneContact.toString());
         ContactsContract.QuickContact.showQuickContact(CompleteSmsActivity.this, coView,
             phoneContact.getUri(),
             ContactsContract.QuickContact.MODE_LARGE, null);

@@ -1,6 +1,7 @@
 package in.smslite.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,10 @@ import in.smslite.viewHolder.CompleteSmsInboxViewHolder;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 
 public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+  private static final String TAG = CompleteSmsAdapter.class.getSimpleName();
   int INBOX = 0;
   int SENT = 1;
+  int FAILED = 2;
   List<Message> SmsConversation;
 
   public CompleteSmsAdapter(List<Message> SmsConversation) {
@@ -27,8 +30,12 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_inbox, parent, false);
       return new CompleteSmsInboxViewHolder(view);
     }
-    else {
+    else if (viewType == SENT){
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sent, parent, false);
+      return new CompleteSmsSentViewHolder(view);
+    }
+    else {
+      View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sent_failed_sms, parent, false);
       return new CompleteSmsSentViewHolder(view);
     }
   }
@@ -44,7 +51,7 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
       CompleteSmsSentViewHolder completeSmsSentViewHolder = (CompleteSmsSentViewHolder) holder;
       completeSmsSentViewHolder.setCompleteMsg(SmsConversation.get(position).body);
       completeSmsSentViewHolder.setTime(SmsConversation.get(position).timestamp);
-      completeSmsSentViewHolder.setSmsStatus("text");
+//      completeSmsSentViewHolder.setSmsStatus("text");
     }
   }
 
@@ -57,7 +64,11 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
   public int getItemViewType(int position) {
     if (Message.MessageType.INBOX.equals(SmsConversation.get(position).type)) {
       return INBOX;
+    } else if (Message.MessageType.FAILED.equals(SmsConversation.get(position).type)){
+      return FAILED;
     }
     return SENT;
   }
+
+
 }
