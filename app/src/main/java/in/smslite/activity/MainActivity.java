@@ -276,8 +276,8 @@ public class MainActivity extends AppCompatActivity {
     ButterKnife.bind(this);
     setLinearLayout();
     //divide recycler view item
-    DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), llm.getOrientation());
-    recyclerView.addItemDecoration(dividerItemDecoration);
+//    DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), llm.getOrientation());
+//    recyclerView.addItemDecoration(dividerItemDecoration);
     setToolbar();
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
