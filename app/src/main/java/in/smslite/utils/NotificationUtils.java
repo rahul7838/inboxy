@@ -86,7 +86,7 @@ public class NotificationUtils {
     defValues.add("Promotion");
     defValues.add("Updates");
     Set<String> set = sharedPreferences.getStringSet(context.getString(R.string.pref_key_category), defValues);
-    Log.i(TAG, Integer.toString(set.size())+ "setSize");
+    Log.i(TAG, Integer.toString(set.size()) + "setSize");
     String categoryStringValue = listCategoryStringValue.get(category);
 
     // swipe to dismiss notification makes seen=1(true)
@@ -163,8 +163,8 @@ public class NotificationUtils {
       } else {
         List<Message> notificationSummary = db.messageDao().getNotificationSummary(category);
         int sizeSummary = notificationSummary.size();
-        Log.i(TAG, Integer.toString(sizeSummary)+ "sizeSummary");
-        if (sizeSummary>1) {
+        Log.i(TAG, Integer.toString(sizeSummary) + "sizeSummary");
+        if (sizeSummary > 1) {
           Log.d(TAG, "inboxStyleSms");
           NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
           for (int i = 0; i < notificationSummary.size() && i < 7; i++) {
@@ -195,7 +195,7 @@ public class NotificationUtils {
 
 
   public static void sendCustomNotification(Context context, String address, String body, Long timeStamp, Contact contact) {
-    int notiId = (int)System.currentTimeMillis();
+    int notiId = (int) System.currentTimeMillis();
     String OTP = getOTPFromString(body);
     String OTPID = OTP;
     NotificationManager notificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
@@ -206,33 +206,40 @@ public class NotificationUtils {
     if (OTP != null) {
       OTP = OTP.replaceAll("", "    ").trim();
     }
+
+    // normal view of notification layout
     RemoteViews notificationLayout = new RemoteViews(context.getPackageName(), R.layout.custom_noti);
     notificationLayout.setTextViewText(R.id.custom_noti_title, address);
     notificationLayout.setTextViewText(R.id.custom_noti_text, OTP);
+
+    // Copy button click execute the following pending intent
     Intent intent = new Intent(context, OTPService.class);
     intent.putExtra(NOTIFICATION_ID, notiId);
     intent.putExtra(BUNDLE_OTP_KEY, OTPID);
     PendingIntent pendingIntent = PendingIntent.getService(context, 12, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     notificationLayout.setOnClickPendingIntent(R.id.relative_layout_copy, pendingIntent);
 
-
+// Expanded notification layout
     RemoteViews bigNotificationLayout = new RemoteViews(context.getPackageName(), R.layout.custom_notification_big);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_title, address);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_OTP, OTP);
     bigNotificationLayout.setOnClickPendingIntent(R.id.layout_big_noti_child2, pendingIntent);
     bigNotificationLayout.setTextViewText(R.id.custom_big_noti_time, formattedDate);
 
+    // Pending intent for notification click
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
     Intent intent1 = new Intent(context, CompleteSmsActivity.class)
         .putExtra(context.getResources().getString(R.string.address_id), contact.getNumber());
     Intent mainactivityIntent = new Intent(context, MainActivity.class);
-    mainactivityIntent.putExtra(BROADCAST_SMS_CATEGORY_KEY,contact.getCategory());
+    mainactivityIntent.putExtra(BROADCAST_SMS_CATEGORY_KEY, contact.getCategory());
 //        .setAction(Long.toString(System.currentTimeMillis()));
 //            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
     taskStackBuilder.addNextIntent(mainactivityIntent);
     taskStackBuilder.addNextIntent(intent1);
     PendingIntent contentPendingIntent = taskStackBuilder.getPendingIntent(15, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    // Custom notification builder
     NotificationCompat.Builder customNotification = new NotificationCompat.Builder(context);
     customNotification
         .setSmallIcon(R.drawable.ic_stat_name)
@@ -255,7 +262,7 @@ public class NotificationUtils {
     notificationManager.notify(notiId, customNotification.build());
   }
 
-  public static String  getOTPFromString(String body){
+  public static String getOTPFromString(String body) {
     String textString = body;
     String OTP = null;
     textString = textString.replaceAll("[Rr]{1}[Ss]{1}[.]{1}[\\s]?[0-9]*\\.[0-9]*", "");

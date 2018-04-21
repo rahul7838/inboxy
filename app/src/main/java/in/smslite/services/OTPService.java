@@ -7,7 +7,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import static in.smslite.utils.NotificationUtils.BUNDLE_OTP_KEY;
 
@@ -36,6 +40,18 @@ public class OTPService extends IntentService {
     ClipboardManager clipboard = (ClipboardManager) getBaseContext().getSystemService(Context.CLIPBOARD_SERVICE);
     ClipData clip = ClipData.newPlainText("Copied text", OTP);
     clipboard.setPrimaryClip(clip);
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        Toast.makeText(getBaseContext(),"OTP Copied!", Toast.LENGTH_SHORT).show();
+      }
+    });
+
+    try {
+      Thread.sleep(30000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     NotificationManager notificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.cancel(notificationId);
   }
