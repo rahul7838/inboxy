@@ -65,6 +65,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchSmsViewHolder> {
 //        index = summary.indexOf(searchText, index + 1);
 
         holder.setSummary(sb);
+      } else {
+        holder.setSummary(Html.fromHtml(summary));
       }
     } else {
       holder.setSummary(Html.fromHtml(summary));
@@ -81,9 +83,9 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchSmsViewHolder> {
   }
 
   public static void swapData(List<Message> data) {
-    if (data == null || data.size() == 0)
+    if (data == null)
       return;
-    if (data != null && data.size() > 0)
+    if (data != null)
       if (list != null) {
         list.clear();
         list.addAll(data);

@@ -15,6 +15,7 @@ import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
@@ -40,12 +41,15 @@ public class SearchActivity extends AppCompatActivity {
   public static String searchKeyword;
   RecyclerView recyclerView;
   ImageView imageView;
+  TextView textView;
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     context = this;
     setContentView(R.layout.search_msg);
     editText = (EditText) findViewById(R.id.search_editText_id);
+    textView =  findViewById(R.id.search_msg_note);
+//    textView.setVisibility(View.VISIBLE);
     imageView = (ImageView) findViewById(R.id.search_activity_back_arrow);
     imageView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -90,8 +94,15 @@ public class SearchActivity extends AppCompatActivity {
           Log.d(TAG, searchKeyword);
           Log.d(TAG, String.valueOf(msgList.size()));
 
-          
-          SearchAdapter.swapData(msgList);
+          if(searchKeyword != "") {
+            SearchAdapter.swapData(msgList);
+            textView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+          } else {
+            SearchAdapter.swapData(new ArrayList<in.smslite.db.Message>());
+            textView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+          }
           //TODO -- Adapter instance should not be instantiated for each query. Find the way to replace the data
 //          searchAdapter = new SearchAdapter(msgList, context, searchKeyword);
 //          recyclerView.setAdapter(searchAdapter);
