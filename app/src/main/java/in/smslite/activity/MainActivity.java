@@ -6,7 +6,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,7 +20,6 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -52,7 +50,6 @@ import in.smslite.db.MessageDatabase;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
-import in.smslite.utils.TestUtil;
 import in.smslite.viewModel.LocalMessageDbViewModel;
 import io.fabric.sdk.android.Fabric;
 
@@ -462,6 +459,9 @@ public class MainActivity extends AppCompatActivity {
       startActivity(rateIntent);
     } else if (id == R.id.menu_settings) {
       Intent intent = new Intent(this, SettingsActivity.class);
+      startActivity(intent);
+    } else if (id == R.id.menu_search_msg_id){
+      Intent intent = new Intent(this, SearchActivity.class);
       startActivity(intent);
     }
     return true;

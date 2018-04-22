@@ -22,7 +22,11 @@ import me.everything.providers.android.telephony.TelephonyProvider;
 import static in.smslite.activity.MainActivity.WIDGET_UPDATE_DB_COLUMN_KEY;
 import static in.smslite.activity.MainActivity.db;
 
+import static in.smslite.db.Message.MessageType.All;
+import static in.smslite.db.Message.MessageType.FAILED;
 import static in.smslite.db.Message.MessageType.INBOX;
+import static in.smslite.db.Message.MessageType.OUTBOX;
+import static in.smslite.db.Message.MessageType.QUEUED;
 import static in.smslite.db.Message.MessageType.SENT;
 
 /**
@@ -47,6 +51,19 @@ public class MessageUtils {
       Sms sms = smses.get(i);
       String address = null;
       Contact contact = ContactUtils.getContact(sms.address, context, true);
+     /* Message.MessageType type = All;
+      switch (sms.type){
+        case INBOX: type = INBOX;
+          break;
+        case SENT: type = SENT;
+          break;
+        case FAILED: type = FAILED;
+        break;
+        case OUTBOX:type = OUTBOX;
+        break;
+        case QUEUED:type = QUEUED;
+        break;
+      }*/
       Message.MessageType type = Sms.MessageType.SENT.compareTo(sms.type) == 0 ? SENT : INBOX;
       final Long timeStamp = MessageUtils.getTimeStamp(sms.receivedDate, sms.sentDate, type);
       message.body = sms.body;

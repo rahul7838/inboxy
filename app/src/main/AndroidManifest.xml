@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="in.smslite">
 
-    <uses-sdk android:maxSdkVersion="25" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -85,6 +84,11 @@
             <!--<data android:scheme="mmsto" />-->
             <!--</intent-filter>-->
         </activity>
+
+        <activity android:name=".activity.SearchActivity"
+            android:parentActivityName=".activity.MainActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <!--<receiver android:name="in.smslite.receiver.SendSmsBroadcastReceiver">-->
         <!--<intent-filter >-->
