@@ -2,6 +2,7 @@ package in.smslite.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,9 +14,11 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import in.smslite.R;
@@ -33,14 +36,23 @@ public class SearchActivity extends AppCompatActivity {
   public static SearchAdapter searchAdapter;
   Context context;
   EditText editText;
-  List<in.smslite.db.Message> msgList;
+  List<in.smslite.db.Message> msgList = new ArrayList<>();
+  public static String searchKeyword;
   RecyclerView recyclerView;
+  ImageView imageView;
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     context = this;
     setContentView(R.layout.search_msg);
     editText = (EditText) findViewById(R.id.search_editText_id);
+    imageView = (ImageView) findViewById(R.id.search_activity_back_arrow);
+    imageView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onBackPressed();
+      }
+    });
 //    Button button = findViewById(R.id.search_button_id);
 //    button.setOnClickListener(new View.OnClickListener() {
 //      @Override
@@ -71,17 +83,23 @@ public class SearchActivity extends AppCompatActivity {
         Log.d(TAG, "afterTextChanged");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(s);
-        String string = stringBuilder.toString();
-
-        msgList =  db.messageDao().searchMsg("%"+string+"%");
+        searchKeyword = stringBuilder.toString();
+//        if(searchKeyword != "") {
+          msgList = db.messageDao().searchMsg("%" + searchKeyword + "%");
 //        msgList.size();
-        Log.d(TAG, string);
-        Log.d(TAG, String.valueOf(msgList.size()));
+          Log.d(TAG, searchKeyword);
+          Log.d(TAG, String.valueOf(msgList.size()));
 
-//        SearchAdapter.swapData(msgList);
-        //TODO -- Adapter instance should not be instantiated for each query. Find the way to replace the data
-        searchAdapter = new SearchAdapter(msgList,context, string);
-        recyclerView.setAdapter(searchAdapter);
+          
+          SearchAdapter.swapData(msgList);
+          //TODO -- Adapter instance should not be instantiated for each query. Find the way to replace the data
+//          searchAdapter = new SearchAdapter(msgList, context, searchKeyword);
+//          recyclerView.setAdapter(searchAdapter);
+//        } else {
+//          List<in.smslite.db.Message> list = new ArrayList<>();
+//          searchAdapter = new SearchAdapter(list, context, searchKeyword);
+//          recyclerView.setAdapter(searchAdapter);
+//        }
       }
     });
 
@@ -90,12 +108,10 @@ public class SearchActivity extends AppCompatActivity {
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(llm);
-//    searchAdapter = new SearchAdapter(msgList,context, );
-//    recyclerView.setAdapter(searchAdapter);
+    searchAdapter = new SearchAdapter(msgList,context);
+    recyclerView.setAdapter(searchAdapter);
 //    PhoneContact.init(this);
 
 
   }
-
-
 }
