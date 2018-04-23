@@ -58,7 +58,10 @@ public interface MessageDao {
   public void deleteFailedMsg(Long time);
 
 //  Query for message search
-  @Query("Select * from Message where body LIKE :keyword or address LIKE :keyword group by address order by timestamp desc")
+//  @Query("Select * from Message where body LIKE :keyword or address LIKE :keyword group by address order by timestamp desc")
+@Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
+    "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where body LIKE :keyword or t1.address LIKE :keyword" +
+    " group by t1.address order by t1.timestamp desc")
   public List<Message> searchMsg(String keyword);
 
 

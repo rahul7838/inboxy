@@ -18,7 +18,8 @@ public class ContactUtils {
     public static Contact getContact(String number, Context context, boolean canBlock) {
       if (number == null) {
           return CompanyContact.get(number,context);
-      } else if (number.length() >= 10) {
+      } else if (number.matches("(\\+)?(\\s)?(0|91)?(\\s)?[0-9](\\s)?[0-9](\\s)?[0-9](\\s)?[0-9](\\s)?" +
+          "[0-9](\\s)?[0-9](\\s)?[0-9](\\s)?[0-9](\\s)?[0-9](\\s)?[0-9](\\s)?")) {
           return PhoneContact.get(number, canBlock);
       } else {
           return CompanyContact.get(number, context);

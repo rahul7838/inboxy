@@ -15,10 +15,10 @@ import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 
 public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
   private static final String TAG = CompleteSmsAdapter.class.getSimpleName();
-  int INBOX = 0;
-  int SENT = 1;
-  int FAILED = 2;
-  List<Message> SmsConversation;
+  private int INBOX = 0;
+  private int SENT = 1;
+  private int FAILED = 2;
+  private List<Message> SmsConversation;
 
   public CompleteSmsAdapter(List<Message> SmsConversation) {
     this.SmsConversation = SmsConversation;

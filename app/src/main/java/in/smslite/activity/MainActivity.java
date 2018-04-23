@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
   }
 
-
+// thread to update the sent message when inboxy was not default sms app
   public  static class thread extends Thread {
     Context context;
     int cursorLastCountValue;

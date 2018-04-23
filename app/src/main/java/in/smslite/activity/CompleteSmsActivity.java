@@ -80,7 +80,6 @@ public class CompleteSmsActivity extends AppCompatActivity {
   @BindView(R.id.send_button_id)
   ImageButton imageButton;
   CompleteSmsActivityViewModel completeSmsActivityViewModel;
-  public static String phoneNumber;
   static Contact contact;
   private static Context context;
   static Message message;
@@ -104,11 +103,11 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
 
     if(contact.getCategory() == Contact.PRIMARY) {
-      phoneNumber = ContactUtils.normalizeNumber(address);
+      address = ContactUtils.normalizeNumber(address);
     } else {
-      phoneNumber = contact.getNumber();
+      address = contact.getNumber();
     }
-    Log.d(TAG, address + phoneNumber);
+    Log.d(TAG, address + address);
     completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
     subscribeUi();
   }
@@ -213,7 +212,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
           getBroadcast(context, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
 
       SmsManager smsManager = SmsManager.getDefault();
-      smsManager.sendTextMessage(phoneNumber, null, msg, sentPendingIntent, deliveredPendingIntent);
+      smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
     } else {
       Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
     }
@@ -230,8 +229,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
     public void run() {
       super.run();
       message = new Message();
-      message.address = phoneNumber;
-      Log.d(TAG, phoneNumber);
+      message.address = address;
+      Log.d(TAG, address);
       message.body = msg;
       message.read = true;
       message.seen = true;

@@ -22,7 +22,7 @@ public class CompleteSmsActivityViewModel extends AndroidViewModel {
   public CompleteSmsActivityViewModel(@NonNull Application application) {
     super(application);
     CDB();
-    messageListByAddress = mDB.messageDao().getMessageListByAddress(CompleteSmsActivity.phoneNumber);
+    messageListByAddress = mDB.messageDao().getMessageListByAddress(CompleteSmsActivity.address);
   }
   public void CDB(){
     mDB = MessageDatabase.getInMemoryDatabase(this.getApplication());
