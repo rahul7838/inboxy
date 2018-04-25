@@ -5,12 +5,16 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.provider.Telephony;
 import android.util.Log;
+
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 
 import in.smslite.R;
 import in.smslite.utils.MessageUtils;
@@ -82,9 +86,11 @@ public class SettingFragment extends PreferenceFragment {
     pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
       @Override
       public boolean onPreferenceChange(Preference preference, Object newValue) {
-        Log.i(TAG, newValue.toString());
+        Log.d(TAG, newValue.toString());
         if (newValue.toString().length() > 2) {
           preference.setSummary(convertToSummary(newValue.toString()));
+          Answers.getInstance().logCustom(new CustomEvent("Notify me for")
+              .putCustomAttribute("selected category", newValue.toString()));
           return true;
         }
         return false;

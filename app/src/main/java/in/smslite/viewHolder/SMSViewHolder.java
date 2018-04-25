@@ -1,10 +1,13 @@
 package in.smslite.viewHolder;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.provider.Telephony;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -71,18 +74,31 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     timeView.setText(time);
   }
 
+  // update the read in local database and content provider
   @Override
   public void onClick(View view) {
+    Intent i = new Intent(mContext, CompleteSmsActivity.class);
+    i.putExtra(view.getResources().getString(R.string.address_id), address);
+    mContext.startActivity(i);
+
     new Thread(new Runnable() {
       @Override
       public void run() {
         db.messageDao().markAllRead(address);
-        Log.i(TAG, "markAllRead");
-      }
+//  if(address != null) {
+  Log.d(TAG, "markAllRead");
+}
+//        String where = Telephony.TextBasedSmsColumns.ADDRESS + " LIKE " + address;
+//        String[] arg = {address};
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put(Telephony.TextBasedSmsColumns.READ, true);
+//        Cursor cursor = mContext.getContentResolver().query(Telephony.Sms.CONTENT_URI, null,where, null, null);
+//        mContext.getContentResolver().update(Telephony.Sms.CONTENT_URI, contentValues, where, null);
+//        mContext.getContentResolver().
+//        Log.d(TAG, "markAllRead");
+//      }
     }).start();
-    Intent i = new Intent(mContext, CompleteSmsActivity.class);
-    i.putExtra(view.getResources().getString(R.string.address_id), address);
-    mContext.startActivity(i);
+
   }
 
   private void setAvatar(Contact contact) {

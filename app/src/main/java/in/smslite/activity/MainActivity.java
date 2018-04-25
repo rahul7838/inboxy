@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -33,6 +34,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.CustomEvent;
+import com.crashlytics.android.answers.SearchEvent;
+import com.crashlytics.android.answers.ShareEvent;
 import com.crashlytics.android.core.CrashlyticsCore;
 
 import java.util.ArrayList;
@@ -101,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         .build();
 // Initialize Fabric with the debug-disabled crashlytics.
     Fabric.with(this, crashlyticsKit);
+
 //    registerReceiverForSmsBroadCast();
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
@@ -155,6 +162,9 @@ public class MainActivity extends AppCompatActivity {
     if (llm != null) {
       llm.scrollToPosition(currentVisiblePostion);
     }
+    if(AppStartUtils.checkAppStart(context,sharedPreferences).equals(AppStartUtils.AppStart.FIRST_TIME)) {
+      MessageUtils.setDefaultSms(context);
+    }
     if(!MessageUtils.checkIfDefaultSms(context)) {
       new thread(context).start();
     }
@@ -181,6 +191,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void run() {
       super.run();
+       if(MessageUtils.checkIfDefaultSms(context)){
+        Answers.getInstance().logCustom(new CustomEvent("Default SMS app")
+            .putCustomAttribute("Manufacturer", Build.MANUFACTURER)
+            .putCustomAttribute("Version", Build.VERSION.CODENAME));
+      } else {
+        Answers.getInstance().logCustom(new CustomEvent("Not Default SMS app")
+            .putCustomAttribute("Manufacturer", Build.MANUFACTURER)
+            .putCustomAttribute("Version", Build.VERSION.CODENAME));
+      }
+
       Cursor localDbcur = db.messageDao().getSentSmsCount();
       localDbcur.moveToFirst();
       int localDbCount = localDbcur.getCount();
@@ -422,21 +442,30 @@ public class MainActivity extends AppCompatActivity {
       case 1:
         bottomNavigationView.getMenu().getItem(0).setChecked(true);
         toolbar.setTitle(R.string.title_primary);
+//        Answers.getInstance().logContentView(new ContentViewEvent()
+//            .putContentName("Primary"));
 //        setMessageList(messages, category);
         break;
       case 2:
         bottomNavigationView.getMenu().getItem(1).setChecked(true);
         toolbar.setTitle(R.string.title_finance);
+        Answers.getInstance().logContentView(new ContentViewEvent()
+            .putContentName("Finance"));
+
 //        setMessageList(messages, category);
         break;
       case 3:
         bottomNavigationView.getMenu().getItem(2).setChecked(true);
         toolbar.setTitle(R.string.title_promotions);
+        Answers.getInstance().logContentView(new ContentViewEvent()
+            .putContentName("Promotion"));
 //        setMessageList(messages, category);
         break;
       case 4:
         bottomNavigationView.getMenu().getItem(3).setChecked(true);
         toolbar.setTitle(R.string.title_updates);
+        Answers.getInstance().logContentView(new ContentViewEvent()
+            .putContentName("Updates"));
 //        setMessageList(messages, category);
         break;
     }
@@ -453,6 +482,7 @@ public class MainActivity extends AppCompatActivity {
       message = message + Html.fromHtml(getString(R.string.playstore_link));
       shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, message);
       startActivity(Intent.createChooser(shareIntent, getString(R.string.send_to)));
+      Answers.getInstance().logShare(new ShareEvent());
     } else if (id == R.id.menu_rate_us) {
       Intent rateIntent = new Intent(Intent.ACTION_VIEW,
           Uri.parse(getString(R.string.playstore_link)));
@@ -460,6 +490,7 @@ public class MainActivity extends AppCompatActivity {
     } else if (id == R.id.menu_settings) {
       Intent intent = new Intent(this, SettingsActivity.class);
       startActivity(intent);
+      Answers.getInstance().logCustom(new CustomEvent("Setting viewed"));
     } else if (id == R.id.menu_search_msg_id){
       Intent intent = new Intent(this, SearchActivity.class);
       startActivity(intent);
