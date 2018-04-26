@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp">
 
     <LinearLayout
-        android:id="@+id/card_sent_linear_layout_id"
+        android:id="@+id/card_sending_linear_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -15,23 +16,22 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/sms_sent_background"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/body"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="8dp"
-            android:autoLink="all"
-            android:lineSpacingExtra="4sp"
-            android:maxWidth="255dp"
-            android:text="hi , sure u can call me back any time u want todai I am some what"
-            android:textColor="@android:color/white"
-            android:textColorLink="@color/white_pure"
-            android:textIsSelectable="true"
-            android:textSize="14sp" />
+    <TextView
+        android:id="@+id/body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:lineSpacingExtra="4sp"
+        android:maxWidth="255dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:autoLink="all"
+        android:textColorLink="@color/white_pure"
+        android:textIsSelectable="true"
+        android:text="hi , sure u can call me back any time u want todai I am some what"/>
 
         <TextView
             android:id="@+id/timestamp"
@@ -42,16 +42,14 @@
             android:text="wed 8:45 PM"
             android:textColor="@color/colorTimestamp"
             android:textSize="12sp" />
-
     </LinearLayout>
-
     <TextView
-        android:id="@+id/user_sms_status_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/card_sent_linear_layout_id"
-        android:layout_marginEnd="24dp"
+        android:id="@+id/user_sms_status_id"
+        android:layout_below="@id/card_sending_linear_layout_id"
         android:text="sent"
-        android:textSize="10dp" />
+        android:layout_marginEnd="24dp"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"/>
 </RelativeLayout>

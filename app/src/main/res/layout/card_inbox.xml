@@ -4,26 +4,41 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp">
 
-    <TextView
-        android:id="@+id/timestamp"
+
+    <LinearLayout
+        android:id="@+id/card_sent_linear_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="64dp"
         android:layout_marginStart="12dp"
-        android:textColor="@color/colorTimestamp"
-        android:textSize="12sp" />
-
+        android:layout_marginTop="12dp"
+        android:background="@drawable/sms_inbox_background"
+        android:orientation="vertical">
     <TextView
         android:id="@+id/body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/timestamp"
-        android:layout_margin="12dp"
-        android:background="@drawable/sms_inbox_background"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="12dp"
         android:lineSpacingExtra="4sp"
         android:maxWidth="255dp"
-        android:padding="11dp"
         android:textColor="@android:color/black"
         android:textSize="14sp"
         android:autoLink="all"
+        android:text="hi, man how r u what r u doing i am making my app i would say "
         android:textIsSelectable="true"/>
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:textColor="@color/colorTimestamp"
+            android:textSize="12sp"
+            android:text="Tue 2:54 PM"/>
+    </LinearLayout>
 </RelativeLayout>

@@ -5,29 +5,28 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp">
 
-    <TextView
-        android:id="@+id/timestamp"
+
+    <LinearLayout
+        android:id="@+id/card_sent_failed_linear_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
+        android:layout_marginBottom="4dp"
         android:layout_marginEnd="12dp"
-        android:textColor="@color/colorTimestamp"
-        android:textSize="12sp" />
-
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/sms_sent_failed_background"
+        android:orientation="vertical">
     <TextView
         android:id="@+id/body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/timestamp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="2dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginEnd="12dp"
         android:layout_marginStart="12dp"
-        android:background="@drawable/sms_sent_failed_background"
         android:lineSpacingExtra="4sp"
         android:maxWidth="255dp"
-        android:padding="11dp"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:autoLink="all"
@@ -35,11 +34,21 @@
         android:textIsSelectable="true"
         android:text="hi rahul ho are u"/>
 
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:text="wed 8:45 PM"
+            android:textColor="@color/colorTimestamp"
+            android:textSize="12sp" />
+    </LinearLayout>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/user_sms_status_id"
-        android:layout_below="@id/body"
+        android:layout_below="@id/card_sent_failed_linear_layout_id"
         android:text="Not sent. Tap to try again."
         android:clickable="true"
         android:textSize="10dp"

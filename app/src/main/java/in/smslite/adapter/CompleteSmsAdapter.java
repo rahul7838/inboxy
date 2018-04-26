@@ -18,6 +18,9 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
   private int INBOX = 0;
   private int SENT = 1;
   private int FAILED = 2;
+  private int QUEUED = 3;
+  private int OUTBOX= 4;
+
   private List<Message> SmsConversation;
 
   public CompleteSmsAdapter(List<Message> SmsConversation) {
@@ -34,8 +37,14 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sent, parent, false);
       return new CompleteSmsSentViewHolder(view);
     }
-    else {
+    else if(viewType == FAILED){
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sent_failed_sms, parent, false);
+      return new CompleteSmsSentViewHolder(view);
+    } else if(viewType == QUEUED) {
+      View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sending_sms, parent, false);
+      return new CompleteSmsSentViewHolder(view);
+    } else {
+      View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_delivered_sms, parent, false);
       return new CompleteSmsSentViewHolder(view);
     }
   }
@@ -66,6 +75,10 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
       return INBOX;
     } else if (Message.MessageType.FAILED.equals(SmsConversation.get(position).type)){
       return FAILED;
+    } else if(Message.MessageType.QUEUED.equals(SmsConversation.get(position).type)){
+      return QUEUED;
+    } else if(Message.MessageType.OUTBOX.equals(SmsConversation.get(position).type)){
+      return OUTBOX;
     }
     return SENT;
   }

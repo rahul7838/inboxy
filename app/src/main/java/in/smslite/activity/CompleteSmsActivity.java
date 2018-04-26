@@ -82,7 +82,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
   CompleteSmsActivityViewModel completeSmsActivityViewModel;
   static Contact contact;
   private static Context context;
-  static Message message;
+  public static Message message;
+  public static Long timeStampForBroadCast;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -200,22 +201,6 @@ public class CompleteSmsActivity extends AppCompatActivity {
 //      write sent sms to local database
       new thread(msg).start();
     }
-      if(!msg.isEmpty()) {
-      Intent sentIntent = new Intent();
-      sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
-      PendingIntent sentPendingIntent = PendingIntent.
-          getBroadcast(context, SMS_SEND_INTENT_REQUEST, sentIntent, 0);
-
-      Intent deliveredIntent = new Intent();
-      deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
-      PendingIntent deliveredPendingIntent = PendingIntent.
-          getBroadcast(context, SMS_DELIVER_INTENT_REQUEST, deliveredIntent, 0);
-
-      SmsManager smsManager = SmsManager.getDefault();
-      smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
-    } else {
-      Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
-    }
   }
 
   private static class thread extends Thread {
@@ -228,6 +213,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     @Override
     public void run() {
       super.run();
+      timeStampForBroadCast = System.currentTimeMillis();
       message = new Message();
       message.address = address;
       Log.d(TAG, address);
@@ -236,9 +222,31 @@ public class CompleteSmsActivity extends AppCompatActivity {
       message.seen = true;
       message.category = contact.getCategory();
       message.threadId = 0;
-      message.timestamp = System.currentTimeMillis();
-      message.type = Message.MessageType.SENT;
+      message.timestamp = timeStampForBroadCast;
+      Log.d(TAG, "message.timeStamp " + Long.toString(timeStampForBroadCast) );
+      message.type = Message.MessageType.QUEUED;
       db.messageDao().insertMessage(message);
+
+      if(!msg.isEmpty()) {
+        Intent sentIntent = new Intent();
+//        sentIntent.putExtra("timeStamp123", timeStampForBroadCast);
+        sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
+        PendingIntent sentPendingIntent = PendingIntent.
+            getBroadcast(context, SMS_SEND_INTENT_REQUEST, sentIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Intent deliveredIntent = new Intent();
+        deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
+//        deliveredIntent.putExtra("deliveredSms", "yes");
+        deliveredIntent.putExtra("timeStamp123", timeStampForBroadCast);
+        int requestCode = timeStampForBroadCast.intValue();
+        PendingIntent deliveredPendingIntent = PendingIntent.
+            getBroadcast(context, requestCode, deliveredIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+      } else {
+        Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+      }
     }
   }
 
@@ -264,6 +272,10 @@ public class CompleteSmsActivity extends AppCompatActivity {
 //          CompleteSmsSentViewHolder.smsStatusVisiblity("sent");
           Log.d(TAG, "sent sms successful");
 //      write sent sms to content provider
+//          Long timeStamp = intent.getLongExtra("timeStamp123", 0);
+//          Log.d(TAG, "timeStamp " + Long.toString(timeStamp));
+          message.type = Message.MessageType.SENT;
+          db.messageDao().updateSentSuccessful(timeStampForBroadCast);
           ContentProviderUtil.writeSentSms(message, context);
           break;
         case RESULT_ERROR_NULL_PDU:

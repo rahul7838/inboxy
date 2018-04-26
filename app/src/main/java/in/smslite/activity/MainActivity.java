@@ -162,9 +162,9 @@ public class MainActivity extends AppCompatActivity {
     if (llm != null) {
       llm.scrollToPosition(currentVisiblePostion);
     }
-    if(AppStartUtils.checkAppStart(context,sharedPreferences).equals(AppStartUtils.AppStart.FIRST_TIME)) {
-      MessageUtils.setDefaultSms(context);
-    }
+//    if(AppStartUtils.checkAppStart(context,sharedPreferences).equals(AppStartUtils.AppStart.FIRST_TIME)) {
+//      MessageUtils.setDefaultSms(context);
+//    }
     if(!MessageUtils.checkIfDefaultSms(context)) {
       new thread(context).start();
     }

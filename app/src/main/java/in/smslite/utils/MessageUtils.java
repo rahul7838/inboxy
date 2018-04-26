@@ -47,23 +47,12 @@ public class MessageUtils {
   public static void sync(Context context, List<Sms> smses) {
     sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     Message message = new Message();
-    for (int i = 0; i < smses.size(); i++) {
+    int count = 200;
+    int size = smses.size();
+    for (int i = 0; i < (size); i++) {
       Sms sms = smses.get(i);
-      String address = null;
+//      String address = null;
       Contact contact = ContactUtils.getContact(sms.address, context, true);
-     /* Message.MessageType type = All;
-      switch (sms.type){
-        case INBOX: type = INBOX;
-          break;
-        case SENT: type = SENT;
-          break;
-        case FAILED: type = FAILED;
-        break;
-        case OUTBOX:type = OUTBOX;
-        break;
-        case QUEUED:type = QUEUED;
-        break;
-      }*/
       Message.MessageType type = Sms.MessageType.SENT.compareTo(sms.type) == 0 ? SENT : INBOX;
       final Long timeStamp = MessageUtils.getTimeStamp(sms.receivedDate, sms.sentDate, type);
       message.body = sms.body;
