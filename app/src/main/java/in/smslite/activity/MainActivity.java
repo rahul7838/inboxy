@@ -49,6 +49,7 @@ import butterknife.ButterKnife;
 import in.smslite.BottomNavigationViewHelper;
 import in.smslite.R;
 import in.smslite.adapter.SMSAdapter;
+import in.smslite.adapter.SelectContactAdapter;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
@@ -300,15 +301,17 @@ public class MainActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
 
-        if (!MessageUtils.checkIfDefaultSms(context)) {
-          Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
-          startActivityForResult(intent, 8);
-        } else {
-          launchPickContact();
-//          Intent intent = new Intent(getApplicationContext(), ComposeSmsActivity.class);
-//          startActivity(intent);
-        }
+        Intent intent = new Intent(context, SelectContactActivity.class);
+        startActivity(intent);
+//        if (!MessageUtils.checkIfDefaultSms(context)) {
+//          Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+//          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+//          startActivityForResult(intent, 8);
+//        } else {
+//          launchPickContact();
+////          Intent intent = new Intent(getApplicationContext(), ComposeSmsActivity.class);
+////          startActivity(intent);
+//        }
       }
     });
     PhoneContact.init(this);
