@@ -50,19 +50,19 @@ public class SelectContactActivity extends AppCompatActivity implements android.
   private static final String[] PROJECTION =
       {ContactsContract.Data._ID,
           ContactsContract.Contacts.HAS_PHONE_NUMBER,
-          ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
+          ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
           ContactsContract.CommonDataKinds.Phone.NUMBER
       };
 
   //  private static final String SELECTION = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?";
   private static final String SELECTION = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " LIKE ?"
-      + " AND " + ContactsContract.Data.MIMETYPE + " LIKE ?" + " OR " +
-      ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?";
+      + " AND " + ContactsContract.Data.MIMETYPE + " LIKE ?";
+//      + " OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?";
   // Defines a variable for the search string
   private String mSearchString;
   // Defines the array to hold values that replace the ?
   private String[] mSelectionArgs = {mSearchString,
-      ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE, mSearchString};
+      ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE};
   android.support.v4.app.LoaderManager.LoaderCallbacks callbacks;
   public static SelectContactAdapter selectContactAdapter;
 
@@ -115,7 +115,7 @@ public class SelectContactActivity extends AppCompatActivity implements android.
     phoneNumberList.clear();
     list.clear();
     mSelectionArgs[0] = "%" + mSearchString + "%";
-    mSelectionArgs[2] = "%" + mSearchString + "%";
+//    mSelectionArgs[2] = "%" + mSearchString + "%";
     Log.d(TAG, mSearchString + " string");
     android.support.v4.content.CursorLoader cursor = new android.support.v4.content.CursorLoader(this, ContactsContract.Data.CONTENT_URI, PROJECTION, SELECTION,
         mSelectionArgs, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC");
@@ -133,19 +133,15 @@ public class SelectContactActivity extends AppCompatActivity implements android.
       int size = data.getCount();
       List<String> nameList = new ArrayList<>();
       List<String> numberList = new ArrayList<>();
-      String lastNumber = "";
+//      String lastNumber = "";
       do {
         if (data.getCount() != 0) {
-//          if (set.add(ContactUtils.normalizeNumber(data.getString(3)))) {
-//      if (data.getInt(1) == 1) {
-          if (!data.getString(3).matches(".*[a-zA-Z].*")) {
-            if (!lastNumber.equals(formatNumber(data.getString(3)))) {
-//            list.add(data.getString(2));
-//            phoneNumberList.add(data.getString(3));
-//              lastNumber = ContactUtils.normalizeNumber(data.getString(3));
-              lastNumber = formatNumber(data.getString(3));
-              nameList.add(data.getString(2));
-              numberList.add(data.getString(3));
+          if(data.getInt(1) == 1) {
+            if (!data.getString(3).matches(".*[a-zA-Z].*")) {
+              if (set.add(formatNumber(data.getString(3)))) {
+                nameList.add(data.getString(2));
+                numberList.add(data.getString(3));
+              }
             }
           }
         }
