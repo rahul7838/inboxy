@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -26,18 +25,20 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
-import com.crashlytics.android.answers.SearchEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.crashlytics.android.core.CrashlyticsCore;
 
@@ -49,11 +50,11 @@ import butterknife.ButterKnife;
 import in.smslite.BottomNavigationViewHelper;
 import in.smslite.R;
 import in.smslite.adapter.SMSAdapter;
-import in.smslite.adapter.SelectContactAdapter;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
+import in.smslite.threads.UpdateSentMsgThread;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
@@ -92,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
   List<String> permissionNeeded;
   public SharedPreferences sharedPreferences;
   private Context context;
+  public static List<Message> user_list = new ArrayList<>();
+  public static List<Message> multiselect_list;
+  private int topView;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -113,9 +118,6 @@ public class MainActivity extends AppCompatActivity {
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
-//    registerSmsReceiverBroadcast();
-
-
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
 //      case FIRST_TIME_VERSION:
 //        // TODO show what's new
@@ -152,7 +154,9 @@ public class MainActivity extends AppCompatActivity {
   protected void onPause() {
     super.onPause();
     if (llm != null) {
-      currentVisiblePostion = (llm).findLastCompletelyVisibleItemPosition();
+      currentVisiblePostion= llm.findFirstVisibleItemPosition();
+      View startView = recyclerView.getChildAt(0);
+      topView = (startView == null) ? 0 : (startView.getTop() - recyclerView.getPaddingTop());
     }
   }
 
@@ -161,13 +165,11 @@ public class MainActivity extends AppCompatActivity {
     super.onResume();
     Log.d(TAG, "onResume");
     if (llm != null) {
-      llm.scrollToPosition(currentVisiblePostion);
+    llm.scrollToPositionWithOffset(currentVisiblePostion, topView);
     }
-//    if(AppStartUtils.checkAppStart(context,sharedPreferences).equals(AppStartUtils.AppStart.FIRST_TIME)) {
-//      MessageUtils.setDefaultSms(context);
-//    }
+
     if(!MessageUtils.checkIfDefaultSms(context)) {
-      new thread(context).start();
+      new UpdateSentMsgThread(context).start();
     }
     //below code is used to test the OTP notification
 //    registerReceiver(TestUtil.testNotiBroadCast,new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
@@ -183,108 +185,8 @@ public class MainActivity extends AppCompatActivity {
   }
 
 // thread to update the sent message when inboxy was not default sms app
-  public  static class thread extends Thread {
-    Context context;
-    int cursorLastCountValue;
-    public thread(Context context) {
-      this.context = context;
-    }
-    @Override
-    public void run() {
-      super.run();
-       if(MessageUtils.checkIfDefaultSms(context)){
-        Answers.getInstance().logCustom(new CustomEvent("Default SMS app")
-            .putCustomAttribute("Manufacturer", Build.MANUFACTURER)
-            .putCustomAttribute("Version", Build.VERSION.CODENAME));
-      } else {
-        Answers.getInstance().logCustom(new CustomEvent("Not Default SMS app")
-            .putCustomAttribute("Manufacturer", Build.MANUFACTURER)
-            .putCustomAttribute("Version", Build.VERSION.CODENAME));
-      }
-
-      Cursor localDbcur = db.messageDao().getSentSmsCount();
-      localDbcur.moveToFirst();
-      int localDbCount = localDbcur.getCount();
-      String timeStampLocalDb = null;
-      if(localDbCount != 0) {
-        Log.d(TAG, Integer.toString(localDbCount) + "localDb");
-        timeStampLocalDb = localDbcur.getString(6);
-        Log.d(TAG, timeStampLocalDb + "localDbTimeStamp");
-      }
-
-      String[] projection = new String[] {Telephony.TextBasedSmsColumns.ADDRESS,
-          Telephony.TextBasedSmsColumns.BODY, Telephony.TextBasedSmsColumns.DATE};
-      Cursor cursor = context.getContentResolver().query(Telephony.Sms.Sent.CONTENT_URI, projection, null, null, "date desc" );
-//      cursor.setNotificationUri(context.getContentResolver(), Telephony.Sms.Sent.CONTENT_URI);
-      int size = cursor.getCount();
-      if(size != 0){
-      Log.d(TAG, Integer.toString(size)+"contentProvider");
-      int newRow = size - localDbCount;
-      cursor.moveToFirst();
-      Message message = new Message();
-      for(int i=0; i<size; i++) {
-        String time = cursor.getString(2);
-        if (Long.parseLong(time) > Long.parseLong(timeStampLocalDb)) {
-          String address = cursor.getString(0);
-          String body = cursor.getString(1);
-          Contact contact = ContactUtils.getContact(address, context, false);
-          address = ContactUtils.normalizeNumber(address);
-          message.address = address;
-          message.seen = true;
-          message.read = true;
-          message.body = body;
-          message.timestamp = Long.parseLong(time);
-          message.threadId = 123;
-          message.type = Message.MessageType.SENT;
-          message.category = contact.getCategory();
-          db.messageDao().insertMessage(message);
-          Log.d(TAG, "time>timeStampLocal");
-          Log.d(TAG, address + body + time);
-          cursor.moveToNext();
-        } else {
-          break;
-        }
-      }
-      }
-    }
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == 8) {
-      if (resultCode == RESULT_OK) {
-//        Intent intent = new Intent(this, ComposeSmsActivity.class);
-//        startActivity(intent);
-        launchPickContact();
-      }
-    }
-    if (requestCode == PICK_CONTACT_REQUEST_CODE) {
-      // Make sure the request was successful
-      if (resultCode == RESULT_OK) {
-        pickContactSelected(data);
-        Throwable error = new Error("msg");
-        Log.v(TAG, "log", error);
-      }
-    }
-  }
-
-  private void pickContactSelected(Intent data){
-    Log.d(TAG, "contect picked");
-    Uri uri = data.getData();
-    Log.i(TAG, uri.toString());
-    String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
-    Cursor cursor = context.getContentResolver().query(uri, projection,
-        null, null, null);
-    cursor.moveToFirst();
-    int columnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-    String number = cursor.getString(columnIndex);
-    number = ContactUtils.formatAddress(number);
-    Log.i(TAG, number);
-    Intent intent = new Intent(this, CompleteSmsActivity.class);
-    intent.putExtra(context.getString(R.string.address_id), number);
-    startActivity(intent);
-  }
+//  public  static class thread extends Thread {
+//
 
   private void initiUi() {
 //    updateWidgetColumn();
@@ -293,25 +195,22 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     setLinearLayout();
-    //divide recycler view item
-//    DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), llm.getOrientation());
-//    recyclerView.addItemDecoration(dividerItemDecoration);
     setToolbar();
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
 
-        Intent intent = new Intent(context, SelectContactActivity.class);
-        startActivity(intent);
-//        if (!MessageUtils.checkIfDefaultSms(context)) {
-//          Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-//          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
-//          startActivityForResult(intent, 8);
-//        } else {
-//          launchPickContact();
-////          Intent intent = new Intent(getApplicationContext(), ComposeSmsActivity.class);
-////          startActivity(intent);
-//        }
+        /*Intent intent = new Intent(context, SelectContactActivity.class);
+        startActivity(intent);*/
+        if (!MessageUtils.checkIfDefaultSms(context)) {
+          Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+          startActivityForResult(intent, 8);
+        } else {
+          launchPickContact();
+//          Intent intent = new Intent(getApplicationContext(), ComposeSmsActivity.class);
+//          startActivity(intent);
+        }
       }
     });
     PhoneContact.init(this);
@@ -331,19 +230,13 @@ public class MainActivity extends AppCompatActivity {
       setItemMenuChecked(broadcastSmsCategory);
       Log.d(TAG, "BRoadcast");
     } else {
-//      setLinearLayout();
       subscribeUi(Contact.PRIMARY);
       Log.d(TAG, "addParentStack");
     }
     setBottomNavigation();
-  }
+//    MainActivityHelper a = new MainActivityHelper();
+//    a.CAM(recyclerView, context);
 
-  private void launchPickContact() {
-    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
-    startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST_CODE);
-    Throwable error = new Error("launchPickerror");
-    Log.v(TAG, "logstacktrace", error);
   }
 
   private void setLinearLayout() {
@@ -372,6 +265,52 @@ public class MainActivity extends AppCompatActivity {
     };
     liveDataListMsg.observe(this, observer);
   }
+
+  private void pickContactSelected(Intent data){
+    Log.d(TAG, "contect picked");
+    Uri uri = data.getData();
+    Log.i(TAG, uri.toString());
+    String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
+    Cursor cursor = context.getContentResolver().query(uri, projection,
+        null, null, null);
+    cursor.moveToFirst();
+    int columnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+    String number = cursor.getString(columnIndex);
+    number = ContactUtils.formatAddress(number);
+    Log.i(TAG, number);
+    Intent intent = new Intent(this, CompleteSmsActivity.class);
+    intent.putExtra(context.getString(R.string.address_id), number);
+    startActivity(intent);
+  }
+
+  private void launchPickContact() {
+    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
+    startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST_CODE);
+//    Throwable error = new Error("launchPickerror");
+//    Log.v(TAG, "logstacktrace", error);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == 8) {
+      if (resultCode == RESULT_OK) {
+//        Intent intent = new Intent(this, ComposeSmsActivity.class);
+//        startActivity(intent);
+        launchPickContact();
+      }
+    }
+    if (requestCode == PICK_CONTACT_REQUEST_CODE) {
+      // Make sure the request was successful
+      if (resultCode == RESULT_OK) {
+        pickContactSelected(data);
+//        Throwable error = new Error("msg");
+//        Log.v(TAG, "log", error);
+      }
+    }
+  }
+
 
   private void setBottomNavigation() {
 //    bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
@@ -403,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void setMessageList(List<Message> messageList, int category) {
+//    user_list = messageList;
     if (messageList.isEmpty()) {
       switch (category) {
         case Contact.PRIMARY:
@@ -508,7 +448,11 @@ public class MainActivity extends AppCompatActivity {
     return true;
   }
 
-
+  @Override
+  protected void onStop() {
+    super.onStop();
+//    liveDataListMsg.removeObserver(observer);
+  }
 }
 
 //  public BroadcastReceiver smsReceiver = new BroadcastReceiver() {

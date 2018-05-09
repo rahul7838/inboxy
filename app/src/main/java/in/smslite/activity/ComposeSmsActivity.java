@@ -38,11 +38,11 @@ public class ComposeSmsActivity extends AppCompatActivity {
 
 
 
-    Button button = findViewById(R.id.send_sms_to_select_button);
+    Button button = (Button) findViewById(R.id.send_sms_to_select_button);
     button.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        EditText editView  =  findViewById(R.id.send_sms_to_id);
+        EditText editView  = (EditText)  findViewById(R.id.send_sms_to_id);
         String address = editView.getText().toString();
         Intent intent = new Intent(getApplicationContext(), CompleteSmsActivity.class);
         intent.putExtra(getString(R.string.address_id), address);

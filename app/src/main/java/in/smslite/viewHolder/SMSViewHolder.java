@@ -10,7 +10,9 @@ import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +20,8 @@ import java.util.Date;
 
 import in.smslite.R;
 import in.smslite.activity.CompleteSmsActivity;
+import in.smslite.activity.MainActivityHelper;
+import in.smslite.adapter.SMSAdapter;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.MessageDatabase;
@@ -49,7 +53,9 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
     summaryView = (TextView) view.findViewById(R.id.sms_summary);
     timeView = (TextView) view.findViewById(R.id.sms_time);
     imageView = (ImageView) view.findViewById(R.id.avatar);
-    view.setOnClickListener(this);
+//    if(!MainActivityHelper.isMultiSelect) {
+      view.setOnClickListener(this);
+//    }
   }
 
   public void setAddress(String address) {
@@ -133,6 +139,7 @@ public class SMSViewHolder extends RecyclerView.ViewHolder implements View.OnCli
       }
     };
   }
+
 
  /* public class UpdateDB implements Runnable{
       @Override

@@ -17,7 +17,7 @@ import in.smslite.db.MessageDatabase;
 
 public class CompleteSmsActivityViewModel extends AndroidViewModel {
     public LiveData<List<Message>> messageListByAddress;
-    MessageDatabase mDB;
+    private MessageDatabase mDB;
 
   public CompleteSmsActivityViewModel(@NonNull Application application) {
     super(application);

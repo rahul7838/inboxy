@@ -28,3 +28,10 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+ext {
+    supportLibVersion = "26.1.0"
+    constraintLayoutVersion = "1.0.2"
+    glideVersion = '3.8.0'
+    junitVersion = '4.12'
+}

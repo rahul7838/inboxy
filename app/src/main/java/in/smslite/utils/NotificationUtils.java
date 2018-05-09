@@ -1,13 +1,19 @@
 package in.smslite.utils;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -61,10 +67,11 @@ public class NotificationUtils {
   public static Bundle notificationBundle = new Bundle();
 
   public static void sendGroupedNotification(Context context, Contact contact, Message message) {
-
     String displayName = contact.getDisplayName();
     RoundedBitmapDrawable drawable = contact.getAvatar(context);
     int category = contact.getCategory();
+    String channelId = Integer.toString(category);
+
     int timeStamp = (int) message.timestamp;
 
 //    ArrayList<Integer> listCategoryIntValue = new ArrayList<Integer>(Arrays.asList(Contact.UNCATEGORIZED, Contact.PRIMARY, Contact.FINANCE, Contact.PROMOTIONS, Contact.UPDATES));
@@ -89,23 +96,32 @@ public class NotificationUtils {
     Log.i(TAG, Integer.toString(set.size()) + "setSize");
     String categoryStringValue = listCategoryStringValue.get(category);
 
+    if(Build.VERSION.SDK_INT >=  26){
+      createNotificationChannel(context, channelId, categoryStringValue);
+    }
+
+
     // swipe to dismiss notification makes seen=1(true)
     Intent swipeToDismissNotiIntent = new Intent(context, SwipeToDismissNoti.class);
     swipeToDismissNotiIntent.putExtra(SWIPE_TO_DISMISS_CATEGORY_KEY, category);
     PendingIntent swipeToDismissNotiPendingIntent = PendingIntent.getService(context, 12, swipeToDismissNotiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
     if (set.contains(categoryStringValue)) {
-      NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+      NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
       builder
           .setAutoCancel(true)
           .setCategory(Notification.CATEGORY_MESSAGE)
           .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
           .setSmallIcon(R.drawable.ic_stat_name)
-          .setLargeIcon(drawable.getBitmap())
-          .setPriority(Notification.PRIORITY_HIGH)
+          .setLargeIcon(getLargeIcon(context, displayName))
+          .setChannelId(channelId)
           .setDeleteIntent(swipeToDismissNotiPendingIntent);
       if (vibrate) {
         builder.setVibrate(new long[]{300, 300, 300, 300});
+      }
+
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
       }
 
       if (led) {
@@ -157,8 +173,10 @@ public class NotificationUtils {
             .setContentIntent(mainActivityPendingIntent);
 //
         Log.d(TAG, "api 25");
-        notificationManager.notify(timeStamp, builder.build());
-        notificationManager.notify(category, bundleBuilder.build());
+        if(notificationManager != null) {
+          notificationManager.notify(timeStamp, builder.build());
+          notificationManager.notify(category, bundleBuilder.build());
+        }
 
       } else {
         List<Message> notificationSummary = db.messageDao().getNotificationSummary(category);
@@ -188,9 +206,26 @@ public class NotificationUtils {
               .setContentIntent(completeSmsActivityPendingIntent);
         }
         Log.i(TAG, "NotificationExecuted");
-        notificationManager.notify(category, builder.build());
+        if (notificationManager != null) {
+          notificationManager.notify(category, builder.build());
+        }
       }
     }
+  }
+
+  @TargetApi(26)
+  private static void createNotificationChannel(Context context, String channelId, String channelName) {
+    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    if (notificationManager != null && notificationManager.getNotificationChannel(channelId) == null) {
+      NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+      notificationManager.createNotificationChannel(notificationChannel);
+    }
+  }
+
+  private static Bitmap getLargeIcon(Context context, String displayName ){
+    Drawable drawable = in.smslite.drawable.DataSource.getInstance(context).getDrawable(displayName);
+
+    return DrawableUtils.getBitmap(drawable);
   }
 
 

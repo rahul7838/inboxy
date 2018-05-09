@@ -43,11 +43,6 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactView
   }
 
   public static void updateList(List<String> nameList,List<String> numberList) {
-    int nameListSize = nameList.size();
-    int numberListSize = numberList.size();
-    if (nameListSize ==0 || numberListSize == 0) {
-return;
-    } else {
       list.clear();
       phoneNumberList.clear();
       list.addAll(nameList);
@@ -55,4 +50,3 @@ return;
       SelectContactActivity.selectContactAdapter.notifyDataSetChanged();
     }
   }
-}

@@ -53,23 +53,32 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchSmsViewHolder> {
     holder.setTime(list.get(position).getTimestamp());
     holder.setAddress(address);
 
-    SpannableStringBuilder sb = null;
+    SpannableStringBuilder sbSummary = null;
+//    SpannableStringBuilder sbAddress = null;
     if(SearchActivity.searchKeyword != null){
     if (SearchActivity.searchKeyword.length() > 0) {
       //color your text here
-      int index = summary.indexOf(SearchActivity.searchKeyword);
-      if (index > 0) {
-        sb = new SpannableStringBuilder(summary);
+      int indexSummary = summary.toLowerCase().indexOf(SearchActivity.searchKeyword.toLowerCase());
+//      int indexAddress = address.toLowerCase().indexOf(SearchActivity.searchKeyword.toLowerCase());
+//      if(indexAddress >= 0){
+//        sbAddress = new SpannableStringBuilder(address);
+//        ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255)); //specify color here
+//        sbAddress.setSpan(fcs, indexAddress, indexAddress + SearchActivity.searchKeyword.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//        holder.setAddress(sbAddress);
+//      } else {
+//        holder.setAddress(Html.fromHtml(address));
+//      }
+      if (indexSummary >= 0) {
+        sbSummary = new SpannableStringBuilder(summary);
         ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255)); //specify color here
-        sb.setSpan(fcs, index, index + SearchActivity.searchKeyword.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-//        index = summary.indexOf(searchText, index + 1);
-
-        holder.setSummary(sb);
+        sbSummary.setSpan(fcs, indexSummary, indexSummary + SearchActivity.searchKeyword.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        holder.setSummary(sbSummary);
       } else {
         holder.setSummary(Html.fromHtml(summary));
       }
     } else {
       holder.setSummary(Html.fromHtml(summary));
+//      holder.setAddress(Html.fromHtml(address));
     }
     }
   }

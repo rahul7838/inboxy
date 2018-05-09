@@ -54,6 +54,7 @@ public class ContactUtils {
 
     @NonNull
     public static String normalizeNumber(String number) {
+      StringBuilder builder = null;
         if (number == null || number.isEmpty()) {
             throw new RuntimeException("Phone number can never be null");
         }
@@ -61,12 +62,28 @@ public class ContactUtils {
         if (number.length() < 10 || number.charAt(0) == '+') {
             return number;
         } else {
-          String e164number = PhoneNumberUtils.formatNumberToE164(number, "IN");
+          if(number.charAt(0) == '0'){
+            number = number.substring(1);
+            builder = new StringBuilder();
+            builder.append("+91");
+            builder.append(number);
+        } else{
+            builder = new StringBuilder();
+            builder.append("+91");
+            builder.append(number);
+          }
+          if (builder != null) {
+            return builder.toString();
+          }
+          return number;
+
+//          TODO check why phoneNumerUtil method is not working
+         /* String e164number = PhoneNumberUtils.formatNumberToE164(number, "IN");
             if (e164number == null || e164number.isEmpty()) {
               return number;
 //                throw new RuntimeException("Phone number can't be null");
             }
-            return e164number;
+            return e164number;*/
         }
     }
 }

@@ -45,9 +45,7 @@ public class MessageUtils {
   }
 
   public static void sync(Context context, List<Sms> smses) {
-    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     Message message = new Message();
-    int count = 200;
     int size = smses.size();
     for (int i = 0; i < (size); i++) {
       Sms sms = smses.get(i);

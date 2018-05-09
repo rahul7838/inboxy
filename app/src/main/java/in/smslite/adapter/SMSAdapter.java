@@ -4,6 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 
 import java.util.List;
 
@@ -17,8 +19,8 @@ import in.smslite.viewHolder.SMSViewHolder;
 
 public class SMSAdapter extends RecyclerView.Adapter<SMSViewHolder> {
     List<Message> messages;
-    public final static int READ = 0;
-    public final static int UNREAD = 1;
+    private final static int READ = 0;
+    private final static int UNREAD = 1;
   public SMSAdapter(List<Message> messages){
     this.messages = messages;
   }

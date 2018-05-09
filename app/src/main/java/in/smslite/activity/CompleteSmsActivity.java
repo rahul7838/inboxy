@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.persistence.room.Update;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +13,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.provider.Telephony;
@@ -25,9 +28,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
-import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
@@ -35,13 +36,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,7 +52,6 @@ import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
-import in.smslite.utils.MessageUtils;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
 
@@ -64,6 +62,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
   //  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
 //  private Contact contact;
+  private LinearLayoutManager llm;
+  Observer<List<Message>> observer;
   private static final int SMS_SEND_INTENT_REQUEST = 100;
   private static final int SMS_DELIVER_INTENT_REQUEST = 101;
   private static final int SEND_TEXT_SMS_REQUEST = 102;
@@ -71,11 +71,12 @@ public class CompleteSmsActivity extends AppCompatActivity {
   View coView;
   @BindView(R.id.toolbar)
   Toolbar toolbar;
-  final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+  private final int MY_PERMISSION_REQUEST_READ_PHONE_STATE = 2;
   public static String address;
   @BindView(R.id.complete_sms_recycle_view)
   RecyclerView completeSmsRecycleView;
-//  @BindView(R.id.reply_sms_edit_text_box_id)
+  //  @BindView(R.id.reply_sms_edit_text_box_id)
   static EditText editText;
   @BindView(R.id.send_button_id)
   ImageButton imageButton;
@@ -97,19 +98,20 @@ public class CompleteSmsActivity extends AppCompatActivity {
       address = bundle.getString(getString(R.string.address_id));
     }
 //     Thread to update read and seen field of db when clicking on notification
-    UpdateDbNotiClickedThread.start();
+//    UpdateDbNotiClickedThread.start();
 
     PhoneContact.init(this);
     contact = ContactUtils.getContact(address, this, true);
 
 
-    if(contact.getCategory() == Contact.PRIMARY) {
+    if (contact.getCategory() == Contact.PRIMARY) {
       address = ContactUtils.normalizeNumber(address);
     } else {
       address = contact.getNumber();
     }
     Log.d(TAG, address + address);
     completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
+    setUpUi();
     subscribeUi();
   }
 
@@ -130,11 +132,11 @@ public class CompleteSmsActivity extends AppCompatActivity {
       e.printStackTrace();
     }
 //      address = "" + Html.fromHtml(address);
-    address = ContactUtils.formatAddress(address);
+//    address = ContactUtils.normalizeNumber(address);
 //      address = PhoneNumberUtils.formatNumber(address, locale);
   }
 
-  private Thread UpdateDbNotiClickedThread = new Thread() {
+  private class UpdateDbNotiClickedThread extends Thread {
     @Override
     public void run() {
       super.run();
@@ -144,35 +146,65 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
 
   public void subscribeUi() {
-    completeSmsActivityViewModel.messageListByAddress.observe(this, new Observer<List<Message>>() {
+    observer = new Observer<List<Message>>() {
       @Override
       public void onChanged(@Nullable List<Message> messages) {
-        showUi(messages);
+        updateUi(messages);
       }
-    });
+    };
+    completeSmsActivityViewModel.messageListByAddress.observeForever(observer);
   }
 
-  public void showUi(List<Message> messages) {
+  @Override
+  protected void onStop() {
+    super.onStop();
+    completeSmsActivityViewModel.messageListByAddress.removeObserver(observer);
+    new UpdateDbNotiClickedThread().start();
+  }
+
+  private void setUpUi() {
     setContentView(R.layout.activity_sms_complete);
     ButterKnife.bind(this);
     editText = (EditText) findViewById(R.id.reply_sms_edit_text_box_id);
-    LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+    llm = new LinearLayoutManager(getApplicationContext());
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     llm.setStackFromEnd(true);
 
     setToolbar();
 
+    imageButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+          checkPhoneStatePermission();
+        } else {
+          if (address.matches("[a-zA-Z-]*")) {
+              Toast.makeText(context, "Invalid address", Toast.LENGTH_SHORT).show();
+          } else {
+            sendButtonClicked();
+          }
+        }
+      }
+    });
+  }
+
+  private void updateUi(List<Message> messages) {
     CompleteSmsAdapter completeSmsAdapter = new CompleteSmsAdapter(messages);
     completeSmsRecycleView.setLayoutManager(llm);
     completeSmsRecycleView.setHasFixedSize(true);
     completeSmsRecycleView.setAdapter(completeSmsAdapter);
+  }
 
-    imageButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
+  private void checkPhoneStatePermission() {
+
+      int permissionCheckCall = ContextCompat.checkSelfPermission(CompleteSmsActivity.this,
+          Manifest.permission.READ_PHONE_STATE);
+      if (permissionCheckCall != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(CompleteSmsActivity.this,
+            new String[]{Manifest.permission.READ_PHONE_STATE}, MY_PERMISSION_REQUEST_READ_PHONE_STATE);
+      } else {
         sendButtonClicked();
       }
-    });
   }
 
   private void sendButtonClicked() {
@@ -181,21 +213,21 @@ public class CompleteSmsActivity extends AppCompatActivity {
       intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
       startActivityForResult(intent, SEND_TEXT_SMS_REQUEST);
     } else {
-      long l = 0;
-      sendTextSms(l);
+      long timeStamp = 0;
+      sendTextSms(timeStamp);
     }
   }
 
   public static void sendTextSms(Long time) {
     String msg;
-    if(CompleteSmsSentViewHolder.tryFailedSms){
+    if (CompleteSmsSentViewHolder.tryFailedSms) {
       CompleteSmsSentViewHolder.tryFailedSms = false;
       msg = db.messageDao().getFailedSmsText(time);
       db.messageDao().deleteFailedMsg(time);
       new thread(msg).start();
-    } else{
-    Editable editableText = editText.getText();
-    msg = editableText.toString();
+    } else {
+      Editable editableText = editText.getText();
+      msg = editableText.toString();
 //    if (!msg.isEmpty()) {
       editableText.clear();
 //      write sent sms to local database
@@ -213,6 +245,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     @Override
     public void run() {
       super.run();
+      if(!msg.isEmpty()){
       timeStampForBroadCast = System.currentTimeMillis();
       message = new Message();
       message.address = address;
@@ -223,11 +256,10 @@ public class CompleteSmsActivity extends AppCompatActivity {
       message.category = contact.getCategory();
       message.threadId = 0;
       message.timestamp = timeStampForBroadCast;
-      Log.d(TAG, "message.timeStamp " + Long.toString(timeStampForBroadCast) );
+      Log.d(TAG, "message.timeStamp " + Long.toString(timeStampForBroadCast));
       message.type = Message.MessageType.QUEUED;
       db.messageDao().insertMessage(message);
 
-      if(!msg.isEmpty()) {
         Intent sentIntent = new Intent();
 //        sentIntent.putExtra("timeStamp123", timeStampForBroadCast);
         sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
@@ -245,7 +277,14 @@ public class CompleteSmsActivity extends AppCompatActivity {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
       } else {
-        Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+        Handler handler = new Handler(context.getMainLooper());
+        Runnable task = new Runnable() {
+          @Override
+          public void run() {
+            Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+          }
+        };
+        handler.post(task);
       }
     }
   }
@@ -319,6 +358,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
+    completeSmsActivityViewModel.messageListByAddress.observeForever(observer);
     IntentFilter sentSmsIntentFilter = new IntentFilter();
     sentSmsIntentFilter.addAction("in.smslite.SEND_SMS_ACTION");
     registerReceiver(SendSmsBroadcastReceiver, sentSmsIntentFilter);
@@ -328,6 +368,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   protected void onDestroy() {
     super.onDestroy();
     unregisterReceiver(SendSmsBroadcastReceiver);
+//    new UpdateDbNotiClickedThread().start();
   }
 
   @Override
@@ -380,34 +421,57 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public void onRequestPermissionsResult(int requestCode,
                                          String permissions[], int[] grantResults) {
     switch (requestCode) {
-      case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+      case MY_PERMISSIONS_REQUEST_CALL_PHONE:
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0
             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
           performCalling();
         } else {
           if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
-            showDialogOK("Phone permission required for this app to perform this action", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialogInterface, int which) {
-                switch (which) {
-                  case DialogInterface.BUTTON_POSITIVE:
-                    checkCallPermission();
-                    break;
-                  case DialogInterface.BUTTON_NEGATIVE:
-                }
-              }
-            });
+            String msg = "Phone permission required for this app to perform this action";
+            expainPermissionDialog(msg);
           } else {
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
+            openSetting();
           }
         }
-      }
+        break;
+      case MY_PERMISSION_REQUEST_READ_PHONE_STATE:
+
+        if (grantResults.length > 0
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          sendButtonClicked();
+        } else {
+          if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
+            String msg = "Phone state permission required for this app to perform this action";
+            expainPermissionDialog(msg);
+          } else {
+            openSetting();
+          }
+        }
     }
+  }
+
+  private void openSetting() {
+    Intent intent = new Intent();
+    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+    Uri uri = Uri.fromParts("package", getPackageName(), null);
+    intent.setData(uri);
+    startActivity(intent);
+  }
+
+  private void expainPermissionDialog(String msg) {
+    showDialogOK(msg, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialogInterface, int which) {
+        switch (which) {
+          case DialogInterface.BUTTON_POSITIVE:
+            checkCallPermission();
+            break;
+          case DialogInterface.BUTTON_NEGATIVE:
+            break;
+        }
+      }
+    });
   }
 
 

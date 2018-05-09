@@ -21,6 +21,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observer;
 
 import in.smslite.R;
 import in.smslite.adapter.SearchAdapter;
@@ -42,14 +43,15 @@ public class SearchActivity extends AppCompatActivity {
   RecyclerView recyclerView;
   ImageView imageView;
   TextView textView;
+//  private final Object lock = new SearchActivity();
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     context = this;
     setContentView(R.layout.search_msg);
     editText = (EditText) findViewById(R.id.search_editText_id);
-    textView =  findViewById(R.id.search_msg_note);
-//    textView.setVisibility(View.VISIBLE);
+    textView = (TextView)  findViewById(R.id.search_msg_note);
+
     imageView = (ImageView) findViewById(R.id.search_activity_back_arrow);
     imageView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -57,18 +59,6 @@ public class SearchActivity extends AppCompatActivity {
         onBackPressed();
       }
     });
-//    Button button = findViewById(R.id.search_button_id);
-//    button.setOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(View v) {
-//        Editable text =  editText.getText();
-//        msgList =  db.messageDao().searchMsg("%"+text.toString()+"%");
-//        Log.d(TAG, string);
-//        Log.d(TAG, String.valueOf(msgList.size()));
-//        searchAdapter = new SearchAdapter(msgList,context);
-//        recyclerView.setAdapter(searchAdapter);
-//      }
-//    });
 
     editText.addTextChangedListener(new TextWatcher() {
       @Override
@@ -79,7 +69,6 @@ public class SearchActivity extends AppCompatActivity {
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
       Log.d(TAG, "onTextChanged");
-//       msgList =  db.messageDao().searchMsg(s);
       }
 
       @Override
@@ -89,7 +78,15 @@ public class SearchActivity extends AppCompatActivity {
         stringBuilder.append(s);
         searchKeyword = stringBuilder.toString();
 //        if(searchKeyword != "") {
-          msgList = db.messageDao().searchMsg("%" + searchKeyword + "%");
+        Long time = System.currentTimeMillis();
+//        synchronized() {
+//          try {
+//            wait(90000);
+//          } catch (InterruptedException e) {
+//            e.printStackTrace();
+//          }
+//        }
+        msgList = db.messageDao().searchMsg("%" + searchKeyword + "%");
 //        msgList.size();
           Log.d(TAG, searchKeyword);
           Log.d(TAG, String.valueOf(msgList.size()));
@@ -103,7 +100,7 @@ public class SearchActivity extends AppCompatActivity {
             textView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
           }
-          //TODO -- Adapter instance should not be instantiated for each query. Find the way to replace the data
+          //TODO -- (done)Adapter instance should not be instantiated for each query. Find the way to replace the data
 //          searchAdapter = new SearchAdapter(msgList, context, searchKeyword);
 //          recyclerView.setAdapter(searchAdapter);
 //        } else {

@@ -21,7 +21,6 @@
     <item android:title="Search"
         android:icon="@drawable/ic_search_black_24dp"
         android:id="@+id/menu_search_msg_id"
-        android:iconTint="@color/white_pure"
         app:showAsAction="always"/>
-
+    <!--android:iconTint="@color/white_pure"-->
 </menu>

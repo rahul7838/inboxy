@@ -28,4 +28,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="completeSmsActivityTheme" parent="Theme.AppCompat.Light">
+
+    </style>
+
 </resources>

@@ -44,8 +44,6 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
     Log.d(TAG, Long.toString(failedSmsTime));
     tryFailedSms = true;
     CompleteSmsActivity.sendTextSms(failedSmsTime);
-
-
   }
 
 //  public void setSmsStatus(String text){

@@ -23,7 +23,6 @@
         android:clipToPadding="false"
         android:dividerHeight="0dp"
         android:listSelector="?android:listSelector"
-        android:paddingTop="@dimen/first_sms_extra_padding"
         android:scrollbars="vertical"
         android:visibility="visible">
 

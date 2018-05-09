@@ -1,23 +1,23 @@
 package in.smslite.activity;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.app.LoaderManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,14 +27,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.smslite.R;
 import in.smslite.adapter.SelectContactAdapter;
-import in.smslite.contacts.Contact;
-import in.smslite.utils.ContactUtils;
+
+import static android.telephony.PhoneNumberUtils.formatNumber;
+
 
 /**
  * Created by rahul1993 on 4/27/2018.
  */
 
-public class SelectContactActivity extends AppCompatActivity implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
+public class SelectContactActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
   private static final String TAG = SelectContactActivity.class.getSimpleName();
   @BindView(R.id.recyclerView_select_list_id)
   RecyclerView recyclerView;
@@ -47,23 +48,10 @@ public class SelectContactActivity extends AppCompatActivity implements android.
   List<String> list = new ArrayList<>();
   List<String> phoneNumberList = new ArrayList<>();
 
-  private static final String[] PROJECTION =
-      {ContactsContract.Data._ID,
-          ContactsContract.Contacts.HAS_PHONE_NUMBER,
-          ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
-          ContactsContract.CommonDataKinds.Phone.NUMBER
-      };
-
-  //  private static final String SELECTION = ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?";
-  private static final String SELECTION = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " LIKE ?"
-      + " AND " + ContactsContract.Data.MIMETYPE + " LIKE ?";
-//      + " OR " + ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE ?";
   // Defines a variable for the search string
   private String mSearchString;
   // Defines the array to hold values that replace the ?
-  private String[] mSelectionArgs = {mSearchString,
-      ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE};
-  android.support.v4.app.LoaderManager.LoaderCallbacks callbacks;
+  LoaderManager.LoaderCallbacks callbacks;
   public static SelectContactAdapter selectContactAdapter;
 
 
@@ -105,75 +93,141 @@ public class SelectContactActivity extends AppCompatActivity implements android.
 
     recyclerView.setHasFixedSize(true);
     recyclerView.setLayoutManager(linearLayoutManager);
+//    recyclerView.setLayoutManager(new WrapContentLinearLayoutManager(context));
     selectContactAdapter = new SelectContactAdapter(list, phoneNumberList);
     recyclerView.setAdapter(selectContactAdapter);
   }
 
 
   @Override
-  public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     phoneNumberList.clear();
     list.clear();
-    mSelectionArgs[0] = "%" + mSearchString + "%";
-//    mSelectionArgs[2] = "%" + mSearchString + "%";
-    Log.d(TAG, mSearchString + " string");
-    android.support.v4.content.CursorLoader cursor = new android.support.v4.content.CursorLoader(this, ContactsContract.Data.CONTENT_URI, PROJECTION, SELECTION,
-        mSelectionArgs, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC");
-    Log.d(TAG, "onCreateLoader");
-    return cursor;
-  }
+    if (!mSearchString.matches("[0-9]*")) {
+      Log.d(TAG, mSearchString + " string");
 
-  @Override
-  public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-    if (mSearchString.equals("")) {
-      SelectContactAdapter.updateList(list, phoneNumberList);
+      String[] projection = {
+          ContactsContract.Data._ID,
+          ContactsContract.Contacts.HAS_PHONE_NUMBER,
+          ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
+          ContactsContract.CommonDataKinds.Phone.NUMBER
+      };
+      String selection = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " LIKE ?"
+          + " AND " + ContactsContract.Data.MIMETYPE + " LIKE ?";
+      String[] selectionCriteria = {mSearchString,
+          ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE};
+      selectionCriteria[0] = "%" + mSearchString + "%";
+
+      CursorLoader cursor = new CursorLoader(this, ContactsContract.Data.CONTENT_URI, projection, selection,
+          selectionCriteria, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC");
+      Log.d(TAG, "onCreateLoader");
+      return cursor;
     } else {
-      data.moveToFirst();
-      HashSet<String> set = new HashSet<>();
-      int size = data.getCount();
-      List<String> nameList = new ArrayList<>();
-      List<String> numberList = new ArrayList<>();
-//      String lastNumber = "";
-      do {
-        if (data.getCount() != 0) {
-          if(data.getInt(1) == 1) {
-            if (!data.getString(3).matches(".*[a-zA-Z].*")) {
-              if (set.add(formatNumber(data.getString(3)))) {
-                nameList.add(data.getString(2));
-                numberList.add(data.getString(3));
-              }
-            }
-          }
-        }
-      } while (data.moveToNext());
-      Log.i(TAG, Integer.toString(nameList.size()));
-      Log.i(TAG, Integer.toString(numberList.size()));
-      SelectContactAdapter.updateList(nameList, numberList);
-//      SelectContactAdapter.updateList(list, phoneNumberList);
+      Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+      String selection = ContactsContract.CommonDataKinds.Phone.NUMBER + " LIKE?";
+      String[] arg = {"%" + mSearchString + "%"};
+      CursorLoader cursor = new CursorLoader(context, uri, null, selection, arg, null);
+      return cursor;
     }
   }
 
+
   @Override
-  public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    if (mSearchString.equals("")) {
+      SelectContactAdapter.updateList(list, phoneNumberList);
+    } else {
+      Log.d(TAG, Integer.toString(data.getCount()));
+      if (!mSearchString.matches("[0-9]*")) {
+        textIsAlphaNumeric(data);
+      } else {
+        textIsNumber(data);
+      }
+    }
+  }
+
+  private void textIsNumber(Cursor data) {
+    List<String> nameList = new ArrayList<>();
+    List<String> numberList = new ArrayList<>();
+    HashSet<String> set = new HashSet<>();
+    try {
+      data.moveToFirst();
+      int nameIndex = data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+      int numberIndex = data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+      do {
+        if (set.add(formatNumber(data.getString(numberIndex)))) {
+          nameList.add(data.getString(nameIndex));
+          numberList.add(data.getString(numberIndex));
+        }
+      } while (data.moveToNext());
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      data.close();
+    }
+    SelectContactAdapter.updateList(nameList, numberList);
+  }
+
+
+  private void textIsAlphaNumeric(Cursor data) {
+    List<String> nameList = new ArrayList<>();
+    List<String> numberList = new ArrayList<>();
+    HashSet<String> set = new HashSet<>();
+    data.moveToFirst();
+
+    try {
+      do {
+//          if (data.getInt(1) == 1) {
+        if (!data.getString(3).matches(".*[a-zA-Z].*")) {
+          if (set.add(formatNumber(data.getString(3)))) {
+            nameList.add(data.getString(2));
+            numberList.add(data.getString(3));
+          }
+        }
+      } while (data.moveToNext());
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      data.close();
+    }
+    Log.d(TAG, Integer.toString(nameList.size()));
+    Log.d(TAG, Integer.toString(numberList.size()));
+    SelectContactAdapter.updateList(nameList, numberList);
+  }
+
+
+  @Override
+  public void onLoaderReset(Loader<Cursor> loader) {
 
   }
 
   private String formatNumber(String number) {
-//    if (number == null || number.isEmpty()) {
-//      throw new RuntimeException("Phone number can never be null");
-//    }
-//    number = PhoneNumberUtils.stripSeparators(number);
     number = number.replaceAll("-", "");
     number = number.replaceAll(" ", "");
-    if (number.length() < 10 || number.charAt(0) == '+') {
+    if (number.charAt(0) == '+') {
+      number = number.substring(3);
       return number;
-    } else {
-      String e164number = PhoneNumberUtils.formatNumberToE164(number, "IN");
-      if (e164number == null || e164number.isEmpty()) {
-        return number;
-//                throw new RuntimeException("Phone number can't be null");
+    }
+    if (number.charAt(0) == '0') {
+      number = number.substring(1);
+      return number;
+    }
+    return number;
+  }
+
+  public class WrapContentLinearLayoutManager extends LinearLayoutManager {
+
+    public WrapContentLinearLayoutManager(Context context) {
+      super(context);
+    }
+
+    @Override
+    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+      try {
+        super.onLayoutChildren(recycler, state);
+      } catch (IndexOutOfBoundsException e) {
+        Log.e("probe", "meet a IOOBE in recycler view");
       }
-      return e164number;
     }
   }
 }

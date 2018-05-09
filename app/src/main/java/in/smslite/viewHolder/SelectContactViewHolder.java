@@ -28,9 +28,9 @@ public class SelectContactViewHolder extends RecyclerView.ViewHolder implements 
   public SelectContactViewHolder(View itemView, Context context) {
     super(itemView);
     view = itemView;
-    contactName = view.findViewById(R.id.textview1_select_contact_id);
-    phoneNumber = view.findViewById(R.id.textView2_select_contact_id);
-    avatar = view.findViewById(R.id.imageView_select_contact_id);
+    contactName = (TextView) view.findViewById(R.id.textview1_select_contact_id);
+    phoneNumber = (TextView) view.findViewById(R.id.textView2_select_contact_id);
+    avatar = (ImageView) view.findViewById(R.id.imageView_select_contact_id);
     this.context = context;
     view.setOnClickListener(this);
   }
