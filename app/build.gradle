@@ -21,8 +21,8 @@ android {
         applicationId "in.smslite"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 14
-        versionName "1.8.1"
+        versionCode 15
+        versionName "1.9.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

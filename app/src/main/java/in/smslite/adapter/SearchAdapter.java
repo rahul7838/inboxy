@@ -57,8 +57,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchSmsViewHolder> {
     if(SearchActivity.searchKeyword != null){
     if (SearchActivity.searchKeyword.length() > 0) {
       //color your text here
-      int index = summary.indexOf(SearchActivity.searchKeyword);
-      if (index > 0) {
+      int index = summary.toLowerCase().indexOf(SearchActivity.searchKeyword.toLowerCase());
+      if (index >= 0) {
         sb = new SpannableStringBuilder(summary);
         ForegroundColorSpan fcs = new ForegroundColorSpan(Color.rgb(0, 0, 255)); //specify color here
         sb.setSpan(fcs, index, index + SearchActivity.searchKeyword.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);

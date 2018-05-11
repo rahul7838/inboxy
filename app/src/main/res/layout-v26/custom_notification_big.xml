@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_big_noti_parent"
+    android:layout_width="match_parent"
+    android:layout_height="144dp">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="96dp"
+        android:id="@+id/layout_big_noti_child1"
+        android:layout_alignParentTop="true">
+
+
+        <ImageView android:id="@+id/image_app"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_stat_name"
+            android:padding="10dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/big_notification_circular_view"/>
+        <TextView android:id="@+id/custom_big_noti_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="KOTAKB"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp"
+            android:layout_toRightOf="@+id/image_app"
+            android:textColor="@android:color/black"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+        <TextView android:id="@+id/custom_big_noti_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/image_app"
+            android:text="One Time Password"
+            android:layout_below="@id/custom_big_noti_title"
+            android:textColor="@color/colorLightBlack"/>
+        <TextView
+            android:id="@+id/custom_big_noti_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="3:14 PM"
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/colorLightBlack"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="48dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"
+            android:gravity="center"
+            android:text="2   3   4   5   6   7"
+            android:id="@+id/custom_big_noti_OTP"
+            android:textStyle="bold"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout android:layout_height="48dp"
+        android:layout_width="match_parent"
+        android:background="@color/colorPrimary"
+        android:id="@+id/layout_big_noti_child2"
+        android:layout_below="@id/layout_big_noti_child1"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_content_copy"
+            android:id="@+id/imageView_big_noti_copy"
+            android:layout_centerVertical="true"
+            android:paddingRight="10dp"
+            android:layout_marginStart="166dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Copy"
+            android:textColor="@android:color/white"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/imageView_big_noti_copy"/>
+    </RelativeLayout>
+
+</RelativeLayout>

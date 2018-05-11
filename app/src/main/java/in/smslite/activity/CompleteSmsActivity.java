@@ -12,7 +12,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.provider.Telephony;
@@ -64,6 +66,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
   //  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
 //  private Contact contact;
+  private LinearLayoutManager llm;
   private static final int SMS_SEND_INTENT_REQUEST = 100;
   private static final int SMS_DELIVER_INTENT_REQUEST = 101;
   private static final int SEND_TEXT_SMS_REQUEST = 102;
@@ -72,10 +75,11 @@ public class CompleteSmsActivity extends AppCompatActivity {
   @BindView(R.id.toolbar)
   Toolbar toolbar;
   final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+  private final int MY_PERMISSION_REQUEST_READ_PHONE_STATE = 2;
   public static String address;
   @BindView(R.id.complete_sms_recycle_view)
   RecyclerView completeSmsRecycleView;
-//  @BindView(R.id.reply_sms_edit_text_box_id)
+  //  @BindView(R.id.reply_sms_edit_text_box_id)
   static EditText editText;
   @BindView(R.id.send_button_id)
   ImageButton imageButton;
@@ -84,6 +88,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   private static Context context;
   public static Message message;
   public static Long timeStampForBroadCast;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -103,13 +108,25 @@ public class CompleteSmsActivity extends AppCompatActivity {
     contact = ContactUtils.getContact(address, this, true);
 
 
-    if(contact.getCategory() == Contact.PRIMARY) {
+    if (contact.getCategory() == Contact.PRIMARY) {
       address = ContactUtils.normalizeNumber(address);
     } else {
       address = contact.getNumber();
     }
     Log.d(TAG, address + address);
     completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
+//    setUpUi();
+//    subscribeUi();
+    setContentView(R.layout.activity_sms_complete);
+    ButterKnife.bind(this);
+    editText = (EditText) findViewById(R.id.reply_sms_edit_text_box_id);
+    LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+    llm.setOrientation(LinearLayoutManager.VERTICAL);
+    llm.setStackFromEnd(true);
+    completeSmsRecycleView.setLayoutManager(llm);
+    completeSmsRecycleView.setHasFixedSize(true);
+    setToolbar();
+    sendButtonClickListener();
     subscribeUi();
   }
 
@@ -142,6 +159,39 @@ public class CompleteSmsActivity extends AppCompatActivity {
     }
   };
 
+  private void setUpUi() {
+
+  }
+
+  private void sendButtonClickListener() {
+    imageButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+          checkPhoneStatePermission();
+        } else {
+          if (address.matches("[a-zA-Z-]*")) {
+            Toast.makeText(context, "Invalid address", Toast.LENGTH_SHORT).show();
+          } else {
+            sendButtonClicked();
+          }
+        }
+      }
+    });
+  }
+
+  private void checkPhoneStatePermission() {
+
+    int permissionCheckCall = ContextCompat.checkSelfPermission(CompleteSmsActivity.this,
+        Manifest.permission.READ_PHONE_STATE);
+    if (permissionCheckCall != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(CompleteSmsActivity.this,
+          new String[]{Manifest.permission.READ_PHONE_STATE}, MY_PERMISSION_REQUEST_READ_PHONE_STATE);
+    } else {
+      sendButtonClicked();
+    }
+  }
+
 
   public void subscribeUi() {
     completeSmsActivityViewModel.messageListByAddress.observe(this, new Observer<List<Message>>() {
@@ -153,26 +203,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
   }
 
   public void showUi(List<Message> messages) {
-    setContentView(R.layout.activity_sms_complete);
-    ButterKnife.bind(this);
-    editText = (EditText) findViewById(R.id.reply_sms_edit_text_box_id);
-    LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
-    llm.setOrientation(LinearLayoutManager.VERTICAL);
-    llm.setStackFromEnd(true);
-
-    setToolbar();
-
     CompleteSmsAdapter completeSmsAdapter = new CompleteSmsAdapter(messages);
-    completeSmsRecycleView.setLayoutManager(llm);
-    completeSmsRecycleView.setHasFixedSize(true);
     completeSmsRecycleView.setAdapter(completeSmsAdapter);
-
-    imageButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        sendButtonClicked();
-      }
-    });
   }
 
   private void sendButtonClicked() {
@@ -188,14 +220,14 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
   public static void sendTextSms(Long time) {
     String msg;
-    if(CompleteSmsSentViewHolder.tryFailedSms){
+    if (CompleteSmsSentViewHolder.tryFailedSms) {
       CompleteSmsSentViewHolder.tryFailedSms = false;
       msg = db.messageDao().getFailedSmsText(time);
       db.messageDao().deleteFailedMsg(time);
       new thread(msg).start();
-    } else{
-    Editable editableText = editText.getText();
-    msg = editableText.toString();
+    } else {
+      Editable editableText = editText.getText();
+      msg = editableText.toString();
 //    if (!msg.isEmpty()) {
       editableText.clear();
 //      write sent sms to local database
@@ -213,21 +245,22 @@ public class CompleteSmsActivity extends AppCompatActivity {
     @Override
     public void run() {
       super.run();
-      timeStampForBroadCast = System.currentTimeMillis();
-      message = new Message();
-      message.address = address;
-      Log.d(TAG, address);
-      message.body = msg;
-      message.read = true;
-      message.seen = true;
-      message.category = contact.getCategory();
-      message.threadId = 0;
-      message.timestamp = timeStampForBroadCast;
-      Log.d(TAG, "message.timeStamp " + Long.toString(timeStampForBroadCast) );
-      message.type = Message.MessageType.QUEUED;
-      db.messageDao().insertMessage(message);
+      if (!msg.isEmpty()) {
+        timeStampForBroadCast = System.currentTimeMillis();
+        message = new Message();
+        message.address = address;
+        Log.d(TAG, address);
+        message.body = msg;
+        message.read = true;
+        message.seen = true;
+        message.category = contact.getCategory();
+        message.threadId = 0;
+        message.timestamp = timeStampForBroadCast;
+        Log.d(TAG, "message.timeStamp " + Long.toString(timeStampForBroadCast));
+        message.type = Message.MessageType.QUEUED;
+        db.messageDao().insertMessage(message);
 
-      if(!msg.isEmpty()) {
+
         Intent sentIntent = new Intent();
 //        sentIntent.putExtra("timeStamp123", timeStampForBroadCast);
         sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
@@ -245,7 +278,14 @@ public class CompleteSmsActivity extends AppCompatActivity {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
       } else {
-        Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+        Handler handler = new Handler(context.getMainLooper());
+        Runnable task = new Runnable() {
+          @Override
+          public void run() {
+            Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+          }
+        };
+        handler.post(task);
       }
     }
   }
@@ -380,34 +420,57 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public void onRequestPermissionsResult(int requestCode,
                                          String permissions[], int[] grantResults) {
     switch (requestCode) {
-      case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+      case MY_PERMISSIONS_REQUEST_CALL_PHONE:
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0
             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
           performCalling();
         } else {
           if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
-            showDialogOK("Phone permission required for this app to perform this action", new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialogInterface, int which) {
-                switch (which) {
-                  case DialogInterface.BUTTON_POSITIVE:
-                    checkCallPermission();
-                    break;
-                  case DialogInterface.BUTTON_NEGATIVE:
-                }
-              }
-            });
+            String msg = "Phone permission required for this app to perform the action";
+            expainPermissionDialog(msg);
           } else {
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
+            openSetting();
           }
         }
-      }
+        break;
+      case MY_PERMISSION_REQUEST_READ_PHONE_STATE:
+
+        if (grantResults.length > 0
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          sendButtonClicked();
+        } else {
+          if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
+            String msg = "Phone permission required for this app to perform the action";
+            expainPermissionDialog(msg);
+          } else {
+            openSetting();
+          }
+        }
     }
+  }
+
+  private void openSetting() {
+    Intent intent = new Intent();
+    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+    Uri uri = Uri.fromParts("package", getPackageName(), null);
+    intent.setData(uri);
+    startActivity(intent);
+  }
+
+  private void expainPermissionDialog(String msg) {
+    showDialogOK(msg, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialogInterface, int which) {
+        switch (which) {
+          case DialogInterface.BUTTON_POSITIVE:
+            checkCallPermission();
+            break;
+          case DialogInterface.BUTTON_NEGATIVE:
+            break;
+        }
+      }
+    });
   }
 
 

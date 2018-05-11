@@ -3,17 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp">
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_marginBottom="8dp">
 
     <LinearLayout
         android:id="@+id/card_sending_linear_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="4dp"
         android:layout_marginEnd="12dp"
         android:layout_marginStart="64dp"
-        android:layout_marginTop="12dp"
         android:background="@drawable/sms_sent_background"
         android:orientation="vertical">
     <TextView
@@ -39,6 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:layout_marginStart="12dp"
+            android:layout_marginBottom="8dp"
             android:text="wed 8:45 PM"
             android:textColor="@color/colorTimestamp"
             android:textSize="12sp" />
