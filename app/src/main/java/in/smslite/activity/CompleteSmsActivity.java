@@ -27,9 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
-import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
@@ -37,13 +35,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,7 +51,6 @@ import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
-import in.smslite.utils.MessageUtils;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
 
@@ -428,7 +423,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
         } else {
           if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
             String msg = "Phone permission required for this app to perform the action";
-            expainPermissionDialog(msg);
+            explainPermissionDialog(msg);
           } else {
             openSetting();
           }
@@ -442,7 +437,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
         } else {
           if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
             String msg = "Phone permission required for this app to perform the action";
-            expainPermissionDialog(msg);
+            explainPermissionDialog(msg);
           } else {
             openSetting();
           }
@@ -458,7 +453,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     startActivity(intent);
   }
 
-  private void expainPermissionDialog(String msg) {
+  private void explainPermissionDialog(String msg) {
     showDialogOK(msg, new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialogInterface, int which) {
@@ -494,7 +489,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     new AlertDialog.Builder(CompleteSmsActivity.this)
         .setMessage(message)
         .setPositiveButton("OK", okListener)
-        .setNegativeButton("Cancel", okListener)
+        .setNegativeButton("CANCEL", okListener)
         .create()
         .show();
   }

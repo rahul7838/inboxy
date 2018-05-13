@@ -5,9 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import in.smslite.R;
+import in.smslite.activity.MainActivity;
 import in.smslite.db.Message;
 import in.smslite.viewHolder.SMSViewHolder;
 
@@ -16,11 +18,16 @@ import in.smslite.viewHolder.SMSViewHolder;
  */
 
 public class SMSAdapter extends RecyclerView.Adapter<SMSViewHolder> {
-    List<Message> messages;
-    public final static int READ = 0;
-    public final static int UNREAD = 1;
-  public SMSAdapter(List<Message> messages){
+    public  List<Message> messages;
+    private final static int READ = 0;
+    private final static int UNREAD = 1;
+    public  List<Message> selectedItemAdapter = new ArrayList<>();
+    public  List<Message> listOfItemAdapter = new ArrayList<>();
+
+  public SMSAdapter(List<Message> messages, List<Message> selectedItemAdapter, List<Message> listOfItemAdapter){
     this.messages = messages;
+    this.listOfItemAdapter = listOfItemAdapter;
+    this.selectedItemAdapter =selectedItemAdapter;
   }
 
   @Override
@@ -37,6 +44,13 @@ public class SMSAdapter extends RecyclerView.Adapter<SMSViewHolder> {
 
   @Override
   public void onBindViewHolder(SMSViewHolder holder, int position) {
+    if(selectedItemAdapter.contains(listOfItemAdapter.get(position))){
+      holder.setBackgroundColor();
+      holder.setDividerLineInvisible();
+    } else {
+      holder.setBackgroundColorWhite();
+      holder.setDividerLineVisible();
+    }
     holder.setAddress(messages.get(position).address);
     holder.setSummary(messages.get(position).body);
     holder.setTime(messages.get(position).timestamp);

@@ -22,4 +22,8 @@
     <color name="black_pure">#000000</color>
     <color name="regular_gray">#4c4c4c</color>
     <color name="light_blue">#dbdcff</color>
+    
+    <color name="contextual_action_bar">#323232</color>
+    <color name="contextual_status_bar_color">#191919</color>
+    <color name="item_selected">#b2b2b2</color>
 </resources>

@@ -1,6 +1,7 @@
 package in.smslite.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -53,6 +54,7 @@ import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
+import in.smslite.others.MainActivityHelper;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
@@ -68,11 +70,14 @@ public class MainActivity extends AppCompatActivity {
   public static final String WIDGET_UPDATE_DB_COLUMN_KEY = "updateWidgetDb";
   public static final String MAINACTIVTY_CATEGORY_TASKSTACK_KEY = "category";
   public static LocalMessageDbViewModel localMessageDbViewModel;
+  public static List<Message> selectedItem = new ArrayList<>();
+  public static List<Message> listOfItem = new ArrayList<>();
+  public static Activity activity;
   private int currentVisiblePostion = 0;
   LiveData<List<Message>> liveDataListMsg;
   Observer<List<Message>> observer = null;
   LinearLayoutManager llm;
-  SMSAdapter smsAdapter;
+  public static SMSAdapter smsAdapter;
   @BindView(R.id.fab)
   FloatingActionButton fab;
   @BindView(R.id.toolbar)
@@ -87,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
   BottomNavigationView bottomNavigationView;
   @BindView(R.id.sms_list)
   RecyclerView recyclerView;
+  public static RelativeLayout relativeLayout;
   final int MY_PERMISSIONS_REQUEST_READ_SMS = 0;
   List<String> permissionNeeded;
   public SharedPreferences sharedPreferences;
@@ -112,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
+    activity = this;
 //    registerSmsReceiverBroadcast();
 
 
@@ -291,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
     Log.d(TAG, "initiUi");
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
+    
     setLinearLayout();
     //divide recycler view item
 //    DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), llm.getOrientation());
@@ -333,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
       Log.d(TAG, "addParentStack");
     }
     setBottomNavigation();
+    MainActivityHelper.contextualActionMode(recyclerView, fab, bottomNavigationView, context);
   }
 
   private void launchPickContact() {
@@ -348,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
     llm.setOrientation(LinearLayoutManager.VERTICAL);
     recyclerView.setLayoutManager(llm);
     recyclerView.setHasFixedSize(true);
+
   }
 
   private void setToolbar() {
@@ -400,6 +410,8 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void setMessageList(List<Message> messageList, int category) {
+    listOfItem.clear();
+    listOfItem.addAll(messageList);
     if (messageList.isEmpty()) {
       switch (category) {
         case Contact.PRIMARY:
@@ -424,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
     } else {
       emptyView.setVisibility(View.GONE);
       recyclerView.setVisibility(View.VISIBLE);
-      smsAdapter = new SMSAdapter(messageList);
+      smsAdapter = new SMSAdapter(messageList, selectedItem, listOfItem);
       recyclerView.setAdapter(smsAdapter);
 //      context = getApplicationContext();
       /*SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);

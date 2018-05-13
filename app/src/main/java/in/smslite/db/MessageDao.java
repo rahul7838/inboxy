@@ -24,9 +24,9 @@ public interface MessageDao {
   @Query("Select * from Message Where address = :address order by timestamp asc")
   public LiveData<List<Message>> getMessageListByAddress(String address);
 
-//  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
-@Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
-    "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where category = :category order by timestamp desc")
+  //  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
+  @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
+      "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where category = :category order by timestamp desc")
   public LiveData<List<Message>> getMessageListByCategory(int category);
 
   @Query("Select * from Message Where seen = 0 and Category = :category")
@@ -53,7 +53,7 @@ public interface MessageDao {
   @Query("Update Message set type = 4 where timestamp LIKE :time")
   public void deliveredSmsSuccessfully(Long time);
 
-//  Query for failed sms
+  //  Query for failed sms
   @Query("Update Message set type = 5 where timestamp = :time")
   public void updateSentFailedSms(Long time);
 
@@ -63,15 +63,15 @@ public interface MessageDao {
   @Query("Delete from message where timestamp = :time")
   public void deleteFailedMsg(Long time);
 
-//  Query for message search
+  //  Query for message search
 //  @Query("Select * from Message where body LIKE :keyword or address LIKE :keyword group by address order by timestamp desc")
-@Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
-    "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where body LIKE :keyword or t1.address LIKE :keyword" +
-    " group by t1.address order by t1.timestamp desc")
+  @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
+      "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where body LIKE :keyword or t1.address LIKE :keyword" +
+      " group by t1.address order by t1.timestamp desc")
   public List<Message> searchMsg(String keyword);
 
-
-
+  @Query("Delete from message where address = :address")
+  public void deleteSelectedMessage(String address);
 
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();
