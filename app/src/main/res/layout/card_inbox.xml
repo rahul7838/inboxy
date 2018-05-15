@@ -31,9 +31,8 @@
         android:textSize="14sp"
         android:autoLink="all"
         android:textColorLink="@color/colorPrimary"
-        android:text="hi, man how r u what r u doing i am making my app i would say "
-        android:textIsSelectable="true"/>
-
+        android:text="hi, man how r u what r u doing i am making my app i would say "/>
+        <!--android:textIsSelectable="true"-->
         <TextView
             android:id="@+id/timestamp"
             android:layout_width="wrap_content"

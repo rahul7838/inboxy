@@ -1,11 +1,9 @@
 package in.smslite.others;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.provider.Telephony;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -16,20 +14,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import in.smslite.R;
 import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.activity.MainActivity;
-import in.smslite.adapter.SMSAdapter;
-import in.smslite.db.Message;
 import in.smslite.utils.MessageUtils;
 
 import static in.smslite.activity.MainActivity.db;
@@ -167,7 +159,7 @@ public class MainActivityHelper {
 
           Log.d(TAG, "Action delete");
 //          alertDialogHelper.showAlertDialog("","Delete Contact","DELETE","CANCEL",1,false);
-//          db.messageDao().deleteSelectedMessage(address);
+//          db.messageDao().deleteSelectedConversation(address);
 //          String where = Telephony.TextBasedSmsColumns.ADDRESS + " LIKE?";
 //          String[] arg = {address};
 //          mContext.getContentResolver().delete(Telephony.Sms.CONTENT_URI,where, arg);
@@ -217,7 +209,7 @@ public class MainActivityHelper {
             int size = selectedAddressList.size();
             for(int i =0; i<size;i++) {
 //              All the messages having same address will get deleted from below query.
-              db.messageDao().deleteSelectedMessage(selectedAddressList.get(i));
+              db.messageDao().deleteSelectedConversation(selectedAddressList.get(i));
               String where = Telephony.TextBasedSmsColumns.ADDRESS + " LIKE ?";
               String[] arg = {selectedAddressList.get(i)};
               int modifiedRows = mContext.getContentResolver().delete(Telephony.Sms.CONTENT_URI, where, arg);

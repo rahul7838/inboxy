@@ -71,7 +71,10 @@ public interface MessageDao {
   public List<Message> searchMsg(String keyword);
 
   @Query("Delete from message where address = :address")
-  public void deleteSelectedMessage(String address);
+  public void deleteSelectedConversation(String address);
+
+  @Query("Delete from message where timestamp = :timestamp")
+  public void deleteSelectedMessage(Long timestamp);
 
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();

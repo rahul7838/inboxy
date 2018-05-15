@@ -35,10 +35,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -49,6 +51,7 @@ import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
+import in.smslite.others.CompleteSmsActivityHelper;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
@@ -59,36 +62,40 @@ import static in.smslite.activity.MainActivity.db;
 
 public class CompleteSmsActivity extends AppCompatActivity {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
-  //  private final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
-//  private Contact contact;
-  private LinearLayoutManager llm;
-  private static final int SMS_SEND_INTENT_REQUEST = 100;
-  private static final int SMS_DELIVER_INTENT_REQUEST = 101;
-  private static final int SEND_TEXT_SMS_REQUEST = 102;
   @BindView(R.id.coordinator_layout)
   View coView;
   @BindView(R.id.toolbar)
   Toolbar toolbar;
-  final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
-  private final int MY_PERMISSION_REQUEST_READ_PHONE_STATE = 2;
-  public static String address;
-  @BindView(R.id.complete_sms_recycle_view)
-  RecyclerView completeSmsRecycleView;
-  //  @BindView(R.id.reply_sms_edit_text_box_id)
-  static EditText editText;
   @BindView(R.id.send_button_id)
   ImageButton imageButton;
-  CompleteSmsActivityViewModel completeSmsActivityViewModel;
+  @BindView(R.id.complete_sms_recycle_view)
+  RecyclerView completeSmsRecycleView;
+  private static final int SMS_SEND_INTENT_REQUEST = 100;
+  private static final int SMS_DELIVER_INTENT_REQUEST = 101;
+  private static final int SEND_TEXT_SMS_REQUEST = 102;
+  static EditText editText;
   static Contact contact;
   private static Context context;
   public static Message message;
   public static Long timeStampForBroadCast;
+  private LinearLayoutManager llm;
+  final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+  private final int MY_PERMISSION_REQUEST_READ_PHONE_STATE = 2;
+  public static String address;
+  CompleteSmsActivityViewModel completeSmsActivityViewModel;
+
+  public static List<Message> selectedItem = new ArrayList<>();
+  public static List<Message> listOfItem = new ArrayList<>();
+  public static Activity activity;
+  public static CompleteSmsAdapter completeSmsAdapter;
+
 
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     context = this;
+    activity = this;
     db = MessageDatabase.getInMemoryDatabase(context);
     if (getIntent().getData() != null) {
       getDataFromOtherAppIntent();
@@ -113,6 +120,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
 //    setUpUi();
 //    subscribeUi();
     setContentView(R.layout.activity_sms_complete);
+
     ButterKnife.bind(this);
     editText = (EditText) findViewById(R.id.reply_sms_edit_text_box_id);
     LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
@@ -122,6 +130,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     completeSmsRecycleView.setHasFixedSize(true);
     setToolbar();
     sendButtonClickListener();
+    CompleteSmsActivityHelper.contextualActionMode(completeSmsRecycleView, context);
     subscribeUi();
   }
 
@@ -197,8 +206,10 @@ public class CompleteSmsActivity extends AppCompatActivity {
     });
   }
 
-  public void showUi(List<Message> messages) {
-    CompleteSmsAdapter completeSmsAdapter = new CompleteSmsAdapter(messages);
+    public void showUi(List<Message> messages) {
+    listOfItem.clear();
+    listOfItem = messages;
+    completeSmsAdapter = new CompleteSmsAdapter(messages, context, selectedItem, listOfItem);
     completeSmsRecycleView.setAdapter(completeSmsAdapter);
   }
 

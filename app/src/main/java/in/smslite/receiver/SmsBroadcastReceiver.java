@@ -52,7 +52,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver{
       message.read = false;
       message.seen = false;
       message.timestamp = sms.getTimestampMillis();
-      message.threadId = 123;
+      message.threadId = 0;
       message.type = Message.MessageType.INBOX;
       message.category = contact.getCategory();
       serviceCenterAddress = sms.getServiceCenterAddress();

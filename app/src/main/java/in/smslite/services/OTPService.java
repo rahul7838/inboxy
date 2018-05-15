@@ -39,7 +39,9 @@ public class OTPService extends IntentService {
     int notificationId = bundle.getInt(NOTIFICATION_ID);
     ClipboardManager clipboard = (ClipboardManager) getBaseContext().getSystemService(Context.CLIPBOARD_SERVICE);
     ClipData clip = ClipData.newPlainText("Copied text", OTP);
-    clipboard.setPrimaryClip(clip);
+    if (clipboard != null) {
+      clipboard.setPrimaryClip(clip);
+    }
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {

@@ -9,7 +9,7 @@
     android:layout_marginBottom="8dp">
 
     <LinearLayout
-        android:id="@+id/card_delivered_linear_layout_id"
+        android:id="@+id/card_sent_linear_layout_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/user_sms_status_id"
-        android:layout_below="@id/card_delivered_linear_layout_id"
+        android:layout_below="@id/card_sent_linear_layout_id"
         android:text="Delivered"
         android:textSize="10dp"
         android:layout_marginEnd="24dp"
