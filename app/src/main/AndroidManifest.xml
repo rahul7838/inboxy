@@ -90,6 +90,12 @@
             <!--</intent-filter>-->
         </activity>
 
+        <activity android:name=".activity.SelectContactActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activity.MainActivity"/>
+
         <activity android:name=".activity.SearchActivity"
             android:parentActivityName=".activity.MainActivity"
             android:launchMode="singleTop"

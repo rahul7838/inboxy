@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="72dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="44dp"
             android:background="@android:color/transparent"
             android:hint="Type your message"
             android:inputType="textCapSentences|textMultiLine"
@@ -53,6 +53,13 @@
             android:paddingBottom="8dp"
             android:src="@drawable/ic_send_black_24dp"
             android:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/complete_sms_attach_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_attach_file_black_24dp"
+            android:backgroundTint="#e5e5e5"/>
 
     </RelativeLayout>
 

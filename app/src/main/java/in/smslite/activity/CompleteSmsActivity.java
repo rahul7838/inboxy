@@ -46,6 +46,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import in.smslite.R;
 import in.smslite.adapter.CompleteSmsAdapter;
 import in.smslite.contacts.Contact;
@@ -53,8 +54,10 @@ import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 import in.smslite.others.CompleteSmsActivityHelper;
+import in.smslite.utils.ConstantUtils;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
+import in.smslite.utils.MessageUtils;
 import in.smslite.utils.ThreadUtils;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
@@ -72,6 +75,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
   ImageButton imageButton;
   @BindView(R.id.complete_sms_recycle_view)
   RecyclerView completeSmsRecycleView;
+  @BindView(R.id.complete_sms_attach_id)
+  ImageButton attachContactButton;
   private static final int SMS_SEND_INTENT_REQUEST = 100;
   private static final int SMS_DELIVER_INTENT_REQUEST = 101;
   private static final int SEND_TEXT_SMS_REQUEST = 102;
@@ -158,6 +163,52 @@ public class CompleteSmsActivity extends AppCompatActivity {
 //      address = "" + Html.fromHtml(address);
     address = ContactUtils.formatAddress(address);
 //      address = PhoneNumberUtils.formatNumber(address, locale);
+  }
+
+  @OnClick(R.id.complete_sms_attach_id)
+  public void onClickAttachContact() {
+    if (!MessageUtils.checkIfDefaultSms(context)) {
+      Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+      intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+      startActivityForResult(intent, ConstantUtils.NOT_DEFAULT_SMS_APP);
+    } else {
+      attachContact();
+    }
+  }
+
+  private void attachContact(){
+    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
+    startActivityForResult(pickContactIntent, ConstantUtils.ON_ATTACH_CONTACT_CLICK);
+  }
+
+  private void addTextToMessage(Intent data){
+    List<String> nameAndNumber = completeSmsActivityViewModel.queryDataToFindConatact(data);
+    String name = nameAndNumber.get(0);
+    String number = nameAndNumber.get(1);
+    String contact = "Name: "+ name + "\n" + "Phone: " + number;
+    editText.setText(contact);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == SEND_TEXT_SMS_REQUEST) {
+      if (resultCode == RESULT_OK) {
+        long l = 0;
+        sendTextSms(l, address);
+      }
+    }
+    if(requestCode == ConstantUtils.NOT_DEFAULT_SMS_APP){
+      if(resultCode == RESULT_OK){
+        attachContact();
+      }
+    }
+    if(requestCode == ConstantUtils.ON_ATTACH_CONTACT_CLICK){
+      if(resultCode == RESULT_OK){
+        addTextToMessage(data);
+      }
+    }
   }
 
   private void sendButtonClickListener() {
@@ -284,20 +335,6 @@ public class CompleteSmsActivity extends AppCompatActivity {
           }
         };
         handler.post(task);
-      }
-    }
-  }
-
-  ;
-
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == SEND_TEXT_SMS_REQUEST) {
-      if (resultCode == RESULT_OK) {
-        long l = 0;
-        sendTextSms(l, address);
       }
     }
   }

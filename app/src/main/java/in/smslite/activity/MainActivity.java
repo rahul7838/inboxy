@@ -192,42 +192,6 @@ public class MainActivity extends AppCompatActivity {
 
   }
 
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == 8) {
-      if (resultCode == RESULT_OK) {
-        launchPickContact();
-      }
-    }
-    if (requestCode == PICK_CONTACT_REQUEST_CODE) {
-      // Make sure the request was successful
-      if (resultCode == RESULT_OK) {
-        launchCompleteSmsActivity(data);
-        Throwable error = new Error("msg");
-        Log.v(TAG, "log", error);
-      }
-    }
-  }
-
-  public void launchCompleteSmsActivity(Intent data){
-    String number = localMessageDbViewModel.pickContactSelected(data);
-    Intent intent = new Intent(this, CompleteSmsActivity.class);
-    intent.putExtra(context.getString(R.string.address_id), number);
-    startActivity(intent);
-  }
-
-  @OnClick(R.id.fab)
-  public void clickFab(){
-    if (!MessageUtils.checkIfDefaultSms(context)) {
-      Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-      intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
-      startActivityForResult(intent, 8);
-    } else {
-      launchPickContact();
-    }
-  }
-
   private void initiUi() {
 //    updateWidgetColumn();
 
@@ -258,14 +222,6 @@ public class MainActivity extends AppCompatActivity {
 //    MainActivityHelper.contextualActionMode(recyclerView, fab, bottomNavigationView, context);
   }
 
-  private void launchPickContact() {
-    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
-    startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST_CODE);
-    Throwable error = new Error("launchPickerror");
-    Log.v(TAG, "logstacktrace", error);
-  }
-
   private void setLinearLayout() {
     llm = new LinearLayoutManager(this);
     llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -286,6 +242,54 @@ public class MainActivity extends AppCompatActivity {
     }
     liveDataListMsg = localMessageDbViewModel.getMessageListByCategory(category);
     liveDataListMsg.observe(this, messages -> setMessageList(messages, category));
+  }
+
+  @OnClick(R.id.fab)
+  public void clickFab(){
+    if (!MessageUtils.checkIfDefaultSms(context)) {
+      Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+      intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+      startActivityForResult(intent, 8);
+    } else {
+      launchPickContact();
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == 8) {
+      if (resultCode == RESULT_OK) {
+        launchPickContact();
+      }
+    }
+    if (requestCode == PICK_CONTACT_REQUEST_CODE) {
+      // Make sure the request was successful
+      if (resultCode == RESULT_OK) {
+        launchCompleteSmsActivity(data);
+        Throwable error = new Error("msg");
+        Log.v(TAG, "log", error);
+      }
+    }
+  }
+
+
+  private void launchPickContact() {
+//    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+//    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
+//    startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST_CODE);
+//    Throwable error = new Error("launchPickerror");
+//    Log.v(TAG, "logstacktrace", error);
+
+    Intent intent = new Intent(this, SelectContactActivity.class);
+    startActivity(intent);
+  }
+
+  public void launchCompleteSmsActivity(Intent data){
+    String number = localMessageDbViewModel.pickContactSelected(data);
+    Intent intent = new Intent(this, CompleteSmsActivity.class);
+    intent.putExtra(context.getString(R.string.address_id), number);
+    startActivity(intent);
   }
 
   private void setBottomNavigation() {

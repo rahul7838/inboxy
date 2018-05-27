@@ -5,9 +5,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import butterknife.BindView;
 import in.smslite.R;
 import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.utils.TimeUtils;
@@ -29,6 +31,7 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
     view = itemView;
     this.address = address;
     this.mContext = context;
+
     linearLayout = itemView.findViewById(R.id.card_sent_linear_layout_id);
     completeMsg = (TextView) view.findViewById(R.id.body);
     timeView = (TextView) view.findViewById(R.id.timestamp);
