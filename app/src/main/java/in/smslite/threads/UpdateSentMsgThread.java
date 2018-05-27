@@ -16,6 +16,8 @@ import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
 import in.smslite.activity.MainActivity;
 
+import static in.smslite.activity.MainActivity.localMessageDbViewModel;
+
 /**
  * Thread to update the sent message when inboxy was not default sms app
  * <p>
@@ -46,7 +48,7 @@ public class UpdateSentMsgThread extends Thread {
 
     String timeStampLocalDb = null;
 
-    try (Cursor localDbcur = MainActivity.db.messageDao().getSentSmsCount()) {
+    try (Cursor localDbcur = localMessageDbViewModel.getSentSmsCount()) {
       int localDbCount = localDbcur.getCount(); //localDbcur can be null
       if (localDbCount != 0) {
         Log.d(TAG, Integer.toString(localDbCount) + "localDb");
@@ -91,7 +93,7 @@ public class UpdateSentMsgThread extends Thread {
             message.threadId = 0; // TODO retrive the correct threadId
             message.type = Message.MessageType.SENT;
             message.category = contact.getCategory();
-            MainActivity.db.messageDao().insertMessage(message);
+            localMessageDbViewModel.insertMessage(message);
             Log.d(TAG, "time>timeStampLocal");
             Log.d(TAG, address + body + time);
           } else {

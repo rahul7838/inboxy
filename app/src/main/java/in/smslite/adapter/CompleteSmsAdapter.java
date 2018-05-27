@@ -26,13 +26,14 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
   public List<Message> SmsConversation;
   public List<Message> selectedItemAdapter = new ArrayList<>();
   public List<Message> listOfItemAdapter = new ArrayList<>();
+  private String address;
 
-  public CompleteSmsAdapter(List<Message> SmsConversation, Context context, List<Message> selectedItemAdapter, List<Message> listOfItemAdapter) {
+  public CompleteSmsAdapter(List<Message> SmsConversation, String address, Context context, List<Message> selectedItemAdapter, List<Message> listOfItemAdapter) {
     this.SmsConversation = SmsConversation;
     this.context = context;
     this.selectedItemAdapter = selectedItemAdapter;
     this.listOfItemAdapter = listOfItemAdapter;
-
+    this.address = address;
   }
 
   @Override
@@ -43,17 +44,17 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
     else if (viewType == SENT){
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sent, parent, false);
-      return new CompleteSmsSentViewHolder(view, context);
+      return new CompleteSmsSentViewHolder(view, address, context);
     }
     else if(viewType == FAILED){
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sent_failed_sms, parent, false);
-      return new CompleteSmsSentViewHolder(view, context);
+      return new CompleteSmsSentViewHolder(view, address,context);
     } else if(viewType == QUEUED) {
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_sending_sms, parent, false);
-      return new CompleteSmsSentViewHolder(view, context);
+      return new CompleteSmsSentViewHolder(view, address,context);
     } else {
       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_delivered_sms, parent, false);
-      return new CompleteSmsSentViewHolder(view, context);
+      return new CompleteSmsSentViewHolder(view, address,context);
     }
   }
 

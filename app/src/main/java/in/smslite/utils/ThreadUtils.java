@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
+import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.contacts.Contact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
@@ -48,6 +49,18 @@ public class ThreadUtils {
       MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
       List<Message> notificationSummary = mDB.messageDao().getNotificationSummary(category);
       return notificationSummary;
+    }
+  }
+
+  public static class UpdateDbNotiClickedThread extends Thread {
+    String address;
+    public UpdateDbNotiClickedThread(String address){
+      this.address =  address;
+    }
+    @Override
+    public void run() {
+      super.run();
+      CompleteSmsActivity.completeSmsActivityViewModel.markAllRead(address);
     }
   }
 }

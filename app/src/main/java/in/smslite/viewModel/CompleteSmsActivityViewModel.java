@@ -16,15 +16,21 @@ import in.smslite.db.MessageDatabase;
  */
 
 public class CompleteSmsActivityViewModel extends AndroidViewModel {
-    public LiveData<List<Message>> messageListByAddress;
-    MessageDatabase mDB;
+    private MessageDatabase mDB;
 
   public CompleteSmsActivityViewModel(@NonNull Application application) {
     super(application);
-    CDB();
-    messageListByAddress = mDB.messageDao().getMessageListByAddress(CompleteSmsActivity.address);
-  }
-  public void CDB(){
     mDB = MessageDatabase.getInMemoryDatabase(this.getApplication());
+  }
+  public LiveData<List<Message>> getMessageListByAddress(String address){
+    return mDB.messageDao().getMessageListByAddress(address);
+  }
+
+  public void markAllRead(String address){
+    mDB.messageDao().markAllRead(address);
+  }
+
+  public void deleteFailedMsg(Long time){
+    mDB.messageDao().deleteFailedMsg(time);
   }
 }

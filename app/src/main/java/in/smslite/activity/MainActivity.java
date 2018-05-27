@@ -27,7 +27,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -47,6 +49,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import in.smslite.BottomNavigationViewHelper;
 import in.smslite.R;
 import in.smslite.adapter.SMSAdapter;
@@ -55,12 +58,18 @@ import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 import in.smslite.others.MainActivityHelper;
+import in.smslite.others.RecyclerItemClickListener;
+import in.smslite.threads.UpdateSentMsgThread;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
 import in.smslite.viewModel.LocalMessageDbViewModel;
 import io.fabric.sdk.android.Fabric;
 
+import static in.smslite.others.MainActivityHelper.isMultiSelect;
+import static in.smslite.others.MainActivityHelper.mActionMode;
+import static in.smslite.others.MainActivityHelper.multi_select;
+import static in.smslite.others.MainActivityHelper.selectedAddressList;
 import static in.smslite.utils.NotificationUtils.BROADCAST_SMS_CATEGORY_KEY;
 
 public class MainActivity extends AppCompatActivity {
@@ -70,14 +79,14 @@ public class MainActivity extends AppCompatActivity {
   public static final String WIDGET_UPDATE_DB_COLUMN_KEY = "updateWidgetDb";
   public static final String MAINACTIVTY_CATEGORY_TASKSTACK_KEY = "category";
   public static LocalMessageDbViewModel localMessageDbViewModel;
-  public static List<Message> selectedItem = new ArrayList<>();
-  public static List<Message> listOfItem = new ArrayList<>();
-  public static Activity activity;
+  public List<Message> selectedItem = new ArrayList<>();
+  public List<Message> listOfItem = new ArrayList<>();
+  public  Activity activity;
   private int currentVisiblePostion = 0;
   LiveData<List<Message>> liveDataListMsg;
   Observer<List<Message>> observer = null;
   LinearLayoutManager llm;
-  public static SMSAdapter smsAdapter;
+  private SMSAdapter smsAdapter;
   @BindView(R.id.fab)
   FloatingActionButton fab;
   @BindView(R.id.toolbar)
@@ -92,11 +101,10 @@ public class MainActivity extends AppCompatActivity {
   BottomNavigationView bottomNavigationView;
   @BindView(R.id.sms_list)
   RecyclerView recyclerView;
-  public static RelativeLayout relativeLayout;
-  final int MY_PERMISSIONS_REQUEST_READ_SMS = 0;
   List<String> permissionNeeded;
   public SharedPreferences sharedPreferences;
   private Context context;
+  private String address;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +128,6 @@ public class MainActivity extends AppCompatActivity {
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
     activity = this;
 //    registerSmsReceiverBroadcast();
-
-
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
 //      case FIRST_TIME_VERSION:
 //        // TODO show what's new
@@ -169,11 +175,9 @@ public class MainActivity extends AppCompatActivity {
     if (llm != null) {
       llm.scrollToPosition(currentVisiblePostion);
     }
-//    if(AppStartUtils.checkAppStart(context,sharedPreferences).equals(AppStartUtils.AppStart.FIRST_TIME)) {
-//      MessageUtils.setDefaultSms(context);
-//    }
+
     if(!MessageUtils.checkIfDefaultSms(context)) {
-      new thread(context).start();
+      new UpdateSentMsgThread(context).start();
     }
     //below code is used to test the OTP notification
 //    registerReceiver(TestUtil.testNotiBroadCast,new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
@@ -188,108 +192,40 @@ public class MainActivity extends AppCompatActivity {
 
   }
 
-// thread to update the sent message when inboxy was not default sms app
-  public  static class thread extends Thread {
-    Context context;
-    int cursorLastCountValue;
-    public thread(Context context) {
-      this.context = context;
-    }
-    @Override
-    public void run() {
-      super.run();
-       if(MessageUtils.checkIfDefaultSms(context)){
-        Answers.getInstance().logCustom(new CustomEvent("Default SMS app")
-            .putCustomAttribute("Manufacturer", Build.MANUFACTURER)
-            .putCustomAttribute("Version", Build.VERSION.CODENAME));
-      } else {
-        Answers.getInstance().logCustom(new CustomEvent("Not Default SMS app")
-            .putCustomAttribute("Manufacturer", Build.MANUFACTURER)
-            .putCustomAttribute("Version", Build.VERSION.CODENAME));
-      }
-
-      Cursor localDbcur = db.messageDao().getSentSmsCount();
-      localDbcur.moveToFirst();
-      int localDbCount = localDbcur.getCount();
-      String timeStampLocalDb = null;
-      if(localDbCount != 0) {
-        Log.d(TAG, Integer.toString(localDbCount) + "localDb");
-        timeStampLocalDb = localDbcur.getString(6);
-        Log.d(TAG, timeStampLocalDb + "localDbTimeStamp");
-      }
-
-      String[] projection = new String[] {Telephony.TextBasedSmsColumns.ADDRESS,
-          Telephony.TextBasedSmsColumns.BODY, Telephony.TextBasedSmsColumns.DATE};
-      Cursor cursor = context.getContentResolver().query(Telephony.Sms.Sent.CONTENT_URI, projection, null, null, "date desc" );
-//      cursor.setNotificationUri(context.getContentResolver(), Telephony.Sms.Sent.CONTENT_URI);
-      int size = cursor.getCount();
-      if(size != 0){
-      Log.d(TAG, Integer.toString(size)+"contentProvider");
-      int newRow = size - localDbCount;
-      cursor.moveToFirst();
-      Message message = new Message();
-      for(int i=0; i<size; i++) {
-        String time = cursor.getString(2);
-        if (Long.parseLong(time) > Long.parseLong(timeStampLocalDb)) {
-          String address = cursor.getString(0);
-          String body = cursor.getString(1);
-          Contact contact = ContactUtils.getContact(address, context, false);
-          address = ContactUtils.normalizeNumber(address);
-          message.address = address;
-          message.seen = true;
-          message.read = true;
-          message.body = body;
-          message.timestamp = Long.parseLong(time);
-          message.threadId = 123;
-          message.type = Message.MessageType.SENT;
-          message.category = contact.getCategory();
-          db.messageDao().insertMessage(message);
-          Log.d(TAG, "time>timeStampLocal");
-          Log.d(TAG, address + body + time);
-          cursor.moveToNext();
-        } else {
-          break;
-        }
-      }
-      }
-    }
-  }
-
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == 8) {
       if (resultCode == RESULT_OK) {
-//        Intent intent = new Intent(this, ComposeSmsActivity.class);
-//        startActivity(intent);
         launchPickContact();
       }
     }
     if (requestCode == PICK_CONTACT_REQUEST_CODE) {
       // Make sure the request was successful
       if (resultCode == RESULT_OK) {
-        pickContactSelected(data);
+        launchCompleteSmsActivity(data);
         Throwable error = new Error("msg");
         Log.v(TAG, "log", error);
       }
     }
   }
 
-  private void pickContactSelected(Intent data){
-    Log.d(TAG, "contect picked");
-    Uri uri = data.getData();
-    Log.i(TAG, uri.toString());
-    String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
-    Cursor cursor = context.getContentResolver().query(uri, projection,
-        null, null, null);
-    cursor.moveToFirst();
-    int columnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-    String number = cursor.getString(columnIndex);
-    number = ContactUtils.formatAddress(number);
-    Log.i(TAG, number);
+  public void launchCompleteSmsActivity(Intent data){
+    String number = localMessageDbViewModel.pickContactSelected(data);
     Intent intent = new Intent(this, CompleteSmsActivity.class);
     intent.putExtra(context.getString(R.string.address_id), number);
     startActivity(intent);
+  }
+
+  @OnClick(R.id.fab)
+  public void clickFab(){
+    if (!MessageUtils.checkIfDefaultSms(context)) {
+      Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+      intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
+      startActivityForResult(intent, 8);
+    } else {
+      launchPickContact();
+    }
   }
 
   private void initiUi() {
@@ -300,48 +236,26 @@ public class MainActivity extends AppCompatActivity {
     ButterKnife.bind(this);
     
     setLinearLayout();
-    //divide recycler view item
-//    DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), llm.getOrientation());
-//    recyclerView.addItemDecoration(dividerItemDecoration);
     setToolbar();
-    fab.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-
-        if (!MessageUtils.checkIfDefaultSms(context)) {
-          Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
-          intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
-          startActivityForResult(intent, 8);
-        } else {
-          launchPickContact();
-//          Intent intent = new Intent(getApplicationContext(), ComposeSmsActivity.class);
-//          startActivity(intent);
-        }
-      }
-    });
     PhoneContact.init(this);
 
 //    if Mainactivity is open through pending intent, the below code ensure which sms category to display.
     if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt(BROADCAST_SMS_CATEGORY_KEY) != 0) {
       Bundle bundle = getIntent().getExtras();
       final int broadcastSmsCategory = bundle.getInt(BROADCAST_SMS_CATEGORY_KEY);
-      new Thread(new Runnable() {
-        @Override
-        public void run() {
-          db.messageDao().markAllSeen(broadcastSmsCategory);
-          Log.i("MainActivity", "markAllseenDone");
-        }
+      new Thread(() -> {localMessageDbViewModel.markAllSeen(broadcastSmsCategory);
+        Log.i("MainActivity", "markAllseenDone");
       }).start();
       subscribeUi(broadcastSmsCategory);
       setItemMenuChecked(broadcastSmsCategory);
       Log.d(TAG, "BRoadcast");
     } else {
-//      setLinearLayout();
       subscribeUi(Contact.PRIMARY);
       Log.d(TAG, "addParentStack");
     }
     setBottomNavigation();
-    MainActivityHelper.contextualActionMode(recyclerView, fab, bottomNavigationView, context);
+    clickListener();
+//    MainActivityHelper.contextualActionMode(recyclerView, fab, bottomNavigationView, context);
   }
 
   private void launchPickContact() {
@@ -371,41 +285,28 @@ public class MainActivity extends AppCompatActivity {
       liveDataListMsg.removeObserver(observer);
     }
     liveDataListMsg = localMessageDbViewModel.getMessageListByCategory(category);
-    observer = new Observer<List<Message>>() {
-      @Override
-      public void onChanged(@Nullable List<Message> messages) {
-        setMessageList(messages, category);
-      }
-    };
-    liveDataListMsg.observe(this, observer);
+    liveDataListMsg.observe(this, messages -> setMessageList(messages, category));
   }
 
   private void setBottomNavigation() {
 //    bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
     BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
-    bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-      @Override
-      public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.bottomNav_primary) {
-          subscribeUi(Contact.PRIMARY);
-//          setMessageList(messages, Contact.PRIMARY);
-          toolbar.setTitle(R.string.title_primary);
-        } else if (id == R.id.bottomNav_finance) {
-          subscribeUi(Contact.FINANCE);
-//          setMessageList(messages, Contact.FINANCE);
-          toolbar.setTitle(R.string.title_finance);
-        } else if (id == R.id.bottomNav_promotion) {
-          subscribeUi(Contact.PROMOTIONS);
-//          setMessageList(messages, Contact.PROMOTIONS);
-          toolbar.setTitle(R.string.title_promotions);
-        } else if (id == R.id.bottomNav_updates) {
-          subscribeUi(Contact.UPDATES);
-//          setMessageList(messages, Contact.UPDATES);
-          toolbar.setTitle(R.string.title_updates);
-        }
-        return true;
+    bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+      int id = item.getItemId();
+      if (id == R.id.bottomNav_primary) {
+        subscribeUi(Contact.PRIMARY);
+        toolbar.setTitle(R.string.title_primary);
+      } else if (id == R.id.bottomNav_finance) {
+        subscribeUi(Contact.FINANCE);
+        toolbar.setTitle(R.string.title_finance);
+      } else if (id == R.id.bottomNav_promotion) {
+        subscribeUi(Contact.PROMOTIONS);
+        toolbar.setTitle(R.string.title_promotions);
+      } else if (id == R.id.bottomNav_updates) {
+        subscribeUi(Contact.UPDATES);
+        toolbar.setTitle(R.string.title_updates);
       }
+      return true;
     });
   }
 
@@ -438,15 +339,109 @@ public class MainActivity extends AppCompatActivity {
       recyclerView.setVisibility(View.VISIBLE);
       smsAdapter = new SMSAdapter(messageList, selectedItem, listOfItem);
       recyclerView.setAdapter(smsAdapter);
-//      context = getApplicationContext();
-      /*SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-      Set<String> defValues = new HashSet<String>();
-      defValues.add("rahul");
-      Set<String> set = sharedPreferences.getStringSet(getString(R.string.pref_key_category), defValues);*/
-//
-//      Log.i("MainActivity", Integer.toString(set.size()));
     }
   }
+
+  public void clickListener() {
+    recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(context, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+      @Override
+      public void onItemClick(View view, int position) {
+        if (isMultiSelect) {
+          address = smsAdapter.messages.get(position).getAddress();
+          multi_select(position, mActionModeCallback, selectedItem, listOfItem, address);
+          refreshAdapter();
+        } else {
+          address = smsAdapter.messages.get(position).getAddress();
+          Intent i = new Intent(context, CompleteSmsActivity.class);
+          i.putExtra(view.getResources().getString(R.string.address_id), address);
+          context.startActivity(i);
+        }
+      }
+
+      @Override
+      public void onItemLongClick(View view, int position) {
+        if (!isMultiSelect) {
+          bottomNavigationView.setVisibility(View.GONE);
+          fab.setVisibility(View.GONE);
+          address = smsAdapter.messages.get(position).getAddress();
+          isMultiSelect = true;
+          if (mActionMode == null) {
+            mActionMode = ((MainActivity) context).startActionMode(mActionModeCallback);
+          }
+        }
+        multi_select(position, mActionModeCallback, selectedItem, listOfItem, address);
+        refreshAdapter();
+      }
+    }));
+  }
+
+  public ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+      // Inflate a menu resource providing context menu items
+      MenuInflater inflater = mode.getMenuInflater();
+      inflater.inflate(R.menu.menu_multi_select, menu);
+      mActionMode = mode;
+      activity.getWindow().setStatusBarColor(context.getResources().getColor(R.color.contextual_status_bar_color));
+      return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+      return false; // Return false if nothing is done
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+      switch (item.getItemId()) {
+        case R.id.action_delete:
+          if(MessageUtils.checkIfDefaultSms(context)) {
+            MainActivityHelper.alertDialog(context, mActionModeCallback, selectedItem);
+          } else {
+            MessageUtils.setDefaultSms(context);
+          }
+          Log.d(TAG, "Action delete");
+          return true;
+        case R.id.action_select_all:
+          Log.d(TAG, "select all");
+          selectedItem.clear();
+          selectedItem.addAll(listOfItem);
+          int size = selectedItem.size();
+          selectedAddressList.clear();
+          for(int i = 0; i<size; i++){
+            selectedAddressList.add(selectedItem.get(i).getAddress());
+          }
+          mActionMode.setTitle("" + selectedItem.size());
+          refreshAdapter();
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+      mActionMode.finish();
+      mActionMode = null;
+      isMultiSelect = false;
+      selectedItem.clear();
+      smsAdapter.notifyDataSetChanged();
+      selectedAddressList.clear();
+      fab.setVisibility(View.VISIBLE);
+      bottomNavigationView.setVisibility(View.VISIBLE);
+      activity.getWindow().setStatusBarColor(context.getResources().getColor(R.color.colorPrimaryDark));
+      refreshAdapter();
+    }
+  };
+
+  private void refreshAdapter() {
+    smsAdapter.selectedItemAdapter = selectedItem;
+    smsAdapter.listOfItemAdapter = listOfItem;
+    smsAdapter.notifyDataSetChanged();
+  }
+
+
 
   public void setItemMenuChecked(int category) {
     BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);

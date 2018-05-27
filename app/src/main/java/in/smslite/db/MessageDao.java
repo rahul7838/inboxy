@@ -16,65 +16,65 @@ import java.util.List;
 @Dao
 public interface MessageDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  public void insertMessage(Message message);
+  void insertMessage(Message message);
 
   @Query("Select * from Message group by address order by timestamp desc")
-  public LiveData<List<Message>> getMessage();
+  LiveData<List<Message>> getMessage();
 
   @Query("Select * from Message Where address = :address order by timestamp asc")
-  public LiveData<List<Message>> getMessageListByAddress(String address);
+  LiveData<List<Message>> getMessageListByAddress(String address);
 
   //  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
   @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
       "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where category = :category order by timestamp desc")
-  public LiveData<List<Message>> getMessageListByCategory(int category);
+  LiveData<List<Message>> getMessageListByCategory(int category);
 
   @Query("Select * from Message Where seen = 0 and Category = :category")
-  public Cursor getUnseenSmsCount(int category);
+  Cursor getUnseenSmsCount(int category);
 
   @Query("Select * from Message Where seen = 0 and Category = :category order by timestamp desc")
-  public List<Message> getNotificationSummary(int category);
+  List<Message> getNotificationSummary(int category);
 
   @Query("Update Message Set seen = 1 Where Category = :category")
-  public void markAllSeen(int category);
+  void markAllSeen(int category);
 
   @Query("Update Message Set seen=1, read = 1 Where address = :address")
-  public void markAllRead(String address);
+  void markAllRead(String address);
 
   @Query("select * from message where Type Like 2 order by timestamp desc")
-  public Cursor getSentSmsCount();
+  Cursor getSentSmsCount();
 
   @Query("select * from message where body Like \"%otp%\" group by address")
-  public List<Message> getOTPFOrTest();
+  List<Message> getOTPFOrTest();
 
   @Query("Update Message set type = 2 where timestamp LIKE :time")
-  public void updateSentSuccessful(Long time);
+  void updateSentSuccessful(Long time);
 
   @Query("Update Message set type = 4 where timestamp LIKE :time")
-  public void deliveredSmsSuccessfully(Long time);
+  void deliveredSmsSuccessfully(Long time);
 
   //  Query for failed sms
   @Query("Update Message set type = 5 where timestamp = :time")
-  public void updateSentFailedSms(Long time);
+  void updateSentFailedSms(Long time);
 
   @Query("Select body from Message where timestamp = :time")
-  public String getFailedSmsText(Long time);
+  String getFailedSmsText(Long time);
 
   @Query("Delete from message where timestamp = :time")
-  public void deleteFailedMsg(Long time);
+  void deleteFailedMsg(Long time);
 
   //  Query for message search
 //  @Query("Select * from Message where body LIKE :keyword or address LIKE :keyword group by address order by timestamp desc")
   @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
       "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where body LIKE :keyword or t1.address LIKE :keyword" +
       " group by t1.address order by t1.timestamp desc")
-  public List<Message> searchMsg(String keyword);
+  List<Message> searchMsg(String keyword);
 
   @Query("Delete from message where address = :address")
-  public void deleteSelectedConversation(String address);
+  void deleteSelectedConversation(String address);
 
   @Query("Delete from message where timestamp = :timestamp")
-  public void deleteSelectedMessage(Long timestamp);
+  void deleteSelectedMessage(Long timestamp);
 
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();

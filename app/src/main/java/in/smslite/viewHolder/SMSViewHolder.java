@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import in.smslite.R;
 import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.activity.MainActivity;
@@ -43,27 +45,26 @@ public class SMSViewHolder extends RecyclerView.ViewHolder {
   private String address;
   private Context mContext;
   private TextView summaryView;
-  private TextView titleView;
+//  private TextView titleView;
   private TextView timeView;
   private ImageView imageView;
   private RecyclerView recyclerView;
   private View dividerLine;
-
+ @BindView(R.id.sms_title)
+ TextView titleView;
 //  private static ActionMode mActionMode;
 //  private Menu context_menu;
 //  public static boolean isMultiSelect = false;
 
   public SMSViewHolder(View itemView, Context mContext) {
     super(itemView);
+    ButterKnife.bind(this,itemView);
     this.mContext = mContext;
     view = itemView;
-    titleView = (TextView) view.findViewById(R.id.sms_title);
     summaryView = (TextView) view.findViewById(R.id.sms_summary);
     timeView = (TextView) view.findViewById(R.id.sms_time);
     imageView = (ImageView) view.findViewById(R.id.avatar);
     dividerLine = (View) view.findViewById(R.id.itemDivider);
-//    view.setOnClickListener(this);
-//    view.setOnLongClickListener(this);
   }
 
   public  void setDividerLineVisible(){
@@ -79,7 +80,6 @@ public class SMSViewHolder extends RecyclerView.ViewHolder {
       address = "Unknown Sender";
     }
     this.address = address;
-//    titleView.setText(address);
     Contact contact = ContactUtils.getContact(address, mContext, true);
     titleView.setText(contact.getDisplayName());
     setAvatar(contact);

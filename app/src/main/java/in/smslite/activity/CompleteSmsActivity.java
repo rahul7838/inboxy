@@ -3,6 +3,7 @@ package in.smslite.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
@@ -54,6 +55,7 @@ import in.smslite.db.MessageDatabase;
 import in.smslite.others.CompleteSmsActivityHelper;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
+import in.smslite.utils.ThreadUtils;
 import in.smslite.viewHolder.CompleteSmsSentViewHolder;
 import in.smslite.viewModel.CompleteSmsActivityViewModel;
 
@@ -81,9 +83,10 @@ public class CompleteSmsActivity extends AppCompatActivity {
   private LinearLayoutManager llm;
   final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
   private final int MY_PERMISSION_REQUEST_READ_PHONE_STATE = 2;
-  public static String address;
-  CompleteSmsActivityViewModel completeSmsActivityViewModel;
-
+  public  String address;
+  public static CompleteSmsActivityViewModel completeSmsActivityViewModel;
+  private LiveData<List<Message>> messageListByAddress;
+  Observer<List<Message>> observer;
   public static List<Message> selectedItem = new ArrayList<>();
   public static List<Message> listOfItem = new ArrayList<>();
   public static Activity activity;
@@ -96,7 +99,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     context = this;
     activity = this;
-    db = MessageDatabase.getInMemoryDatabase(context);
+//    completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
+//    db = MessageDatabase.getInMemoryDatabase(context);
     if (getIntent().getData() != null) {
       getDataFromOtherAppIntent();
     } else {
@@ -104,7 +108,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
       address = bundle.getString(getString(R.string.address_id));
     }
 //     Thread to update read and seen field of db when clicking on notification
-    UpdateDbNotiClickedThread.start();
+
 
     PhoneContact.init(this);
     contact = ContactUtils.getContact(address, this, true);
@@ -117,6 +121,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     }
     Log.d(TAG, address + address);
     completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
+    new ThreadUtils.UpdateDbNotiClickedThread(address).run();
 //    setUpUi();
 //    subscribeUi();
     setContentView(R.layout.activity_sms_complete);
@@ -155,18 +160,6 @@ public class CompleteSmsActivity extends AppCompatActivity {
 //      address = PhoneNumberUtils.formatNumber(address, locale);
   }
 
-  private Thread UpdateDbNotiClickedThread = new Thread() {
-    @Override
-    public void run() {
-      super.run();
-      db.messageDao().markAllRead(address);
-    }
-  };
-
-  private void setUpUi() {
-
-  }
-
   private void sendButtonClickListener() {
     imageButton.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -198,18 +191,17 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
 
   public void subscribeUi() {
-    completeSmsActivityViewModel.messageListByAddress.observe(this, new Observer<List<Message>>() {
-      @Override
-      public void onChanged(@Nullable List<Message> messages) {
-        showUi(messages);
-      }
-    });
+    if(observer != null){
+      messageListByAddress.removeObserver(observer);
+    }
+    messageListByAddress = completeSmsActivityViewModel.getMessageListByAddress(address);
+    messageListByAddress.observe(this, this::showUi);
   }
 
     public void showUi(List<Message> messages) {
     listOfItem.clear();
     listOfItem = messages;
-    completeSmsAdapter = new CompleteSmsAdapter(messages, context, selectedItem, listOfItem);
+    completeSmsAdapter = new CompleteSmsAdapter(messages, address, context, selectedItem, listOfItem);
     completeSmsRecycleView.setAdapter(completeSmsAdapter);
   }
 
@@ -220,32 +212,32 @@ public class CompleteSmsActivity extends AppCompatActivity {
       startActivityForResult(intent, SEND_TEXT_SMS_REQUEST);
     } else {
       long l = 0;
-      sendTextSms(l);
+      sendTextSms(l, address);
     }
   }
 
-  public static void sendTextSms(Long time) {
+  public static void sendTextSms(Long time, String address) {
     String msg;
     if (CompleteSmsSentViewHolder.tryFailedSms) {
       CompleteSmsSentViewHolder.tryFailedSms = false;
       msg = db.messageDao().getFailedSmsText(time);
       db.messageDao().deleteFailedMsg(time);
-      new thread(msg).start();
+      new thread(msg, address).start();
     } else {
       Editable editableText = editText.getText();
       msg = editableText.toString();
 //    if (!msg.isEmpty()) {
       editableText.clear();
 //      write sent sms to local database
-      new thread(msg).start();
+      new thread(msg, address).start();
     }
   }
 
   private static class thread extends Thread {
-    String msg;
-
-    thread(String msg) {
+    String msg,address;
+    thread(String msg, String address) {
       this.msg = msg;
+      this.address = address;
     }
 
     @Override
@@ -305,7 +297,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     if (requestCode == SEND_TEXT_SMS_REQUEST) {
       if (resultCode == RESULT_OK) {
         long l = 0;
-        sendTextSms(l);
+        sendTextSms(l, address);
       }
     }
   }

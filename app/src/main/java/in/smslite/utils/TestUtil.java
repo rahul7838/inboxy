@@ -13,6 +13,7 @@ import android.util.Log;
 import java.io.Serializable;
 import java.util.List;
 
+import in.smslite.activity.MainActivity;
 import in.smslite.contacts.Contact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDao;

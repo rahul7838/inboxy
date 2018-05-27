@@ -15,7 +15,7 @@ public class CompleteSmsInboxViewHolder extends RecyclerView.ViewHolder {
   private TextView bodyView, timestampView;
     private View itemView;
 
-  public CompleteSmsInboxViewHolder(View view, Context context) {
+  public CompleteSmsInboxViewHolder(View view,  Context context) {
     super(view);
     this.mContext = context;
     itemView = view;

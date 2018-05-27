@@ -25,7 +25,7 @@ import in.smslite.activity.MainActivity;
 import in.smslite.utils.MessageUtils;
 
 import static in.smslite.activity.MainActivity.db;
-import static in.smslite.activity.MainActivity.selectedItem;
+
 
 
 /**

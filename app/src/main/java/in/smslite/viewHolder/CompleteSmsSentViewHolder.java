@@ -22,16 +22,17 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
   private LinearLayout linearLayout;
   private static TextView smsStatusTextView;
   private static Context mContext;
+  private String address;
 
-  public CompleteSmsSentViewHolder(View itemView, Context context) {
+  public CompleteSmsSentViewHolder(View itemView, String address, Context context) {
     super(itemView);
     view = itemView;
+    this.address = address;
     this.mContext = context;
     linearLayout = itemView.findViewById(R.id.card_sent_linear_layout_id);
     completeMsg = (TextView) view.findViewById(R.id.body);
     timeView = (TextView) view.findViewById(R.id.timestamp);
     smsStatusTextView = (TextView) view.findViewById(R.id.user_sms_status_id);
-//    smsStatusTextView = view.findViewById(R.id.notify_user_sms_status_id);
     smsStatusTextView.setOnClickListener(this);
   }
 
@@ -51,7 +52,7 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
     Log.d(TAG, "trySendFailedSms");
     Log.d(TAG, Long.toString(failedSmsTime));
     tryFailedSms = true;
-    CompleteSmsActivity.sendTextSms(failedSmsTime);
+    CompleteSmsActivity.sendTextSms(failedSmsTime, address);
   }
 
   public void setItemBackgroundBlack() {

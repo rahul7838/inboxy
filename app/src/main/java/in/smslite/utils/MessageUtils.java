@@ -20,8 +20,9 @@ import me.everything.providers.android.telephony.Sms;
 import me.everything.providers.android.telephony.TelephonyProvider;
 
 import static in.smslite.activity.MainActivity.WIDGET_UPDATE_DB_COLUMN_KEY;
-import static in.smslite.activity.MainActivity.db;
 
+
+import static in.smslite.activity.MainActivity.localMessageDbViewModel;
 import static in.smslite.db.Message.MessageType.All;
 import static in.smslite.db.Message.MessageType.FAILED;
 import static in.smslite.db.Message.MessageType.INBOX;
@@ -69,7 +70,7 @@ public class MessageUtils {
       message.category = contact.getCategory();
 //      message.widget = isWidgetMessage(context, message.body);
 //      sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
-      db.messageDao().insertMessage(message);
+      localMessageDbViewModel.insertMessage(message);
     }
   }
 
