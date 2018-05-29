@@ -131,7 +131,7 @@ public class SelectContactActivity extends AppCompatActivity implements LoaderMa
       for(int i = 0; i < length; i++){
         newSearchString = mSearchString.substring(i, i+1);
         builder.append(newSearchString);
-        if(builder.length() % 3 == 0 ){
+        if(builder.length() == 2 || builder.length() == 5 || builder.length() == 8 || builder.length() == 11){
           builder.append("%");
         }
       }

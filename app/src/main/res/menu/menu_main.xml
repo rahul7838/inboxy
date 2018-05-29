@@ -24,4 +24,8 @@
         android:iconTint="@color/white_pure"
         app:showAsAction="always"/>
 
+    <item android:title="Bookings"
+        app:showAsAction="never"
+        android:id="@+id/menu_main_booking"/>
+
 </menu>

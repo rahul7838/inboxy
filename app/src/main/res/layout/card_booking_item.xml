@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@drawable/booking_card"
+    android:layout_marginStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:paddingTop="8dp"
+    android:layout_marginTop="16dp">
+
+    <TextView
+        android:id="@+id/booking_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chinchvad-Ujjain Jn"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <View
+        android:id="@+id/booking_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/regular_gray"
+        android:layout_below="@id/booking_heading"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/booking_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Time"
+        android:textColor="@color/black_pure"
+        android:textSize="14sp"
+        android:layout_below="@id/booking_divider"/>
+
+    <TextView
+        android:id="@+id/booking_time_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="4 Jul 18, 05:50PM"
+        android:layout_below="@id/booking_start_time"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/booking_pnr_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PNR"
+        android:textColor="@color/black_pure"
+        android:textSize="14sp"
+        android:layout_below="@id/booking_time_date"/>
+
+    <TextView
+        android:id="@+id/booking_pnr_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="8428151830"
+        android:layout_below="@id/booking_pnr_text"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/booking_pnr_status_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PNR Status"
+        android:textColor="@color/black_pure"
+        android:textSize="14sp"
+        android:layout_below="@id/booking_pnr_number"/>
+
+    <TextView
+        android:id="@+id/booking_pnr_status_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="S3 45"
+        android:layout_below="@id/booking_pnr_status_text"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/booking_train_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Train"
+        android:textSize="14sp"
+        android:textColor="@color/black_pure"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/booking_divider"/>
+
+    <TextView
+        android:id="@+id/booking_train_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/booking_train_text"
+        android:textSize="14sp"
+        android:textColor="@color/black_pure"
+        android:text="19311"
+        android:layout_alignParentEnd="true"/>
+
+    <Button
+        android:id="@+id/booking_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/light_blue"
+        android:elevation="8dp"
+        android:text="Route"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/booking_train_number"
+        android:layout_marginTop="48dp"/>
+
+</RelativeLayout>

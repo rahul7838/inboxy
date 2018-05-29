@@ -505,6 +505,9 @@ public class MainActivity extends AppCompatActivity {
     } else if (id == R.id.menu_search_msg_id){
       Intent intent = new Intent(this, SearchActivity.class);
       startActivity(intent);
+    } else if(id == R.id.menu_main_booking) {
+      Intent intent = new  Intent(this, BookingActivity.class);
+      startActivity(intent);
     }
     return true;
   }

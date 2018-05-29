@@ -76,6 +76,11 @@ public interface MessageDao {
   @Query("Delete from message where timestamp = :timestamp")
   void deleteSelectedMessage(Long timestamp);
 
+//  query booking message list
+  @Query("Select * from message where body LIKE \"%pnr%\" and body like \"%train%\" ")
+  List<Message> getBookingMessage();
+
+
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();
 //
