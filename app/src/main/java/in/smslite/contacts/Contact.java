@@ -16,6 +16,8 @@ public class Contact {
     public static final int FINANCE = 2;
     public static final int PROMOTIONS = 3;
     public static final int UPDATES = 4;
+    public static final int BLOCKED = 5;
+    public static final int ARCHIVE = 6;
     private static final String TAG = Contact.class.getSimpleName();
 //    protected final HashSet<UpdateListener> mListeners = new HashSet<>();
     protected String mName;

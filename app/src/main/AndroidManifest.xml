@@ -101,6 +101,15 @@
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+
+        <activity android:name=".activity.BlockedMessageActivity"
+            android:parentActivityName=".activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".activity.ArchiveMessageActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".activity.MainActivity"/>
+
         <!--<receiver android:name="in.smslite.receiver.SendSmsBroadcastReceiver">-->
         <!--<intent-filter >-->
         <!--<action android:name="in.smslite.SEND_SMS_ACTION"/>-->

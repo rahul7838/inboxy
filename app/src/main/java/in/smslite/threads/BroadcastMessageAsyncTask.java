@@ -32,6 +32,7 @@ public class BroadcastMessageAsyncTask extends AsyncTask<Context, Void, Void> {
   private Message message;
   private Contact contact;
   private Boolean customNotification;
+  private SharedPreferences sharedPreferences;
 
   public BroadcastMessageAsyncTask(Message message, Contact contact, Boolean customNotification){
     this.message = message;
@@ -42,7 +43,7 @@ public class BroadcastMessageAsyncTask extends AsyncTask<Context, Void, Void> {
   @Override
   protected Void doInBackground(Context... contexts) {
     PreferenceManager.setDefaultValues(contexts[0],R.xml.preferences, false);
-    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(contexts[0]);
+    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(contexts[0]);
     List<String> OTPKeywords = Arrays.asList(contexts[0].getResources().getStringArray(R.array.OTP_keyword));
     int OTPKeywordsSize = OTPKeywords.size();
     db = MessageDatabase.getInMemoryDatabase(contexts[0]);

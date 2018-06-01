@@ -13,4 +13,18 @@
         android:title="Delete"
         app:showAsAction="always"/>
 
+    <item android:id="@+id/menu_multi_select_move_to"
+        android:title="Move To"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_move_to_inbox_black_24dp"
+        android:iconTint="@color/white_pure"/>
+
+    <!--<item android:id="@+id/menu_multi_select_block"-->
+        <!--android:title="Block Incoming SMS"-->
+        <!--app:showAsAction="never"/>-->
+
+    <!--<item android:id="@+id/menu_multi_select_Archive"-->
+        <!--app:showAsAction="never"-->
+        <!--android:title="Archive SMS"/>-->
+
 </menu>

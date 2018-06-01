@@ -138,4 +138,8 @@
     <string name="title_setting">Setting</string>
     <string name="title_activity_contact">New Conversation</string>
 
+    <string name="title_menu_main_archive">Archive</string>
+    <string name="dialog_option">dialog option</string>
+    <string name="dialog_checkbox">dialog checkbox</string>
+
 </resources>

@@ -24,4 +24,15 @@
         android:iconTint="@color/white_pure"
         app:showAsAction="always"/>
 
+    <item android:id="@+id/menu_mark_all_read"
+        app:showAsAction="never"
+        android:title="Mark All As Read"/>
+
+    <item android:id="@+id/menu_blocked"
+        android:title="Blocked"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_archive"
+        app:showAsAction="never"
+        android:title="@string/title_menu_main_archive"/>
 </menu>

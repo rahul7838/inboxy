@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/dialog_heading1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Move 1 conversation to"
+        android:textSize="21sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:paddingStart="32dp"
+        android:paddingTop="16dp"/>
+
+    <ImageView
+        android:id="@+id/dialog_option_blocked_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_block_black_24dp"
+        android:layout_below="@id/dialog_heading1"
+        android:paddingStart="32dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/dialog_option_blocked"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Blocked"
+        android:layout_below="@id/dialog_heading1"
+        android:textSize="14sp"
+        android:paddingStart="96dp"
+        android:layout_marginBottom="21dp"/>
+
+    <ImageView
+        android:id="@+id/dialog_option_archive_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_archive_black_24dp"
+        android:layout_below="@id/dialog_option_blocked_image"
+        android:paddingStart="32dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/dialog_option_archive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_option_blocked"
+        android:text="Archive"
+        android:textSize="14sp"
+        android:layout_marginBottom="21dp"
+        android:paddingStart="96dp"/>
+
+    <ImageView
+        android:id="@+id/dialog_option_primary_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_menu_primary"
+        android:layout_below="@id/dialog_option_archive_image"
+        android:paddingStart="32dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/dialog_option_primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_option_archive"
+        android:text="Primary"
+        android:textSize="14sp"
+        android:layout_marginBottom="21dp"
+        android:paddingStart="96dp"/>
+
+    <ImageView
+        android:id="@+id/dialog_option_finance_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_menu_finance"
+        android:layout_below="@id/dialog_option_primary_image"
+        android:paddingStart="32dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/dialog_option_finance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_option_primary"
+        android:text="Finance"
+        android:textSize="14sp"
+        android:layout_marginBottom="21dp"
+        android:paddingStart="96dp"/>
+
+    <ImageView
+        android:id="@+id/dialog_option_promotion_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_menu_promotions"
+        android:layout_below="@id/dialog_option_finance_image"
+        android:paddingStart="32dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/dialog_option_promotion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_option_finance"
+        android:text="Promotion"
+        android:textSize="14sp"
+        android:layout_marginBottom="21dp"
+        android:paddingStart="96dp"/>
+
+    <ImageView
+        android:id="@+id/dialog_option__update_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_menu_updates"
+        android:layout_below="@id/dialog_option_promotion_image"
+        android:paddingStart="32dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/dialog_option_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_option_promotion"
+        android:text="Update"
+        android:textSize="14sp"
+        android:layout_marginBottom="21dp"
+        android:paddingStart="96dp"/>
+
+    <CheckBox
+        android:id="@+id/dialog_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dialog_option_update"
+        android:layout_marginStart="32dp"
+        android:checked="true"
+        />
+    <TextView
+        android:id="@+id/checkbox_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send future messages"
+        android:layout_alignLeft="@id/dialog_checkbox"
+        android:layout_below="@id/dialog_option_update"
+        android:layout_marginStart="36dp"
+        android:paddingTop="6dp"/>
+
+    <TextView
+        android:id="@+id/dialog_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:textStyle="bold"
+        android:textColor="@color/colorLightBlack"
+        android:layout_below="@id/dialog_checkbox"
+        android:textSize="16sp"
+        android:layout_alignParentEnd="true"
+        android:paddingEnd="24dp"
+        android:paddingBottom="16dp"/>
+
+</RelativeLayout>

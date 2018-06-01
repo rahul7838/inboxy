@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 

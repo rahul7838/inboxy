@@ -63,4 +63,24 @@ public class ThreadUtils {
       CompleteSmsActivity.completeSmsActivityViewModel.markAllRead(address);
     }
   }
+
+  public static class UpdateMessageCategoryToBlocked extends Thread{
+    Context context;
+    List<Message> selectedItem;
+    int category;
+    public UpdateMessageCategoryToBlocked(Context context, List<Message> selectedItem, int category){
+      this.context = context;
+      this.selectedItem = selectedItem;
+      this.category = category;
+    }
+    @Override
+    public void run() {
+      super.run();
+      int length = selectedItem.size();
+      MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
+      for (int i = 0; i < length; i++) {
+        mDB.messageDao().moveToCategory(selectedItem.get(i).getAddress(), category);
+      }
+    }
+  }
 }

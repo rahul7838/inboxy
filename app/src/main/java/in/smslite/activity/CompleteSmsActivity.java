@@ -1,6 +1,7 @@
 package in.smslite.activity;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.arch.lifecycle.LiveData;
@@ -323,9 +324,12 @@ public class CompleteSmsActivity extends AppCompatActivity {
         int requestCode = timeStampForBroadCast.intValue();
         PendingIntent deliveredPendingIntent = PendingIntent.
             getBroadcast(context, requestCode, deliveredIntent, PendingIntent.FLAG_ONE_SHOT);
-
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+          SmsManager smsManager = SmsManager.getDefault();
+          smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+        } else {
+//          int subscriptionId = SmsManager.getDefaultSmsSubscriptionId();
+        }
       } else {
         Handler handler = new Handler(context.getMainLooper());
         Runnable task = new Runnable() {

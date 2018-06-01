@@ -68,6 +68,7 @@ public class SMSAdapter extends RecyclerView.Adapter<SMSViewHolder> {
 
   public void setMessage(List<Message> messages){
     this.messages = messages;
+    notifyDataSetChanged();
   }
 }
 

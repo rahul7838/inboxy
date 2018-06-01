@@ -76,6 +76,19 @@ public interface MessageDao {
   @Query("Delete from message where timestamp = :timestamp")
   void deleteSelectedMessage(Long timestamp);
 
+//  Update the Category of message to blocked
+  @Query("Update Message set category = :category where address Like :address")
+  void moveToCategory(String address, int category);
+
+//  Query to select all archive messages
+  @Query("Select t1.* from message t1 JOIN (select address, Max(timestamp) timestamp from message where category = 6 group by address)" +
+      "t2 on t1.address = t2.address AND t1.timestamp = t2.timestamp order by timestamp desc")
+  LiveData<List<Message>> getArchiveMessage ();
+
+  @Query("select t1.* from message t1 Inner Join (select address, Max(timestamp) timestamp from message where category = 5 group by address) t2" +
+      " on t1.address = t2.address and t1.timestamp = t2.timestamp order by timestamp Desc")
+  LiveData<List<Message>> getBlockedMessage();
+
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();
 //
