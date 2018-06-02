@@ -51,9 +51,9 @@ public class SMSAdapter extends RecyclerView.Adapter<SMSViewHolder> {
       holder.setBackgroundColorWhite();
       holder.setDividerLineVisible();
     }
-    holder.setAddress(messages.get(position).address);
-    holder.setSummary(messages.get(position).body);
-    holder.setTime(messages.get(position).timestamp);
+    holder.setAddress(messages.get(position).getAddress());
+    holder.setSummary(messages.get(position).getBody());
+    holder.setTime(messages.get(position).getTimestamp());
   }
 
   @Override

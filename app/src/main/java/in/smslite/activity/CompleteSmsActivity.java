@@ -92,7 +92,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public  String address;
   public static CompleteSmsActivityViewModel completeSmsActivityViewModel;
   private LiveData<List<Message>> messageListByAddress;
-  Observer<List<Message>> observer;
+  private Observer<List<Message>> observer;
   public static List<Message> selectedItem = new ArrayList<>();
   public static List<Message> listOfItem = new ArrayList<>();
   public static Activity activity;

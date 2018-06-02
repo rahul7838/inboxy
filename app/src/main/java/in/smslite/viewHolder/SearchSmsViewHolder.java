@@ -74,8 +74,8 @@ public class SearchSmsViewHolder extends RecyclerView.ViewHolder implements View
 //    new Thread(new Runnable() {
 //      @Override
 //      public void run() {
-//        db.messageDao().markAllRead(address);
-//        Log.i(TAG, "markAllRead");
+//        db.messageDao().markAllReadByAddress(address);
+//        Log.i(TAG, "markAllReadByAddress");
 //      }
 //    }).start();
     Intent i = new Intent(mContext, CompleteSmsActivity.class);

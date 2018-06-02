@@ -119,7 +119,7 @@ public class CustomDialog extends Dialog {
       int category = Contact.BLOCKED;
 //      int length = selectedItem.size();
 //      for (int i = 0; i < length; i++) {
-        new ThreadUtils.UpdateMessageCategoryToBlocked(getContext(), selectedItem, category).run();
+        new ThreadUtils.UpdateMessageCategory(getContext(), selectedItem, category).run();
 //      }
       callback.onDestroyActionMode(mActionMode);
       onBackPressed();
@@ -142,7 +142,7 @@ public class CustomDialog extends Dialog {
   }
 
   private void startThreadToUpdateCategory(int category){
-    new ThreadUtils.UpdateMessageCategoryToBlocked(getContext(), selectedItem, category).run();
+    new ThreadUtils.UpdateMessageCategory(getContext(), selectedItem, category).run();
     onBackPressed();
     callback.onDestroyActionMode(mActionMode);
   }

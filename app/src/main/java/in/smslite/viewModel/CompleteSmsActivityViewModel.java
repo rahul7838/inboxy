@@ -8,14 +8,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.util.Log;
-
-import com.facebook.stetho.common.ArrayListAccumulator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
@@ -37,7 +33,7 @@ public class CompleteSmsActivityViewModel extends AndroidViewModel {
   }
 
   public void markAllRead(String address) {
-    mDB.messageDao().markAllRead(address);
+    mDB.messageDao().markAllReadByAddress(address);
   }
 
   public void deleteFailedMsg(Long time) {

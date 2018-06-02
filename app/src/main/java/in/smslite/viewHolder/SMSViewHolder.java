@@ -80,8 +80,10 @@ public class SMSViewHolder extends RecyclerView.ViewHolder {
       address = "Unknown Sender";
     }
     this.address = address;
-    Contact contact = ContactUtils.getContact(address, mContext, true);
+    Contact contact = PhoneContact.get(address, true);
+//    Contact contact = ContactUtils.getContact(address, mContext, true);
     titleView.setText(contact.getDisplayName());
+//    titleView.setText(address);
     setAvatar(contact);
   }
 
@@ -151,8 +153,8 @@ public class SMSViewHolder extends RecyclerView.ViewHolder {
       new Thread(new Runnable() {
         @Override
         public void run() {
-          db.messageDao().markAllRead(address);
-          Log.d(TAG, "markAllRead");
+          db.messageDao().markAllReadByAddress(address);
+          Log.d(TAG, "markAllReadByAddress");
         }
       }).start();*/
 //    }

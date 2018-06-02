@@ -1,13 +1,18 @@
 package in.smslite.utils;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.provider.Telephony;
+import android.util.Log;
 
 import java.util.List;
 
+import in.smslite.SMSApplication;
 import in.smslite.activity.CompleteSmsActivity;
 import in.smslite.contacts.Contact;
+import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 
@@ -16,7 +21,7 @@ import in.smslite.db.MessageDatabase;
  */
 
 public class ThreadUtils {
-
+  private static final String TAG = ThreadUtils.class.getSimpleName();
   public static class getUnreadSmsAysnTask extends AsyncTask<Void, Void, Integer> {
     Contact contact;
     Context context;
@@ -64,11 +69,11 @@ public class ThreadUtils {
     }
   }
 
-  public static class UpdateMessageCategoryToBlocked extends Thread{
+  public static class UpdateMessageCategory extends Thread{
     Context context;
     List<Message> selectedItem;
     int category;
-    public UpdateMessageCategoryToBlocked(Context context, List<Message> selectedItem, int category){
+    public UpdateMessageCategory(Context context, List<Message> selectedItem, int category){
       this.context = context;
       this.selectedItem = selectedItem;
       this.category = category;
@@ -80,6 +85,42 @@ public class ThreadUtils {
       MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
       for (int i = 0; i < length; i++) {
         mDB.messageDao().moveToCategory(selectedItem.get(i).getAddress(), category);
+      }
+    }
+  }
+
+  public static class MarkAllReadThread extends Thread{
+    MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication());
+    public MarkAllReadThread(){
+
+    }
+    @Override
+    public void run() {
+      super.run();
+//      mDB.messageDao().markAllRead();
+      ContentValues contentValues = new ContentValues();
+      contentValues.put(Telephony.TextBasedSmsColumns.READ, 1);
+      contentValues.put(Telephony.TextBasedSmsColumns.SEEN, 1);
+      int updatedRows = SMSApplication.getApplication().getContentResolver().update(Telephony.Sms.CONTENT_URI, contentValues, null, null);
+      Log.d(TAG, Integer.toString(updatedRows) + " updated rows");
+    }
+  }
+
+  public static class cachePrimaryContactName extends Thread{
+
+    public cachePrimaryContactName() {
+
+    }
+
+    @Override
+    public void run() {
+      super.run();
+      PhoneContact.init(SMSApplication.getApplication());
+      List<Message> list = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication())
+          .messageDao().getPrimaryMessage();
+      int size = list.size();
+      for(int i = 0; i<size; i++){
+        Contact contact = PhoneContact.get(list.get(i).getAddress(),true);
       }
     }
   }

@@ -180,12 +180,13 @@ public class PhoneContact extends Contact {
     }
 
     public static void init(final Context context) {
-        if (sContactCache != null) { // Stop previous Runnable
-            sContactCache.mTaskQueue.mWorkerThread.interrupt();
+//        if (sContactCache != null) { // Stop previous Runnable
+//            sContactCache.mTaskQueue.mWorkerThread.interrupt();
+//        }
+        if(sContactCache == null) {
+            sContactCache = new ContactsCache(context);
         }
-        sContactCache = new ContactsCache(context);
-
-        RecipientIdCache.init(context);
+//        RecipientIdCache.init(context);
 
         // it maybe too aggressive to listen for *any* contact changes, and rebuild MMS contact
         // cache each time that occurs. Unless we can get targeted updates for the contacts we
@@ -245,13 +246,13 @@ public class PhoneContact extends Contact {
     }
 
     public synchronized void setNumber(String number) {
-        if (!MessageUtils.isEmailAddress(number)) {
-            mNumber = PhoneNumberUtils.formatNumber(number, mNumberE164, SMSApplication.getApplication().getCurrentCountryIso());
-        } else {
+//        if (!MessageUtils.isEmailAddress(number)) {
+//            mNumber = PhoneNumberUtils.formatNumber(number, mNumberE164, SMSApplication.getApplication().getCurrentCountryIso());
+//        } else {
             mNumber = number;
-        }
-        notSynchronizedUpdateNameAndNumber();
-        mNumberIsModified = true;
+//        }
+//        notSynchronizedUpdateNameAndNumber();
+//        mNumberIsModified = true;
     }
 
     public boolean isNumberModified() {
@@ -705,20 +706,20 @@ public class PhoneContact extends Contact {
         private PhoneContact getContactInfo(PhoneContact c) {
             if (c.mIsMe) {
                 return getContactInfoForSelf();
-            } else if (MessageUtils.isEmailAddress(c.mNumber)) {
-                return getContactInfoForEmailAddress(c.mNumber);
-            } else if (isAlphaNumber(c.mNumber)) {
+//            } else if (MessageUtils.isEmailAddress(c.mNumber)) {
+//                return getContactInfoForEmailAddress(c.mNumber);
+//            } else if (isAlphaNumber(c.mNumber)) {
                 // first try to look it up in the email field
-                PhoneContact contact = getContactInfoForEmailAddress(c.mNumber);
-                if (contact.existsInDatabase()) {
-                    return contact;
-                }
+//                PhoneContact contact = getContactInfoForEmailAddress(c.mNumber);
+//                if (contact.existsInDatabase()) {
+//                    return contact;
+//                }
                 // then look it up in the phone field
-                return getContactInfoForPhoneNumber(c.mNumber);
+//                return getContactInfoForPhoneNumber(c.mNumber);
             } else {
                 // it's a real phone number, so strip out non-digits and look it up
-                final String strippedNumber = android.telephony.PhoneNumberUtils.stripSeparators(c.mNumber);
-                return getContactInfoForPhoneNumber(strippedNumber);
+//                final String strippedNumber = android.telephony.PhoneNumberUtils.stripSeparators(c.mNumber);
+                return getContactInfoForPhoneNumber(c.mNumber);
             }
         }
 
@@ -766,21 +767,22 @@ public class PhoneContact extends Contact {
                 log("queryContactInfoByNumber: number=" + number);
             }
 
-            String normalizedNumber = PhoneNumberUtils.normalizeNumber(number);
-            String minMatch = android.telephony.PhoneNumberUtils.toCallerIDMinMatch(normalizedNumber);
-            if (!TextUtils.isEmpty(normalizedNumber) && !TextUtils.isEmpty(minMatch)) {
-                String numberLen = String.valueOf(normalizedNumber.length());
-                String numberE164 = PhoneNumberUtils.formatNumberToE164(
-                        number, SMSApplication.getApplication().getCurrentCountryIso());
+//            String normalizedNumber = PhoneNumberUtils.normalizeNumber(number);
+            String minMatch = android.telephony.PhoneNumberUtils.toCallerIDMinMatch(number);
+            if (!TextUtils.isEmpty(number) && !TextUtils.isEmpty(minMatch)) {
+                String numberLen = String.valueOf(number.length());
+//                String numberE164 = PhoneNumberUtils.formatNumberToE164(
+//                        number, SMSApplication.getApplication().getCurrentCountryIso());
+              String numberE164 = number;
                 String selection;
                 String[] args;
                 if (TextUtils.isEmpty(numberE164)) {
                     selection = CALLER_ID_SELECTION_WITHOUT_E164;
-                    args = new String[] {minMatch, numberLen, normalizedNumber, numberLen};
+                    args = new String[] {minMatch, numberLen, number, numberLen};
                 } else {
                     selection = CALLER_ID_SELECTION;
                     args = new String[] {
-                            minMatch, numberE164, numberLen, normalizedNumber, numberLen};
+                            minMatch, numberE164, numberLen, number, numberLen};
                 }
 
                 Cursor cursor = mContext.getContentResolver().query(

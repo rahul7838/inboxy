@@ -45,7 +45,12 @@ public class ContentProviderUtil {
     context.getContentResolver().insert(Telephony.Sms.Sent.CONTENT_URI, contentValue);
   }
 
-
-
+  public static void markAllRead(Context context){
+    ContentValues contentValue = new ContentValues();
+    contentValue.put(Telephony.TextBasedSmsColumns.READ, 1);
+//    contentValue.put(Telephony.TextBasedSmsColumns.SEEN, 1);
+    int updatedRows = context.getContentResolver().update(Telephony.Sms.CONTENT_URI, contentValue, null, null);
+    Log.d(TAG, Integer.toString(updatedRows) + " updated rows");
+  }
 
   }

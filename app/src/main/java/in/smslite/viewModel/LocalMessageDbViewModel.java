@@ -9,17 +9,11 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import in.smslite.R;
-import in.smslite.activity.CompleteSmsActivity;
-import in.smslite.contacts.Contact;
 import in.smslite.db.Message;
 import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
-import in.smslite.utils.InjectionUtils;
 
 
 /**
@@ -53,7 +47,7 @@ public class LocalMessageDbViewModel extends AndroidViewModel {
   }
 
   public void markAllRead(String address){
-    mDB.messageDao().markAllRead(address);
+    mDB.messageDao().markAllReadByAddress(address);
   }
 
   public void deleteSelectedConversation(String timeStamp){

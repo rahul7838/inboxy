@@ -67,6 +67,7 @@ import in.smslite.others.RecyclerItemClickListener;
 import in.smslite.threads.UpdateSentMsgThread;
 import in.smslite.utils.AppStartUtils;
 import in.smslite.utils.ContactUtils;
+import in.smslite.utils.ContentProviderUtil;
 import in.smslite.utils.MessageUtils;
 import in.smslite.utils.ThreadUtils;
 import in.smslite.viewModel.LocalMessageDbViewModel;
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         .build();
 // Initialize Fabric with the debug-disabled crashlytics.
     Fabric.with(this, crashlyticsKit);
-
+    new ThreadUtils.cachePrimaryContactName().start();
 //    registerReceiverForSmsBroadCast();
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
@@ -424,6 +425,9 @@ public class MainActivity extends AppCompatActivity {
     } else if(id == R.id.menu_archive){
       Intent intent = new Intent(context, ArchiveMessageActivity.class);
       startActivity(intent);
+    } else if(id == R.id.menu_mark_all_read){
+//      new ThreadUtils.MarkAllReadThread().start();
+      ContentProviderUtil.markAllRead(context);
     }
     return true;
   }

@@ -39,7 +39,10 @@ public interface MessageDao {
   void markAllSeen(int category);
 
   @Query("Update Message Set seen=1, read = 1 Where address = :address")
-  void markAllRead(String address);
+  void markAllReadByAddress(String address);
+
+  @Query("Update Message set Read = 1, seen = 1")
+  void markAllRead();
 
   @Query("select * from message where Type Like 2 order by timestamp desc")
   Cursor getSentSmsCount();
@@ -88,6 +91,9 @@ public interface MessageDao {
   @Query("select t1.* from message t1 Inner Join (select address, Max(timestamp) timestamp from message where category = 5 group by address) t2" +
       " on t1.address = t2.address and t1.timestamp = t2.timestamp order by timestamp Desc")
   LiveData<List<Message>> getBlockedMessage();
+
+  @Query("select * from message where category=1 order by timestamp desc")
+  List<Message> getPrimaryMessage();
 
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();
