@@ -23,13 +23,13 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
   private int OUTBOX= 4;
 
   public Context context;
-  public List<Message> SmsConversation;
+  public List<Message> smsConversation;
   public List<Message> selectedItemAdapter = new ArrayList<>();
   public List<Message> listOfItemAdapter = new ArrayList<>();
   private String address;
 
   public CompleteSmsAdapter(List<Message> SmsConversation, String address, Context context, List<Message> selectedItemAdapter, List<Message> listOfItemAdapter) {
-    this.SmsConversation = SmsConversation;
+    this.smsConversation = SmsConversation;
     this.context = context;
     this.selectedItemAdapter = selectedItemAdapter;
     this.listOfItemAdapter = listOfItemAdapter;
@@ -68,8 +68,8 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
       } else {
         completeSmsViewHolder.setBackgroundColorWhite();
       }
-      completeSmsViewHolder.setCompleteMsg(SmsConversation.get(position).body);
-      completeSmsViewHolder.setTime(SmsConversation.get(position).timestamp);
+      completeSmsViewHolder.setCompleteMsg(smsConversation.get(position).body);
+      completeSmsViewHolder.setTime(smsConversation.get(position).timestamp);
     }
     else {
       CompleteSmsSentViewHolder completeSmsSentViewHolder = (CompleteSmsSentViewHolder) holder;
@@ -80,8 +80,8 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         completeSmsSentViewHolder.setBackgroundColorWhite();
         completeSmsSentViewHolder.setItemBackgroundBlue();
       }
-      completeSmsSentViewHolder.setCompleteMsg(SmsConversation.get(position).body);
-      completeSmsSentViewHolder.setTime(SmsConversation.get(position).timestamp);
+      completeSmsSentViewHolder.setCompleteMsg(smsConversation.get(position).body);
+      completeSmsSentViewHolder.setTime(smsConversation.get(position).timestamp);
 //      completeSmsSentViewHolder.setSmsStatus("text");
     }
   }
@@ -92,22 +92,26 @@ public class CompleteSmsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
   @Override
   public int getItemCount() {
-    return SmsConversation.size();
+    return smsConversation.size();
   }
 
   @Override
   public int getItemViewType(int position) {
-    if (Message.MessageType.INBOX.equals(SmsConversation.get(position).type)) {
+    if (Message.MessageType.INBOX.equals(smsConversation.get(position).type)) {
       return INBOX;
-    } else if (Message.MessageType.FAILED.equals(SmsConversation.get(position).type)){
+    } else if (Message.MessageType.FAILED.equals(smsConversation.get(position).type)){
       return FAILED;
-    } else if(Message.MessageType.QUEUED.equals(SmsConversation.get(position).type)){
+    } else if(Message.MessageType.QUEUED.equals(smsConversation.get(position).type)){
       return QUEUED;
-    } else if(Message.MessageType.OUTBOX.equals(SmsConversation.get(position).type)){
+    } else if(Message.MessageType.OUTBOX.equals(smsConversation.get(position).type)){
       return OUTBOX;
     }
     return SENT;
   }
 
+  public void setMessage(List<Message> message){
+    this.smsConversation = message;
+    notifyDataSetChanged();
+  }
 
 }

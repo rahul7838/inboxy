@@ -1,11 +1,11 @@
 package in.smslite.others;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.provider.Telephony;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,7 +21,8 @@ import java.util.List;
 
 import in.smslite.R;
 import in.smslite.activity.CompleteSmsActivity;
-import in.smslite.activity.MainActivity;
+import in.smslite.adapter.CompleteSmsAdapter;
+import in.smslite.db.Message;
 import in.smslite.utils.MessageUtils;
 
 import static in.smslite.activity.MainActivity.db;
@@ -36,19 +37,27 @@ public class CompleteSmsActivityHelper {
   private static final String TAG = CompleteSmsActivityHelper.class.getSimpleName();
   private static ActionMode mActionMode;
   private static boolean isMultiSelect = false;
-  private static Context mContext;
+  private Context mContext;
   private static Long timeStamp;
   private static List<Long> selectedTimeStampList = new ArrayList<>();
   private static Menu mMenu;
+  private Activity activity;
+  private CompleteSmsAdapter completeSmsAdapter;
   private static boolean createActionMode = true;
+  private List<Message> listOfItem;
 
-  public static void contextualActionMode(RecyclerView recyclerView, Context context){
+  public void contextualActionMode(RecyclerView recyclerView, Context context, Activity activity,
+                                   CompleteSmsAdapter completeSmsAdapter, List<Message> messages){
     mContext = context;
+    this.activity = activity;
+    this.completeSmsAdapter = completeSmsAdapter;
+    this.listOfItem = messages;
+
     recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(context, recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
       @Override
       public void onItemClick(View view, int position) {
         if (isMultiSelect) {
-          timeStamp = CompleteSmsActivity.completeSmsAdapter.SmsConversation.get(position).getTimestamp();
+          timeStamp = completeSmsAdapter.smsConversation.get(position).getTimestamp();
           multi_select(position, view);
           if (CompleteSmsActivity.selectedItem.size()>1){
             mMenu.getItem(2).setVisible(false);
@@ -63,10 +72,10 @@ public class CompleteSmsActivityHelper {
       public void onItemLongClick(View view, int position) {
         if (!isMultiSelect) {
 //          address = smsAdapter.messages.get(position).getAddress();
-          timeStamp = CompleteSmsActivity.listOfItem.get(position).getTimestamp();
+          timeStamp = listOfItem.get(position).getTimestamp();
           isMultiSelect = true;
           if (mActionMode == null) {
-            mActionMode = ((CompleteSmsActivity) mContext).startActionMode(mActionModeCallback);
+            mActionMode = ((CompleteSmsActivity) context).startActionMode(mActionModeCallback);
           }
         }
         multi_select(position, view);
@@ -75,13 +84,13 @@ public class CompleteSmsActivityHelper {
     }));
 }
 
-  private static void multi_select(int position, View view) {
+  private  void multi_select(int position, View view) {
     if (mActionMode != null) {
-      if (CompleteSmsActivity.selectedItem.contains(CompleteSmsActivity.listOfItem.get(position))) {
-        CompleteSmsActivity.selectedItem.remove(CompleteSmsActivity.listOfItem.get(position));
+      if (CompleteSmsActivity.selectedItem.contains(listOfItem.get(position))) {
+        CompleteSmsActivity.selectedItem.remove(listOfItem.get(position));
         selectedTimeStampList.remove(timeStamp);
       } else {
-        CompleteSmsActivity.selectedItem.add(CompleteSmsActivity.listOfItem.get(position));
+        CompleteSmsActivity.selectedItem.add(listOfItem.get(position));
         selectedTimeStampList.add(timeStamp);
       }
       if (CompleteSmsActivity.selectedItem.size() > 0) {
@@ -96,13 +105,13 @@ public class CompleteSmsActivityHelper {
     }
   }
 
-  private static void refreshAdapter() {
-    CompleteSmsActivity.completeSmsAdapter.selectedItemAdapter = CompleteSmsActivity.selectedItem;
-    CompleteSmsActivity.completeSmsAdapter.listOfItemAdapter = CompleteSmsActivity.listOfItem;
-    CompleteSmsActivity.completeSmsAdapter.notifyDataSetChanged();
+  private  void refreshAdapter() {
+    completeSmsAdapter.selectedItemAdapter = CompleteSmsActivity.selectedItem;
+    completeSmsAdapter.listOfItemAdapter = listOfItem;
+    completeSmsAdapter.notifyDataSetChanged();
   }
 
-  private static ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+  private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -117,7 +126,7 @@ public class CompleteSmsActivityHelper {
 //      if(selectedItem.size() > 1) {
 //        menu.getItem(2).setVisible(false);
 //      }
-      CompleteSmsActivity.activity.getWindow().setStatusBarColor(mContext.getResources().getColor(R.color.contextual_status_bar_color));
+      activity.getWindow().setStatusBarColor(mContext.getResources().getColor(R.color.contextual_status_bar_color));
 //      context_menu = menu;
       return true;
     }
@@ -141,7 +150,7 @@ public class CompleteSmsActivityHelper {
         case R.id.action_select_all:
           Log.d(TAG, "select all");
           CompleteSmsActivity.selectedItem.clear();
-          CompleteSmsActivity.selectedItem.addAll(CompleteSmsActivity.listOfItem);
+          CompleteSmsActivity.selectedItem.addAll(listOfItem);
           int size = CompleteSmsActivity.selectedItem.size();
           selectedTimeStampList.clear();
           for(int i = 0; i<size; i++){
@@ -176,15 +185,15 @@ public class CompleteSmsActivityHelper {
       mActionMode = null;
       isMultiSelect = false;
       CompleteSmsActivity.selectedItem.clear();
-      CompleteSmsActivity.completeSmsAdapter.notifyDataSetChanged();
+      completeSmsAdapter.notifyDataSetChanged();
       selectedTimeStampList.clear();
-      CompleteSmsActivity.activity.getWindow().setStatusBarColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
+      activity.getWindow().setStatusBarColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
       refreshAdapter();
     }
   };
 
 
-  private static void alertDialog() {
+  private void alertDialog() {
     deleteDialog(new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
@@ -221,7 +230,7 @@ public class CompleteSmsActivityHelper {
 
   }
 
-  private static void deleteDialog(DialogInterface.OnClickListener clicked) {
+  private void deleteDialog(DialogInterface.OnClickListener clicked) {
     new AlertDialog.Builder(mContext)
         .setMessage("Are you sure you would like to delete messages?")
         .setTitle("Delete " + CompleteSmsActivity.selectedItem.size() + " messages")

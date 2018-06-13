@@ -56,6 +56,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import in.smslite.R;
+import in.smslite.SMSApplication;
 import in.smslite.adapter.CompleteSmsAdapter;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
@@ -92,7 +93,7 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
   private static final int SEND_TEXT_SMS_REQUEST = 102;
   static EditText editText;
   static Contact contact;
-  private static Context context;
+  private Context context;
   public static Message message;
   public static Long timeStampForBroadCast;
   private LinearLayoutManager llm;
@@ -103,9 +104,9 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
   private LiveData<List<Message>> messageListByAddress;
   private Observer<List<Message>> observer;
   public static List<Message> selectedItem = new ArrayList<>();
-  public static List<Message> listOfItem = new ArrayList<>();
-  public static Activity activity;
-  public static CompleteSmsAdapter completeSmsAdapter;
+  public  List<Message> listOfItem = new ArrayList<>();
+  public Activity activity;
+  public CompleteSmsAdapter completeSmsAdapter;
   private int category;
   private int isDualSim;
   private PopupMenu popup;
@@ -132,8 +133,9 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
       Bundle bundle = getIntent().getExtras();
       address = bundle.getString(getString(R.string.address_id));
 //      category = bundle.getInt("category");
-      category = PreferenceManager.getDefaultSharedPreferences(this).getInt(getString(R.string.dialog_option), Contact.PRIMARY);
-    }
+      category = PreferenceManager.getDefaultSharedPreferences(this).getInt(getString(R.string.dialog_option), ConstantUtils.BUNDLE_FROM_PENDING_INTENT);
+      }
+
 //     Thread to update read and seen field of db when clicking on notification
 
 
@@ -162,7 +164,11 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
     completeSmsRecycleView.setHasFixedSize(true);
     setToolbar();
     sendButtonClickListener();
-    CompleteSmsActivityHelper.contextualActionMode(completeSmsRecycleView, context);
+    List<Message> messages = new ArrayList<>();
+    completeSmsAdapter = new CompleteSmsAdapter(messages, address, context, selectedItem, listOfItem);
+    completeSmsRecycleView.setAdapter(completeSmsAdapter);
+    CompleteSmsActivityHelper completeSmsActivityHelper = new CompleteSmsActivityHelper();
+    completeSmsActivityHelper.contextualActionMode(completeSmsRecycleView, context, activity, completeSmsAdapter, listOfItem);
     getTelephonyInfo();
     subscribeUi();
   }
@@ -274,9 +280,8 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
 
   public void showUi(List<Message> messages) {
     listOfItem.clear();
-    listOfItem = messages;
-    completeSmsAdapter = new CompleteSmsAdapter(messages, address, context, selectedItem, listOfItem);
-    completeSmsRecycleView.setAdapter(completeSmsAdapter);
+    listOfItem.addAll(messages);
+    completeSmsAdapter.setMessage(messages);
   }
 
   private void sendButtonClicked() {
@@ -413,7 +418,7 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
 //        sentIntent.putExtra("timeStamp123", timeStampForBroadCast);
         sentIntent.setAction("in.smslite.SEND_SMS_ACTION");
         PendingIntent sentPendingIntent = PendingIntent.
-            getBroadcast(context, SMS_SEND_INTENT_REQUEST, sentIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            getBroadcast(SMSApplication.getApplication(), SMS_SEND_INTENT_REQUEST, sentIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Intent deliveredIntent = new Intent();
         deliveredIntent.setAction("in.smslite.DELIVERED_SMS_ACTION");
@@ -421,7 +426,7 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
         deliveredIntent.putExtra("timeStamp123", timeStampForBroadCast);
         int requestCode = timeStampForBroadCast.intValue();
         PendingIntent deliveredPendingIntent = PendingIntent.
-            getBroadcast(context, requestCode, deliveredIntent, PendingIntent.FLAG_ONE_SHOT);
+            getBroadcast(SMSApplication.getApplication(), requestCode, deliveredIntent, PendingIntent.FLAG_ONE_SHOT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
           if(smsManager != null) {
             smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
@@ -432,11 +437,11 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
           smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
         }
       } else {
-        Handler handler = new Handler(context.getMainLooper());
+        Handler handler = new Handler(SMSApplication.getApplication().getMainLooper());
         Runnable task = new Runnable() {
           @Override
           public void run() {
-            Toast.makeText(context, "Please write some text!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SMSApplication.getApplication(), "Please write some text!", Toast.LENGTH_SHORT).show();
           }
         };
         handler.post(task);
@@ -637,6 +642,7 @@ public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.
 
   private void performCalling() {
     Intent callIntent = new Intent(Intent.ACTION_CALL);
+    Log.d(TAG, contact.getNumber());
     callIntent.setData(Uri.parse("tel:" + contact.getNumber()));
     startActivity(callIntent);
   }

@@ -10,6 +10,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -69,6 +70,7 @@ import in.smslite.utils.AppStartUtils;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
 import in.smslite.utils.MessageUtils;
+import in.smslite.utils.TestUtil;
 import in.smslite.utils.ThreadUtils;
 import in.smslite.viewModel.LocalMessageDbViewModel;
 import io.fabric.sdk.android.Fabric;
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
   private Context context;
   private Activity activity;
   private int category;
+  private boolean OTPTestThreadStarted = false;
 
 
   @Override
@@ -133,6 +136,17 @@ public class MainActivity extends AppCompatActivity {
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
 //    sharedPreferences.edit().putInt(getString(R.string.dialog_option), Contact.PRIMARY).apply();
 //    registerSmsReceiverBroadcast();
+//below code is used to test the OTP notification
+    registerReceiver(TestUtil.testNotiBroadCast, new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
+    Thread thread = new Thread() {
+      @Override
+      public void run() {
+        super.run();
+        TestUtil.TestOTP(context);
+      }
+    };
+    thread.start();
+
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
 //      case FIRST_TIME_VERSION:
 //        // TODO show what's new
@@ -188,17 +202,9 @@ public class MainActivity extends AppCompatActivity {
     if(!MessageUtils.checkIfDefaultSms(context)) {
       new UpdateSentMsgThread(context).start();
     }
-    //below code is used to test the OTP notification
-//    registerReceiver(TestUtil.testNotiBroadCast,new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
-//    Thread thread = new Thread() {
-//      @Override
-//      public void run() {
-//        super.run();
-//        TestUtil.TestOTP(context);
-//      }
-//    };
-//    thread.start();
 
+
+//
   }
 
   private void initiUi() {

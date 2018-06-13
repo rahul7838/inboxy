@@ -70,6 +70,7 @@ public class NotificationUtils {
     String channelId = Integer.toString(category);
     int timeStamp = (int) message.timestamp;
 
+
 //    ArrayList<Integer> listCategoryIntValue = new ArrayList<Integer>(Arrays.asList(Contact.UNCATEGORIZED, Contact.PRIMARY, Contact.FINANCE, Contact.PROMOTIONS, Contact.UPDATES));
 //    ArrayList<Integer> listId = new ArrayList<>(Arrays.asList(0, priID, finID, proID, updID));
     List<String> listCategoryStringValue = new ArrayList<String>(Arrays.asList("0", "Primary", "Finance", "Promotion", "Updates"));
@@ -154,12 +155,14 @@ public class NotificationUtils {
             .setContentText(message.body)
             .setContentIntent(completeSmsActivityPendingIntent)
             .setGroup(categoryStringValue)
+            .setGroupAlertBehavior(Notification.GROUP_ALERT_SUMMARY)
             .setStyle(new NotificationCompat.BigTextStyle()
                 .bigText(message.body));
 
-        NotificationCompat.Builder bundleBuilder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder bundleBuilder = new NotificationCompat.Builder(context, channelId)
 //            .setContentText(notificationSummary.get(0).getAddress() + ": " + notificationSummary.get(0).getBody())
             .setGroupSummary(true)
+            .setChannelId(channelId)
             .setAutoCancel(true)
             .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
             .setGroup(categoryStringValue)
@@ -169,6 +172,7 @@ public class NotificationUtils {
 //
         Log.d(TAG, "api 25");
         if (notificationManager != null) {
+          PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(context.getString(R.string.dialog_option), category).apply();
           notificationManager.notify(timeStamp, builder.build());
           notificationManager.notify(category, bundleBuilder.build());
         }
@@ -201,6 +205,8 @@ public class NotificationUtils {
         }
         Log.i(TAG, "NotificationExecuted");
         if (notificationManager != null) {
+
+          PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(context.getString(R.string.dialog_option), category).apply();
           notificationManager.notify(category, builder.build());
         }
       }
@@ -292,6 +298,7 @@ public class NotificationUtils {
       customNotification.setSound(uri);
     }
     if (notificationManager != null) {
+      PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(context.getString(R.string.dialog_option), contact.getCategory()).apply();
       notificationManager.notify(notiId, customNotification.build());
     }
   }

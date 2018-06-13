@@ -47,7 +47,7 @@ public interface MessageDao {
   @Query("select * from message where Type Like 2 order by timestamp desc")
   Cursor getSentSmsCount();
 
-  @Query("select * from message where body Like \"%otp%\" group by address")
+  @Query("select * from message  where category = 4 order by timestamp desc")
   List<Message> getOTPFOrTest();
 
   @Query("Update Message set type = 2 where timestamp LIKE :time")

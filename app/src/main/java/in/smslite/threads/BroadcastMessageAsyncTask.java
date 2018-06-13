@@ -56,6 +56,7 @@ public class BroadcastMessageAsyncTask extends AsyncTask<Context, Void, Void> {
       for (int i = 0; i < OTPKeywordsSize; i++) {
         Log.d(TAG, NotificationUtils.getOTPFromString(message.body)+ OTPKeywords.get(i));
         Pattern pattern = Pattern.compile(OTPKeywords.get(i)+"[\\s]{1}");
+//        Pattern pattern = Pattern.compile("[^a-z0-9A-Z]{1}"+OTPKeywords.get(i)+ "[^a-z0-9A-Z]{1}");
         Matcher match = pattern.matcher(message.body.toLowerCase());
 
         if (match.find()) {

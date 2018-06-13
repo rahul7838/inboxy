@@ -13,4 +13,8 @@ public class ConstantUtils {
   public static final String BLOCKED_ACTIVITY_DIALOG = "blockedActivity";
   public static final String MAIN_ACTIVITY_DIALOG = "mainActivity";
 
+  //CompleteSmsActivity Constants Value
+
+  public static final int BUNDLE_FROM_PENDING_INTENT = 10;
+
 }

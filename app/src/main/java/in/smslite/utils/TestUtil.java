@@ -36,8 +36,10 @@ public class TestUtil {
   public static void TestOTP(Context context) {
     List<Message> msg = db.messageDao().getOTPFOrTest();
     int size = msg.size();
+    int counter = 0;
     Message message = new Message();
     for (int i = 0; i < size; i++) {
+      counter++;
       Message sms = msg.get(i);
       message.body = sms.body;
       message.address = sms.address;
@@ -50,11 +52,12 @@ public class TestUtil {
       LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
       context.sendBroadcast(intent);
       try {
-        Thread.sleep(5000);
+        Thread.sleep(4000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
+    Log.d(TAG, Integer.toString(counter));
   }
 
   public static BroadcastReceiver testNotiBroadCast = new BroadcastReceiver() {
