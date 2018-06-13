@@ -21,11 +21,11 @@ public interface MessageDao {
   @Query("Select * from Message group by address order by timestamp desc")
   LiveData<List<Message>> getMessage();
 
-  @Query("Select * from Message Where address = :address order by timestamp asc")
-  LiveData<List<Message>> getMessageListByAddress(String address);
+  @Query("Select * from Message Where address = :address AND category=:category order by timestamp asc")
+  LiveData<List<Message>> getMessageListByAddress(String address, int category);
 
   //  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
-  @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
+  @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message where category =:category group by address)" +
       "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where category = :category order by timestamp desc")
   LiveData<List<Message>> getMessageListByCategory(int category);
 
@@ -80,8 +80,8 @@ public interface MessageDao {
   void deleteSelectedMessage(Long timestamp);
 
 //  Update the Category of message to blocked
-  @Query("Update Message set category = :category where address Like :address")
-  void moveToCategory(String address, int category);
+  @Query("Update Message set category = :category where address Like :address AND category=:presentCategory")
+  void moveToCategory(String address, int category, int presentCategory);
 
 //  Query to select all archive messages
   @Query("Select t1.* from message t1 JOIN (select address, Max(timestamp) timestamp from message where category = 6 group by address)" +
@@ -94,6 +94,20 @@ public interface MessageDao {
 
   @Query("select * from message where category=1 order by timestamp desc")
   List<Message> getPrimaryMessage();
+
+  @Query("Update message set sendFutureMessage = :value where address = :address")
+  void updateSendFutureMessage(String address, int value);
+
+  @Query("select t1.sendFutureMessage from message t1 join (select Min(timestamp) timestamp from message where address=:address) " +
+      "t2 on t1.timestamp=t2.timestamp where address = :address group by address")
+  int askSendFutureMessage(String address);
+
+  @Query("select t1.futureCategory from message t1 Join(select Min(timestamp) timestamp from message where address=:address) " +
+      "t2 on t1.timestamp = t2.timestamp where address = :address group by address")
+  int findCategory(String address);
+
+  @Query("update message set futureCategory =:category where address =:address")
+  void updateFutureCategory(String address, int category);
 
 //  @Query("Select * from Message Where widget = 1 order by timestamp desc" )
 //  public List<Message> getWidgetMessage();

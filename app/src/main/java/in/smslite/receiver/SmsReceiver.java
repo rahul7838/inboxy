@@ -4,15 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import in.smslite.SMSApplication;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
+import in.smslite.db.MessageDatabase;
 import in.smslite.threads.BroadcastMessageAsyncTask;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
@@ -51,7 +50,13 @@ public class SmsReceiver extends BroadcastReceiver {
         message.timestamp = sms.getTimestampMillis();
         message.threadId = 123;
         message.type = Message.MessageType.INBOX;
-        message.category = contact.getCategory();
+//        TODO line 54 is crashing the app
+        int value  = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication()).messageDao().askSendFutureMessage(number);
+        if(value == 1){
+          message.category = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication()).messageDao().findCategory(number);
+        } else {
+          message.category = contact.getCategory();
+        }
         serviceCenterAddress = sms.getServiceCenterAddress();
 //      message.widget = isWidgetMessage(context, message.body);
       }

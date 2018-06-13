@@ -58,10 +58,12 @@ public class CustomDialog extends Dialog {
   ImageView updateImage;
   @BindView(R.id.dialog_checkbox)
   CheckBox checkBox;
+  private boolean checked;
 
   private List<Message> selectedItem;
   private ActionMode.Callback callback;
   private String whichActivity;
+  private int presentCategory;
 
   public CustomDialog(@NonNull Context context, List<Message> selectedItem, ActionMode.Callback callback, String whichActivity) {
     super(context);
@@ -77,15 +79,15 @@ public class CustomDialog extends Dialog {
     ButterKnife.bind(this);
     dialogOptionClickListener();
     setVisibility();
-    boolean checked = checkBox.isChecked();
+     checked = checkBox.isChecked();
     PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean
         (getContext().getResources().getString(R.string.dialog_checkbox), checked).apply();
     heading.setText("Move " + selectedItem.size() + " conversation to");
   }
 
   private void setVisibility() {
-    int value = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(getContext().getString(R.string.dialog_option), Contact.PRIMARY);
-    switch (value) {
+    presentCategory = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(getContext().getString(R.string.dialog_option), Contact.PRIMARY);
+    switch (presentCategory) {
       case Contact.PRIMARY:
         primaryOption.setVisibility(View.GONE);
         primaryImage.setVisibility(View.GONE);
@@ -117,9 +119,10 @@ public class CustomDialog extends Dialog {
   private void dialogOptionClickListener() {
     blockedOption.setOnClickListener((View v) -> {
       int category = Contact.BLOCKED;
+      checked = checkBox.isChecked();
 //      int length = selectedItem.size();
 //      for (int i = 0; i < length; i++) {
-        new ThreadUtils.UpdateMessageCategory(getContext(), selectedItem, category).run();
+        new ThreadUtils.UpdateMessageCategory(getContext(), selectedItem, category, presentCategory, checked).run();
 //      }
       callback.onDestroyActionMode(mActionMode);
       onBackPressed();
@@ -142,7 +145,8 @@ public class CustomDialog extends Dialog {
   }
 
   private void startThreadToUpdateCategory(int category){
-    new ThreadUtils.UpdateMessageCategory(getContext(), selectedItem, category).run();
+    checked = checkBox.isChecked();
+    new ThreadUtils.UpdateMessageCategory(getContext(), selectedItem, category, presentCategory, checked).run();
     onBackPressed();
     callback.onDestroyActionMode(mActionMode);
   }

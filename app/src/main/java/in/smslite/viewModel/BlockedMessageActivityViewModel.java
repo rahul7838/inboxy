@@ -21,8 +21,8 @@ public class BlockedMessageActivityViewModel extends AndroidViewModel {
     mDB = MessageDatabase.getInMemoryDatabase(application);
   }
 
-  public void updateCategoryOfMessage(String address, int category){
-    mDB.messageDao().moveToCategory(address, category);
+  public void updateCategoryOfMessage(String address, int category, int presentCategory){
+    mDB.messageDao().moveToCategory(address, category, presentCategory);
   }
 
   public LiveData<List<Message>> getBlockedMessage(){

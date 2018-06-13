@@ -73,10 +73,14 @@ public class ThreadUtils {
     Context context;
     List<Message> selectedItem;
     int category;
-    public UpdateMessageCategory(Context context, List<Message> selectedItem, int category){
+    int presentCategory;
+    boolean checked;
+    public UpdateMessageCategory(Context context, List<Message> selectedItem, int category, int presentCategory, boolean checked){
       this.context = context;
       this.selectedItem = selectedItem;
       this.category = category;
+      this.checked = checked;
+      this.presentCategory = presentCategory;
     }
     @Override
     public void run() {
@@ -84,7 +88,14 @@ public class ThreadUtils {
       int length = selectedItem.size();
       MessageDatabase mDB = MessageDatabase.getInMemoryDatabase(context);
       for (int i = 0; i < length; i++) {
-        mDB.messageDao().moveToCategory(selectedItem.get(i).getAddress(), category);
+        Log.d(TAG, selectedItem.get(i).getAddress());
+        mDB.messageDao().moveToCategory(selectedItem.get(i).getAddress(), category, presentCategory);
+        if(checked){
+          mDB.messageDao().updateSendFutureMessage(selectedItem.get(i).getAddress(), 1);
+          mDB.messageDao().updateFutureCategory(selectedItem.get(i).getAddress(), category);
+        } else {
+//          mDB.messageDao().updateSendFutureMessage(selectedItem.get(i).getAddress(), 0);
+        }
       }
     }
   }
@@ -124,4 +135,17 @@ public class ThreadUtils {
       }
     }
   }
+
+  /*public static class sendFutureMessage extends Thread{
+    String address;
+    public sendFutureMessage(String address) {
+      this.address = address;
+    }
+
+    @Override
+    public void run() {
+      super.run();
+      MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication()).messageDao().sendFutureMessage(address);
+    }
+  }*/
 }

@@ -149,11 +149,15 @@ public class MainActivity extends AppCompatActivity {
     permissionNeeded = new ArrayList<>();
     int permissionCheckSms = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_SMS);
     int permissionCheckContact = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CONTACTS);
+    int permissionCheckPhoneState = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE);
     if (permissionCheckSms != PackageManager.PERMISSION_GRANTED) {
       permissionNeeded.add(Manifest.permission.READ_SMS);
     }
     if (permissionCheckContact != PackageManager.PERMISSION_GRANTED) {
       permissionNeeded.add(Manifest.permission.READ_CONTACTS);
+    }
+    if (permissionCheckPhoneState != PackageManager.PERMISSION_GRANTED) {
+      permissionNeeded.add(Manifest.permission.READ_PHONE_STATE);
     }
     if (!permissionNeeded.isEmpty() || !smsCategorized) {
 //    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_SMS);
@@ -427,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
       startActivity(intent);
     } else if(id == R.id.menu_mark_all_read){
 //      new ThreadUtils.MarkAllReadThread().start();
-      ContentProviderUtil.markAllRead(context);
+//      ContentProviderUtil.markAllRead(context);
     }
     return true;
   }

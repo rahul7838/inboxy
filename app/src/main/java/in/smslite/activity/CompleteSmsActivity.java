@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.provider.Telephony;
@@ -30,14 +31,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
@@ -66,7 +73,7 @@ import in.smslite.viewModel.CompleteSmsActivityViewModel;
 import static android.telephony.SmsManager.RESULT_ERROR_NULL_PDU;
 import static in.smslite.activity.MainActivity.db;
 
-public class CompleteSmsActivity extends AppCompatActivity {
+public class CompleteSmsActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
   private static final String TAG = CompleteSmsActivity.class.getSimpleName();
   @BindView(R.id.coordinator_layout)
   View coView;
@@ -78,6 +85,8 @@ public class CompleteSmsActivity extends AppCompatActivity {
   RecyclerView completeSmsRecycleView;
   @BindView(R.id.complete_sms_attach_id)
   ImageButton attachContactButton;
+  @BindView(R.id.complete_sms_sim_option)
+  ImageButton simOptionlistener;
   private static final int SMS_SEND_INTENT_REQUEST = 100;
   private static final int SMS_DELIVER_INTENT_REQUEST = 101;
   private static final int SEND_TEXT_SMS_REQUEST = 102;
@@ -89,7 +98,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
   private LinearLayoutManager llm;
   final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
   private final int MY_PERMISSION_REQUEST_READ_PHONE_STATE = 2;
-  public  String address;
+  public String address;
   public static CompleteSmsActivityViewModel completeSmsActivityViewModel;
   private LiveData<List<Message>> messageListByAddress;
   private Observer<List<Message>> observer;
@@ -97,7 +106,11 @@ public class CompleteSmsActivity extends AppCompatActivity {
   public static List<Message> listOfItem = new ArrayList<>();
   public static Activity activity;
   public static CompleteSmsAdapter completeSmsAdapter;
-
+  private int category;
+  private int isDualSim;
+  private PopupMenu popup;
+  private List<SubscriptionInfo> subscriptionInfoList;
+  private static SmsManager smsManager;
 
 
   @Override
@@ -105,13 +118,21 @@ public class CompleteSmsActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     context = this;
     activity = this;
-//    completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
+    completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
 //    db = MessageDatabase.getInMemoryDatabase(context);
     if (getIntent().getData() != null) {
       getDataFromOtherAppIntent();
+      category = completeSmsActivityViewModel.findFutureCategory(address);
+      if (category != 0) {
+        category = completeSmsActivityViewModel.findFutureCategory(address);
+      } else {
+        category = ContactUtils.getContact(address, this, true).getCategory();
+      }
     } else {
       Bundle bundle = getIntent().getExtras();
       address = bundle.getString(getString(R.string.address_id));
+//      category = bundle.getInt("category");
+      category = PreferenceManager.getDefaultSharedPreferences(this).getInt(getString(R.string.dialog_option), Contact.PRIMARY);
     }
 //     Thread to update read and seen field of db when clicking on notification
 
@@ -126,7 +147,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
       address = contact.getNumber();
     }
     Log.d(TAG, address + address);
-    completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
+//    completeSmsActivityViewModel = ViewModelProviders.of(this).get(CompleteSmsActivityViewModel.class);
     new ThreadUtils.UpdateDbNotiClickedThread(address).run();
 //    setUpUi();
 //    subscribeUi();
@@ -142,6 +163,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
     setToolbar();
     sendButtonClickListener();
     CompleteSmsActivityHelper.contextualActionMode(completeSmsRecycleView, context);
+    getTelephonyInfo();
     subscribeUi();
   }
 
@@ -162,7 +184,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
       e.printStackTrace();
     }
 //      address = "" + Html.fromHtml(address);
-    address = ContactUtils.formatAddress(address);
+    address = ContactUtils.normalizeNumber(address);
 //      address = PhoneNumberUtils.formatNumber(address, locale);
   }
 
@@ -177,17 +199,17 @@ public class CompleteSmsActivity extends AppCompatActivity {
     }
   }
 
-  private void attachContact(){
+  private void attachContact() {
     Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
     pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
     startActivityForResult(pickContactIntent, ConstantUtils.ON_ATTACH_CONTACT_CLICK);
   }
 
-  private void addTextToMessage(Intent data){
+  private void addTextToMessage(Intent data) {
     List<String> nameAndNumber = completeSmsActivityViewModel.queryDataToFindConatact(data);
     String name = nameAndNumber.get(0);
     String number = nameAndNumber.get(1);
-    String contact = "Name: "+ name + "\n" + "Phone: " + number;
+    String contact = "Name: " + name + "\n" + "Phone: " + number;
     editText.setText(contact);
   }
 
@@ -197,16 +219,16 @@ public class CompleteSmsActivity extends AppCompatActivity {
     if (requestCode == SEND_TEXT_SMS_REQUEST) {
       if (resultCode == RESULT_OK) {
         long l = 0;
-        sendTextSms(l, address);
+        sendTextSms(l, address, category);
       }
     }
-    if(requestCode == ConstantUtils.NOT_DEFAULT_SMS_APP){
-      if(resultCode == RESULT_OK){
+    if (requestCode == ConstantUtils.NOT_DEFAULT_SMS_APP) {
+      if (resultCode == RESULT_OK) {
         attachContact();
       }
     }
-    if(requestCode == ConstantUtils.ON_ATTACH_CONTACT_CLICK){
-      if(resultCode == RESULT_OK){
+    if (requestCode == ConstantUtils.ON_ATTACH_CONTACT_CLICK) {
+      if (resultCode == RESULT_OK) {
         addTextToMessage(data);
       }
     }
@@ -243,14 +265,14 @@ public class CompleteSmsActivity extends AppCompatActivity {
 
 
   public void subscribeUi() {
-    if(observer != null){
+    if (observer != null) {
       messageListByAddress.removeObserver(observer);
     }
-    messageListByAddress = completeSmsActivityViewModel.getMessageListByAddress(address);
+    messageListByAddress = completeSmsActivityViewModel.getMessageListByAddress(address, category);
     messageListByAddress.observe(this, this::showUi);
   }
 
-    public void showUi(List<Message> messages) {
+  public void showUi(List<Message> messages) {
     listOfItem.clear();
     listOfItem = messages;
     completeSmsAdapter = new CompleteSmsAdapter(messages, address, context, selectedItem, listOfItem);
@@ -264,32 +286,108 @@ public class CompleteSmsActivity extends AppCompatActivity {
       startActivityForResult(intent, SEND_TEXT_SMS_REQUEST);
     } else {
       long l = 0;
-      sendTextSms(l, address);
+      sendTextSms(l, address, category);
     }
   }
 
-  public static void sendTextSms(Long time, String address) {
+  //  Dual sim selection popup menu
+  @OnClick(R.id.complete_sms_sim_option)
+  @TargetApi(22)
+  public void popupMenu() {
+    invalidateOptionsMenu();
+    PopupMenu popup = new PopupMenu(context, simOptionlistener);
+    popup.getMenuInflater().inflate(R.menu.menu_sim_option, popup.getMenu());
+//    getTelephonyInfo();
+    MenuItem sim2 = popup.getMenu().findItem(R.id.menu_sim2_option);
+    MenuItem sim1 = popup.getMenu().findItem(R.id.menu_sim1_option);
+    SubscriptionInfo subId1 = subscriptionInfoList.get(0);
+    SubscriptionInfo subId2;
+    if (isDualSim != 2) {
+      sim2.setVisible(false);
+      sim1.setTitle(subId1.getDisplayName());
+    } else {
+      subId2 = subscriptionInfoList.get(1);
+      sim1.setTitle(subId1.getDisplayName()+" -sim" +Integer.toString(subId1.getSimSlotIndex() + 1));
+      sim2.setTitle(subId2.getDisplayName()+" -sim" + Integer.toString(subId2.getSimSlotIndex() + 1));
+    }
+    popup.show();
+    popup.setOnMenuItemClickListener(this);
+  }
+
+  @TargetApi(22)
+  public void getTelephonyInfo() {
+    SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(TELEPHONY_SUBSCRIPTION_SERVICE);
+    subscriptionManager.addOnSubscriptionsChangedListener(new SubscriptionChangeListener());
+    subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+    int dualSim = subscriptionManager.getActiveSubscriptionInfoCountMax();
+    if (dualSim == 2) {
+      isDualSim = 2;
+    }
+//    smsManager = SmsManager.getDefault();
+    smsManager = SmsManager.getSmsManagerForSubscriptionId(SmsManager.getDefaultSmsSubscriptionId());
+  }
+
+  @TargetApi(Build.VERSION_CODES.LOLLIPOP_MR1)
+  public class SubscriptionChangeListener extends SubscriptionManager.OnSubscriptionsChangedListener{
+    @Override
+    public void onSubscriptionsChanged() {
+      super.onSubscriptionsChanged();
+      smsManager = SmsManager.getSmsManagerForSubscriptionId(SmsManager.getDefaultSmsSubscriptionId());
+    }
+  }
+
+  @Override
+  @TargetApi(22)
+  public boolean onMenuItemClick(MenuItem item) {
+    int id = item.getItemId();
+    switch (id) {
+      case R.id.menu_sim1_option:
+        smsManager = SmsManager.getSmsManagerForSubscriptionId(subscriptionInfoList.get(0).getSubscriptionId());
+        break;
+      case R.id.menu_sim2_option:
+        if (isDualSim == 2) {
+          smsManager = SmsManager.getSmsManagerForSubscriptionId(subscriptionInfoList.get(1).getSubscriptionId());
+        }
+        break;
+      default:
+        break;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+
+    getMenuInflater().inflate(R.menu.activity_completesms, menu);
+    return true;
+  }
+
+
+  public static void sendTextSms(Long time, String address, int category) {
     String msg;
     if (CompleteSmsSentViewHolder.tryFailedSms) {
       CompleteSmsSentViewHolder.tryFailedSms = false;
       msg = db.messageDao().getFailedSmsText(time);
       db.messageDao().deleteFailedMsg(time);
-      new thread(msg, address).start();
+      new thread(msg, address, category).start();
     } else {
       Editable editableText = editText.getText();
       msg = editableText.toString();
 //    if (!msg.isEmpty()) {
       editableText.clear();
 //      write sent sms to local database
-      new thread(msg, address).start();
+      new thread(msg, address, category).start();
     }
   }
 
   private static class thread extends Thread {
-    String msg,address;
-    thread(String msg, String address) {
+    String msg, address;
+    int category;
+
+    thread(String msg, String address, int category) {
       this.msg = msg;
       this.address = address;
+      this.category = category;
     }
 
     @Override
@@ -303,7 +401,7 @@ public class CompleteSmsActivity extends AppCompatActivity {
         message.body = msg;
         message.read = true;
         message.seen = true;
-        message.category = contact.getCategory();
+        message.category = category;
         message.threadId = 0;
         message.timestamp = timeStampForBroadCast;
         Log.d(TAG, "message.timeStamp " + Long.toString(timeStampForBroadCast));
@@ -324,11 +422,14 @@ public class CompleteSmsActivity extends AppCompatActivity {
         int requestCode = timeStampForBroadCast.intValue();
         PendingIntent deliveredPendingIntent = PendingIntent.
             getBroadcast(context, requestCode, deliveredIntent, PendingIntent.FLAG_ONE_SHOT);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+          if(smsManager != null) {
+            smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
+          }
+
+        } else {
           SmsManager smsManager = SmsManager.getDefault();
           smsManager.sendTextMessage(address, null, msg, sentPendingIntent, deliveredPendingIntent);
-        } else {
-//          int subscriptionId = SmsManager.getDefaultSmsSubscriptionId();
         }
       } else {
         Handler handler = new Handler(context.getMainLooper());
@@ -341,6 +442,10 @@ public class CompleteSmsActivity extends AppCompatActivity {
         handler.post(task);
       }
     }
+
+//    public void dual sim(){
+//
+//    }
   }
 
   private BroadcastReceiver SendSmsBroadcastReceiver = new BroadcastReceiver() {
@@ -407,14 +512,6 @@ public class CompleteSmsActivity extends AppCompatActivity {
   protected void onDestroy() {
     super.onDestroy();
     unregisterReceiver(SendSmsBroadcastReceiver);
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-
-    getMenuInflater().inflate(R.menu.activity_completesms, menu);
-    // return true so that the menu pop up is opened
-    return true;
   }
 
   @Override

@@ -47,7 +47,8 @@ public class WelcomeActivity extends AppIntro {
                 .getDefaultSharedPreferences(this);
         boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                 addSlide(SMSPermissionFragment.newInstance());
                 numFragment++;
             }
@@ -90,10 +91,17 @@ public class WelcomeActivity extends AppIntro {
             //Note:- Don't use 1 as it already used for something else by AppIntro in parents method
             case 2:
                 if (grantResults.length > 0 && grantResults[0] == PERMISSION_GRANTED) {
-                    next();
+//                    next();
                 } else {
                     handleDenial(Manifest.permission.READ_SMS, R.string.permission_Read_SMS_rationale,
                             getResources().getString(R.string.permission_READ_SMS_OK), getResources().getString(R.string.permission_READ_SMS_denial));
+                    break;
+                }
+                if(grantResults.length >1 && grantResults[1] == PERMISSION_GRANTED){
+                    next();
+                } else {
+                    handleDenial(Manifest.permission.READ_PHONE_STATE, R.string.permission_Read_SMS_rationale,
+                        getResources().getString(R.string.permission_READ_SMS_OK), getResources().getString(R.string.permission_READ_SMS_denial));
                 }
                 break;
             case 3:

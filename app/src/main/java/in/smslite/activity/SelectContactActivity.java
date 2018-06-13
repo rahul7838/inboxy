@@ -29,6 +29,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import in.smslite.R;
 import in.smslite.adapter.SelectContactAdapter;
+import in.smslite.utils.ContactUtils;
 
 
 /**
@@ -131,13 +132,13 @@ public class SelectContactActivity extends AppCompatActivity implements LoaderMa
       for(int i = 0; i < length; i++){
         newSearchString = mSearchString.substring(i, i+1);
         builder.append(newSearchString);
-        if(builder.length() % 3 == 0 ){
+        if(builder.length() == 2 || builder.length() == 5 || builder.length() == 8 || builder.length() == 11){
           builder.append("%");
         }
       }
       Log.d(TAG, builder.toString());
       String[] arg = {"+91" + builder.toString() + "%", "+91 "+ builder.toString()+"%", builder.toString() + "%", "0" + builder.toString() + "%"};
-      CursorLoader cursor = new CursorLoader(context, uri, null, selection, arg,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC" );
+      CursorLoader cursor = new CursorLoader(context, uri, null, selection, arg,ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY + " ASC" + " LIMIT 200 ");
       return cursor;
     }
   }
@@ -157,7 +158,7 @@ public class SelectContactActivity extends AppCompatActivity implements LoaderMa
     }
   }
 
-  private void textIsNumber(Cursor data) {
+  private void textIsNumber(Cursor cursor) {
 //    String number = null;
     List<String> nameList = new ArrayList<>();
     List<String> numberList = new ArrayList<>();
@@ -165,44 +166,49 @@ public class SelectContactActivity extends AppCompatActivity implements LoaderMa
     numberList.add(mSearchString);
     nameList.add(mSearchString);
     try {
-      data.moveToFirst();
-      int nameIndex = data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-      int numberIndex = data.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+      cursor.moveToFirst();
+      int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+      int numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
       do {
-        if (set.add(formatNumber(data.getString(numberIndex)))) {
-          nameList.add(data.getString(nameIndex));
-          numberList.add(data.getString(numberIndex));
+        String formatedNumber = ContactUtils.normalizeNumber(cursor.getString(numberIndex));
+//        if (set.add(formatNumber(cursor.getString(numberIndex)))) {
+        if (set.add(formatedNumber)) {
+          nameList.add(cursor.getString(nameIndex));
+          numberList.add(formatedNumber);
         }
-      } while (data.moveToNext());
+      } while (cursor.moveToNext());
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
-      data.close();
+      cursor.close();
     }
     SelectContactAdapter.updateList(nameList, numberList);
   }
 
 
-  private void textIsAlphaNumeric(Cursor data) {
+  private void textIsAlphaNumeric(Cursor cursor) {
     List<String> nameList = new ArrayList<>();
     List<String> numberList = new ArrayList<>();
     HashSet<String> set = new HashSet<>();
-    data.moveToFirst();
+    cursor.moveToFirst();
 
     try {
+      int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+      int numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
       do {
-//          if (data.getInt(1) == 1) {
-        if (!data.getString(3).matches(".*[a-zA-Z].*")) {
-          if (set.add(formatNumber(data.getString(3)))) {
-            nameList.add(data.getString(2));
-            numberList.add(data.getString(3));
+//          if (cursor.getInt(1) == 1) {
+        if (!cursor.getString(numberIndex).matches(".*[a-zA-Z].*")) {
+          String formatedNumber = ContactUtils.normalizeNumber(cursor.getString(numberIndex));
+          if (set.add(formatedNumber)) {
+            nameList.add(cursor.getString(nameIndex));
+            numberList.add(formatedNumber);
           }
         }
-      } while (data.moveToNext());
+      } while (cursor.moveToNext());
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
-      data.close();
+      cursor.close();
     }
     Log.d(TAG, Integer.toString(nameList.size()));
     Log.d(TAG, Integer.toString(numberList.size()));

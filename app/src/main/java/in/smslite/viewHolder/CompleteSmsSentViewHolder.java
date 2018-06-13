@@ -1,6 +1,7 @@
 package in.smslite.viewHolder;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -55,7 +56,8 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
     Log.d(TAG, "trySendFailedSms");
     Log.d(TAG, Long.toString(failedSmsTime));
     tryFailedSms = true;
-    CompleteSmsActivity.sendTextSms(failedSmsTime, address);
+    int category = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mContext.getString(R.string.dialog_option),0);
+    CompleteSmsActivity.sendTextSms(failedSmsTime, address, category);
   }
 
   public void setItemBackgroundBlack() {

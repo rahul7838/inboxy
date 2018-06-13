@@ -47,13 +47,14 @@ public class SMSPermissionFragment extends Fragment implements ISlidePolicy {
 
     @Override
     public boolean isPolicyRespected() {
-        return ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+            && ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
     public void onUserIllegallyRequestedNextPage() {
         Log.d(TAG, "Permission request");
-        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_SMS}, 2);
+        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE}, 2);
         onDisplayPopupPermission();
     }
 

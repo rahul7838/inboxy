@@ -6,6 +6,7 @@ import android.arch.persistence.room.TypeConverter;
 import android.provider.Telephony;
 
 import java.io.Serializable;
+import java.security.PublicKey;
 
 /**
  * Created by rahul1993 on 11/11/2017.
@@ -20,11 +21,30 @@ public class Message implements Serializable {
   public int category;
   public int threadId;
   public long timestamp;
+  public int futureCategory;
+  public boolean sendFutureMessage;
   public Message.MessageType type;
   @PrimaryKey(autoGenerate = true)
   int id;
 
 //  public boolean widget;
+
+
+  public int getFutureCategory() {
+    return futureCategory;
+  }
+
+  public void setFutureCategory(int futureCategory) {
+    this.futureCategory = futureCategory;
+  }
+
+  public boolean isSendFutureMessage() {
+    return sendFutureMessage;
+  }
+
+  public void setSendFutureMessage(boolean sendFutureMessage) {
+    this.sendFutureMessage = sendFutureMessage;
+  }
 
   public String getBody() {
     return body;

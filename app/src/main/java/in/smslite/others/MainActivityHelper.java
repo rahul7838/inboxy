@@ -82,6 +82,8 @@ public class MainActivityHelper {
           address = smsAdapter1.messages.get(position).getAddress();
           Intent i = new Intent(context, CompleteSmsActivity.class);
           i.putExtra(view.getResources().getString(R.string.address_id), address);
+//          TODO:check line 86 category
+//          i.putExtra("category", smsAdapter1.messages.get(position).getCategory());
           context.startActivity(i);
         }
       }

@@ -1,25 +1,27 @@
 package in.smslite.receiver;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
+import in.smslite.SMSApplication;
 import in.smslite.contacts.Contact;
 import in.smslite.contacts.PhoneContact;
 import in.smslite.db.Message;
+import in.smslite.db.MessageDatabase;
 import in.smslite.threads.BroadcastMessageAsyncTask;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.ContentProviderUtil;
 
 
 /**
+ *
+ * When the app is default sms app (@link SmsBroadCastReceiver) is called.
+ *
  * Created by rahul1993 on 11/12/2017.
  */
 
@@ -54,7 +56,12 @@ public class SmsBroadcastReceiver extends BroadcastReceiver{
       message.timestamp = sms.getTimestampMillis();
       message.threadId = 0;
       message.type = Message.MessageType.INBOX;
-      message.category = contact.getCategory();
+      int value = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication()).messageDao().askSendFutureMessage(number);
+      if(value == 1){
+        message.category = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication()).messageDao().findCategory(number);
+      } else {
+        message.category = contact.getCategory();
+      }
       serviceCenterAddress = sms.getServiceCenterAddress();
 //      message.widget = isWidgetMessage(context, message.body);
     }

@@ -3,6 +3,7 @@ package in.smslite.threads;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Telephony;
 import android.util.Log;
 
@@ -10,8 +11,10 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 
+import in.smslite.SMSApplication;
 import in.smslite.contacts.Contact;
 import in.smslite.db.Message;
+import in.smslite.db.MessageDatabase;
 import in.smslite.utils.ContactUtils;
 import in.smslite.utils.MessageUtils;
 import in.smslite.activity.MainActivity;
@@ -80,6 +83,7 @@ public class UpdateSentMsgThread extends Thread {
         cursor.moveToFirst();
         do {
           String time = cursor.getString(dateIndex);
+
           if (Long.parseLong(time) > Long.parseLong(timeStampLocalDb)) {
             String address = cursor.getString(addressIndex);
             String body = cursor.getString(bodyIndex);
@@ -92,7 +96,12 @@ public class UpdateSentMsgThread extends Thread {
             message.timestamp = Long.parseLong(time);
             message.threadId = 0; // TODO retrive the correct threadId
             message.type = Message.MessageType.SENT;
-            message.category = contact.getCategory();
+            int category = MessageDatabase.getInMemoryDatabase(SMSApplication.getApplication()).messageDao().findCategory(address);
+            if(category !=0) {
+              message.category = category;
+            } else {
+              message.category=contact.getCategory();
+            }
             localMessageDbViewModel.insertMessage(message);
             Log.d(TAG, "time>timeStampLocal");
             Log.d(TAG, address + body + time);
