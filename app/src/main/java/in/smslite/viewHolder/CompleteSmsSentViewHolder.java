@@ -1,18 +1,14 @@
 package in.smslite.viewHolder;
 
-import android.content.Context;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import butterknife.BindView;
 import in.smslite.R;
-import in.smslite.activity.CompleteSmsActivity;
+import in.smslite.adapter.CompleteSmsAdapter;
 import in.smslite.utils.TimeUtils;
 
 
@@ -23,15 +19,14 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
   private View view;
   private TextView completeMsg, timeView;
   private LinearLayout linearLayout;
-  private static TextView smsStatusTextView;
-  private static Context mContext;
+  private TextView smsStatusTextView;
   private String address;
-
-  public CompleteSmsSentViewHolder(View itemView, String address, Context context) {
+  private CompleteSmsAdapter.SendTextSms sendTextSmsListener;
+  public CompleteSmsSentViewHolder(View itemView, String address, CompleteSmsAdapter.SendTextSms sendTextSmsListener) {
     super(itemView);
     view = itemView;
     this.address = address;
-    this.mContext = context;
+    this.sendTextSmsListener = sendTextSmsListener;
 
     linearLayout = itemView.findViewById(R.id.card_sent_linear_layout_id);
     completeMsg = (TextView) view.findViewById(R.id.body);
@@ -45,7 +40,6 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
   }
 
   public void setTime(long x) {
-//    Date date = new Date(x);
     this.failedSmsTime = x;
     String timea = TimeUtils.getPrettyElapsedTime(x);
     timeView.setText(timea);
@@ -56,8 +50,8 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
     Log.d(TAG, "trySendFailedSms");
     Log.d(TAG, Long.toString(failedSmsTime));
     tryFailedSms = true;
-    int category = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mContext.getString(R.string.dialog_option),0);
-    CompleteSmsActivity.sendTextSms(failedSmsTime, address, category);
+    int category = PreferenceManager.getDefaultSharedPreferences(v.getContext()).getInt(view.getContext().getString(R.string.dialog_option),0);
+    sendTextSmsListener.onSendTextSms( failedSmsTime, address, category);
   }
 
   public void setItemBackgroundBlack() {
@@ -69,23 +63,12 @@ public class CompleteSmsSentViewHolder extends RecyclerView.ViewHolder implement
   }
 
   public void setBackgroundColorWhite() {
-    view.setBackgroundColor(mContext.getResources().getColor(R.color.white_pure));
+    view.setBackgroundColor(view.getContext().getResources().getColor(R.color.white_pure));
   }
 
   public void setBackgroundColor() {
-    view.setBackgroundColor(mContext.getResources().getColor(R.color.item_selected));
+    view.setBackgroundColor(view.getContext().getResources().getColor(R.color.item_selected));
   }
 
-
-//  public void setSmsStatus(String text){
-//    smsStatusTextView.setText(text);
-//    smsStatusTextView.setVisibility(View.VISIBLE);
-//  }
-
-
-//  public static void smsStatusVisiblity(String text) {
-//    smsStatusTextView.setText(text);
-//    smsStatusTextView.setVisibility(View.VISIBLE);
-//  }
 }
 

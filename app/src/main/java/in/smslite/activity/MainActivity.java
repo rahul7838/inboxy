@@ -137,15 +137,15 @@ public class MainActivity extends AppCompatActivity {
 //    sharedPreferences.edit().putInt(getString(R.string.dialog_option), Contact.PRIMARY).apply();
 //    registerSmsReceiverBroadcast();
 //below code is used to test the OTP notification
-    registerReceiver(TestUtil.testNotiBroadCast, new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
-    Thread thread = new Thread() {
-      @Override
-      public void run() {
-        super.run();
-        TestUtil.TestOTP(context);
-      }
-    };
-    thread.start();
+//    registerReceiver(TestUtil.testNotiBroadCast, new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
+//    Thread thread = new Thread() {
+//      @Override
+//      public void run() {
+//        super.run();
+//        TestUtil.TestOTP(context);
+//      }
+//    };
+//    thread.start();
 
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
 //      case FIRST_TIME_VERSION:
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
       llm.scrollToPosition(currentVisiblePostion);
     }
     sharedPreferences.edit().putInt(getString(R.string.dialog_option), category).apply();
-    if(!MessageUtils.checkIfDefaultSms(context)) {
+    if (!MessageUtils.checkIfDefaultSms(context)) {
       new UpdateSentMsgThread(context).start();
     }
 
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     Log.d(TAG, "initiUi");
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
-    
+
     setLinearLayout();
     setToolbar();
     PhoneContact.init(this);
@@ -222,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
     if ((getIntent().getExtras()) != null && getIntent().getExtras().getInt(BROADCAST_SMS_CATEGORY_KEY) != 0) {
       Bundle bundle = getIntent().getExtras();
       final int broadcastSmsCategory = bundle.getInt(BROADCAST_SMS_CATEGORY_KEY);
-      new Thread(() -> {localMessageDbViewModel.markAllSeen(broadcastSmsCategory);
+      new Thread(() -> {
+        localMessageDbViewModel.markAllSeen(broadcastSmsCategory);
         Log.i("MainActivity", "markAllseenDone");
       }).start();
       subscribeUi(broadcastSmsCategory);
@@ -266,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   @OnClick(R.id.fab)
-  public void clickFab(){
+  public void clickFab() {
     if (!MessageUtils.checkIfDefaultSms(context)) {
       Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
       intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, context.getPackageName());
@@ -306,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
     startActivity(intent);
   }
 
-  public void launchCompleteSmsActivity(Intent data){
+  public void launchCompleteSmsActivity(Intent data) {
     String number = localMessageDbViewModel.pickContactSelected(data);
     Intent intent = new Intent(this, CompleteSmsActivity.class);
     intent.putExtra(context.getString(R.string.address_id), number);
@@ -426,16 +427,16 @@ public class MainActivity extends AppCompatActivity {
       Intent intent = new Intent(this, SettingsActivity.class);
       startActivity(intent);
       Answers.getInstance().logCustom(new CustomEvent("Setting viewed"));
-    } else if (id == R.id.menu_search_msg_id){
+    } else if (id == R.id.menu_search_msg_id) {
       Intent intent = new Intent(this, SearchActivity.class);
       startActivity(intent);
-    } else if(id == R.id.menu_blocked){
+    } else if (id == R.id.menu_blocked) {
       Intent intent = new Intent(context, BlockedMessageActivity.class);
       startActivity(intent);
-    } else if(id == R.id.menu_archive){
+    } else if (id == R.id.menu_archive) {
       Intent intent = new Intent(context, ArchiveMessageActivity.class);
       startActivity(intent);
-    } else if(id == R.id.menu_mark_all_read){
+    } else if (id == R.id.menu_mark_all_read) {
 //      new ThreadUtils.MarkAllReadThread().start();
 //      ContentProviderUtil.markAllRead(context);
     }

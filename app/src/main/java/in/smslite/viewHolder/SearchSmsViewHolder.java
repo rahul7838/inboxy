@@ -34,7 +34,6 @@ public class SearchSmsViewHolder extends RecyclerView.ViewHolder implements View
   private TextView titleView;
   private TextView timeView;
   private ImageView imageView;
-  SMSViewHolder smsViewHolder;
 
   public SearchSmsViewHolder(View itemView, Context context) {
     super(itemView);
@@ -52,7 +51,6 @@ public class SearchSmsViewHolder extends RecyclerView.ViewHolder implements View
       address = "Unknown Sender";
     }
     this.address = address;
-//    titleView.setText(address);
     Contact contact = ContactUtils.getContact(address, mContext, true);
     titleView.setText(contact.getDisplayName());
     setAvatar(contact);
@@ -63,36 +61,18 @@ public class SearchSmsViewHolder extends RecyclerView.ViewHolder implements View
   }
 
   public void setTime(long x) {
-//    Date date = new Date(x);// we have to pass Date in getPrettyElaspsedTime, convert long into Date.
     String time = TimeUtils.getPrettyElapsedTime(x);
-//        Log.i(TAG, time);
     timeView.setText(time);
   }
 
   @Override
   public void onClick(View view) {
-//    new Thread(new Runnable() {
-//      @Override
-//      public void run() {
-//        db.messageDao().markAllReadByAddress(address);
-//        Log.i(TAG, "markAllReadByAddress");
-//      }
-//    }).start();
     Intent i = new Intent(mContext, CompleteSmsActivity.class);
     i.putExtra(view.getResources().getString(R.string.address_id), address);
     mContext.startActivity(i);
   }
 
   private void setAvatar(Contact contact) {
-   /* if (Contact.Source.FIREBASE.equals(contact.getSource())) {
-      CompanyContact companyContact = (CompanyContact) contact;
-      Glide.with(mContext)
-              .using(new FirebaseImageLoader())
-              .load(FirebaseUtils.getStorageRef().child(companyContact.getUriPhoto()))
-              .placeholder(R.drawable.ic_account)
-              .error(R.drawable.ic_account)
-              .into(imageView);
-    } else {*/
     Drawable drawable = contact.getAvatar(mContext);
     imageView.setImageDrawable(drawable);
     imageView.setOnClickListener(onImageClick(contact));

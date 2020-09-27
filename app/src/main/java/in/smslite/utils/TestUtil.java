@@ -33,34 +33,34 @@ public class TestUtil {
 
 //  SmsReceiver smsReceiver = new SmsReceiver();
 //  smsReceiver.onReceive();
-  public static void TestOTP(Context context) {
-    List<Message> msg = db.messageDao().getOTPFOrTest();
-    int size = msg.size();
-    int counter = 0;
-    Message message = new Message();
-    for (int i = 0; i < size; i++) {
-      counter++;
-      Message sms = msg.get(i);
-      message.body = sms.body;
-      message.address = sms.address;
-      message.timestamp = sms.timestamp;
-      Intent intent = new Intent();
-      intent.setAction("in.smslite.utils.TEST_NOTIFICATION");
-      Bundle bundle = new Bundle();
-      bundle.putSerializable("sms", (Serializable) message );
-      intent.putExtra("bundle", bundle);
-      LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-      context.sendBroadcast(intent);
-      try {
-        Thread.sleep(4000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-    Log.d(TAG, Integer.toString(counter));
-  }
+//  public static void TestOTP(Context context) {
+//    List<Message> msg = db.messageDao().getOTPFOrTest();
+//    int size = msg.size();
+//    int counter = 0;
+//    Message message = new Message();
+//    for (int i = 0; i < size; i++) {
+//      counter++;
+//      Message sms = msg.get(i);
+//      message.body = sms.body;
+//      message.address = sms.address;
+//      message.timestamp = sms.timestamp;
+//      Intent intent = new Intent();
+//      intent.setAction("in.smslite.utils.TEST_NOTIFICATION");
+//      Bundle bundle = new Bundle();
+//      bundle.putSerializable("sms", (Serializable) message );
+//      intent.putExtra("bundle", bundle);
+//      LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+//      context.sendBroadcast(intent);
+//      try {
+//        Thread.sleep(4000);
+//      } catch (InterruptedException e) {
+//        e.printStackTrace();
+//      }
+//    }
+//    Log.d(TAG, Integer.toString(counter));
+//  }
 
-  public static BroadcastReceiver testNotiBroadCast = new BroadcastReceiver() {
+ /* public static BroadcastReceiver testNotiBroadCast = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
       Log.d(TAG, "testNotiExecuted");
@@ -90,5 +90,5 @@ public class TestUtil {
       new BroadcastMessageAsyncTask(message, contact, customNotification).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, context);
 
     }
-  };
+  };*/
 }
