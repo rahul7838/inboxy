@@ -134,19 +134,6 @@ public class MainActivity extends AppCompatActivity {
     localMessageDbViewModel = ViewModelProviders.of(this).get(LocalMessageDbViewModel.class);
     db = MessageDatabase.getInMemoryDatabase(this);
     boolean smsCategorized = sharedPreferences.getBoolean(getString(R.string.key_sms_categorized), false);
-//    sharedPreferences.edit().putInt(getString(R.string.dialog_option), Contact.PRIMARY).apply();
-//    registerSmsReceiverBroadcast();
-//below code is used to test the OTP notification
-//    registerReceiver(TestUtil.testNotiBroadCast, new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
-//    Thread thread = new Thread() {
-//      @Override
-//      public void run() {
-//        super.run();
-//        TestUtil.TestOTP(context);
-//      }
-//    };
-//    thread.start();
-
     switch (AppStartUtils.checkAppStart(this, sharedPreferences)) {
 //      case FIRST_TIME_VERSION:
 //        // TODO show what's new
@@ -297,12 +284,6 @@ public class MainActivity extends AppCompatActivity {
 
 
   private void launchPickContact() {
-//    Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-//    pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
-//    startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST_CODE);
-//    Throwable error = new Error("launchPickerror");
-//    Log.v(TAG, "logstacktrace", error);
-
     Intent intent = new Intent(this, SelectContactActivity.class);
     startActivity(intent);
   }
@@ -387,22 +368,18 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle(R.string.title_finance);
         Answers.getInstance().logContentView(new ContentViewEvent()
             .putContentName("Finance"));
-
-//        setMessageList(messages, category);
         break;
       case 3:
         bottomNavigationView.getMenu().getItem(2).setChecked(true);
         toolbar.setTitle(R.string.title_promotions);
         Answers.getInstance().logContentView(new ContentViewEvent()
             .putContentName("Promotion"));
-//        setMessageList(messages, category);
         break;
       case 4:
         bottomNavigationView.getMenu().getItem(3).setChecked(true);
         toolbar.setTitle(R.string.title_updates);
         Answers.getInstance().logContentView(new ContentViewEvent()
             .putContentName("Updates"));
-//        setMessageList(messages, category);
         break;
     }
   }
@@ -449,53 +426,4 @@ public class MainActivity extends AppCompatActivity {
     getMenuInflater().inflate(R.menu.menu_main, menu);
     return true;
   }
-
-
 }
-
-//  public BroadcastReceiver smsReceiver = new BroadcastReceiver() {
-//    @Override
-//    public void onReceive(Context context, Intent intent) {
-//      if (!MessageUtils.checkIfDefaultSms(context)) {
-//        Log.d(TAG, "smsReceiver");
-//        SmsBroadcastReceiver smsBroadcastReceiver = new SmsBroadcastReceiver();
-//        smsBroadcastReceiver.onReceive(context, intent);
-//      }
-//    }
-//  };
-
-//  private void registerSmsReceiverBroadcast() {
-//    IntentFilter intentFilter = new IntentFilter();
-//    intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
-//    intentFilter.setPriority(2147483647);
-//    registerReceiver(smsReceiver, intentFilter);
-//  }
-
-//  private void registerReceiverForSmsBroadCast() {
-//    IntentFilter intentFilter = new IntentFilter();
-//    intentFilter.setPriority(2147483647);
-//    intentFilter.addAction("android.provider.Telephony.SMS_DELIVER");
-//
-//    SmsBroadcastReceiver smsReceiver = new SmsBroadcastReceiver();
-////    smsReceiver.clearAbortBroadcast();
-//    this.registerReceiver(smsReceiver,intentFilter);
-//  }
-
-//  private void updateWidgetColumn() {
-//    boolean updateWidgetColumnDb = sharedPreferences.getBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, true);
-//    if(updateWidgetColumnDb){
-//      new Runnable() {
-//        @Override
-//        public void run() {
-//          List<String> widgetKeyword = Arrays.asList(getApplicationContext().getResources().getStringArray(R.array.widget_keyword));
-//          int size = widgetKeyword.size();
-//          for(int i=0; i<size; i++) {
-//            String name = "%" + widgetKeyword.get(i) + "%";
-//            Log.i("Mainactivity", name);
-//            db.messageDao().updateWidgetMessage(name);
-//            }
-//          sharedPreferences.edit().putBoolean(WIDGET_UPDATE_DB_COLUMN_KEY, false).apply();
-//          }
-//      };
-//    }
-//  }

@@ -91,4 +91,15 @@ public class TestUtil {
 
     }
   };*/
+
+  //below code is used to test the OTP notification
+//    registerReceiver(TestUtil.testNotiBroadCast, new IntentFilter("in.smslite.utils.TEST_NOTIFICATION"));
+//    Thread thread = new Thread() {
+//      @Override
+//      public void run() {
+//        super.run();
+//        TestUtil.TestOTP(context);
+//      }
+//    };
+//    thread.start();
 }
