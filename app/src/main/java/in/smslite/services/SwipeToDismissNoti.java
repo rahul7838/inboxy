@@ -3,8 +3,9 @@ package in.smslite.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import in.smslite.db.MessageDatabase;
 

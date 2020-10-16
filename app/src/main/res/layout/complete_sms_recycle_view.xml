@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:orientation="vertical"
-
-             app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -14,15 +12,14 @@
         android:layout_weight="1"
         android:background="@color/white_pure">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/complete_sms_recycle_view"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:scrollbars="vertical"
-        android:theme="@style/completeSmsActivityTheme"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:theme="@style/completeSmsActivityTheme" />
 
     </FrameLayout>
-
 
 
     <RelativeLayout
@@ -31,17 +28,17 @@
         android:layout_height="wrap_content"
         android:background="#e5e5e5">
 
-        <android.support.v7.widget.AppCompatEditText
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/reply_sms_edit_text_box_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="114dp"
             android:layout_marginStart="44dp"
+            android:layout_marginEnd="114dp"
             android:background="@android:color/transparent"
             android:hint="Your message"
             android:inputType="textCapSentences|textMultiLine"
-            android:paddingBottom="4dp"
-            android:paddingTop="8dp"/>
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
 
         <ImageButton
             android:id="@+id/send_button_id"
@@ -58,16 +55,18 @@
             android:id="@+id/complete_sms_attach_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_attach_file_black_24dp"
-            android:backgroundTint="#e5e5e5"/>
+            android:backgroundTint="#e5e5e5"
+            android:onClick="onClickAttachContact"
+            android:src="@drawable/ic_attach_file_black_24dp" />
 
         <ImageButton
             android:id="@+id/complete_sms_sim_option"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_sim_card_black_24dp"
+            android:layout_toLeftOf="@id/send_button_id"
             android:backgroundTint="#e5e5e5"
-            android:layout_toLeftOf="@id/send_button_id"/>
+            android:onClick="popupMenu"
+            android:src="@drawable/ic_sim_card_black_24dp" />
     </RelativeLayout>
 
 </LinearLayout>

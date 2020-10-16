@@ -1,9 +1,10 @@
 package in.smslite.utils;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import in.smslite.contacts.CompanyContact;
 import in.smslite.contacts.Contact;

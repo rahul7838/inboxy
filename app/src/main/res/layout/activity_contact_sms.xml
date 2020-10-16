@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/contact_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.PopupOverlay">
-        </android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
+            android:theme="@style/AppTheme.PopupOverlay"></androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <!--<android.support.v7.widget.RecyclerView-->
         <!--android:layout_width="match_parent"-->
@@ -26,18 +22,19 @@
         <!--android:id="@+id/compose_sms_recycle_view">-->
     <!--</android.support.v7.widget.RecyclerView>-->
 
-   <android.support.v7.widget.AppCompatEditText
-       android:layout_width="310dp"
-       android:layout_height="64dp"
-       android:layout_gravity="center"
-       android:id="@+id/send_sms_to_id"/>
+    <androidx.appcompat.widget.AppCompatEditText
+        android:layout_width="310dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:id="@+id/send_sms_to_id" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="yes"
         android:id="@+id/send_sms_to_select_button"
-        android:layout_gravity="bottom|center"/>
-</android.support.design.widget.CoordinatorLayout>
+        android:layout_gravity="bottom|center" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
 

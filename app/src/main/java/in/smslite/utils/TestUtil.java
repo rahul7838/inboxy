@@ -1,28 +1,5 @@
 package in.smslite.utils;
 
-import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.telephony.SmsMessage;
-import android.util.Log;
-
-import java.io.Serializable;
-import java.util.List;
-
-import in.smslite.activity.MainActivity;
-import in.smslite.contacts.Contact;
-import in.smslite.db.Message;
-import in.smslite.db.MessageDao;
-import in.smslite.db.MessageDatabase;
-import in.smslite.receiver.SmsReceiver;
-import in.smslite.threads.BroadcastMessageAsyncTask;
-
-import static in.smslite.activity.MainActivity.db;
-
 /**
  * Created by rahul1993 on 4/19/2018.
  */

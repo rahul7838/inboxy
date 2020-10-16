@@ -111,7 +111,7 @@
         android:paddingStart="96dp"/>
 
     <ImageView
-        android:id="@+id/dialog_option__update_image"
+        android:id="@+id/dialog_option_update_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_menu_updates"

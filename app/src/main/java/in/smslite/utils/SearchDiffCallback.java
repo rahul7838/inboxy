@@ -1,6 +1,6 @@
 package in.smslite.utils;
 
-import android.support.v7.util.DiffUtil;
+import androidx.recyclerview.widget.DiffUtil;
 
 /**
  * Created by rahul1993 on 4/22/2018.

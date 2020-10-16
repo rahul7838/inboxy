@@ -15,13 +15,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.TaskStackBuilder;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,9 +42,7 @@ import in.smslite.db.Message;
 import in.smslite.services.OTPService;
 import in.smslite.services.SwipeToDismissNoti;
 
-import static in.smslite.activity.MainActivity.MAINACTIVTY_CATEGORY_TASKSTACK_KEY;
 import static in.smslite.activity.MainActivity.db;
-
 import static in.smslite.services.OTPService.NOTIFICATION_ID;
 import static in.smslite.services.SwipeToDismissNoti.SWIPE_TO_DISMISS_CATEGORY_KEY;
 

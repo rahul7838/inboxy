@@ -1,12 +1,12 @@
 package in.smslite.db;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverter;
 import android.provider.Telephony;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverter;
+
 import java.io.Serializable;
-import java.security.PublicKey;
 
 /**
  * Created by rahul1993 on 11/11/2017.
