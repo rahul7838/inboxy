@@ -11,20 +11,20 @@ import in.smslite.utils.ColorGenerator;
 
 
 public class DataSource {
-  private static final String TAG = "DataSource";
-  private static DataSource dataSource;
-  private Map<String, Drawable> drawableMap;
-  private DrawableProvider mProvider;
-  private static Drawable defaultDrawable;
+    private static final String TAG = "DataSource";
+    private static DataSource dataSource;
+    private final Map<String, Drawable> drawableMap;
+    private final DrawableProvider mProvider;
+    private static Drawable defaultDrawable;
 
-  private DataSource(Context context) {
-    drawableMap = new HashMap<>();
-    mProvider = new DrawableProvider(context);
-    defaultDrawable = context.getResources().getDrawable(R.drawable.ic_account, null);
-  }
+    private DataSource(Context context) {
+        drawableMap = new HashMap<>();
+        mProvider = new DrawableProvider(context);
+        defaultDrawable = context.getResources().getDrawable(R.drawable.ic_account, null);
+    }
 
-  public static DataSource getInstance(Context context) {
-    if (dataSource == null) {
+    public static DataSource getInstance(Context context) {
+        if (dataSource == null) {
       dataSource = new DataSource(context);
     }
     return dataSource;

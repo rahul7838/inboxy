@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudioProjects-inboxy.iml" filepath="$PROJECT_DIR$/.idea/modules/StudioProjects-inboxy.iml" group="inboxy" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/inboxy.iml" filepath="$PROJECT_DIR$/inboxy.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/inboxy-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/inboxy-app.iml" group="inboxy/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AndroidStudioProjects.inboxy.iml" filepath="$PROJECT_DIR$/.idea/modules/AndroidStudioProjects.inboxy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/inboxy.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/inboxy.app.iml" />
     </modules>
   </component>
 </project>

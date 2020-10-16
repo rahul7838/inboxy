@@ -53,14 +53,14 @@ public class TimeUtils {
   }
 
   private static String getCorrectDay(int day, String time) {
-    return days[day]+ " "+ String.valueOf(time);
+    return days[day] + " " + time;
   }
 
   private static String getCorrectMonth(int month, int date, String time) {
-    return months[month] + " " + String.valueOf(date) +" "+ String.valueOf(time);
+      return months[month] + " " + date + " " + time;
   }
 
   private static String getCorrectYear(int month, int date, int year, String time) {
-    return months[month]+ " " + String.valueOf(date)+ ", " + String.valueOf(year)+ " "+ String.valueOf(time);
+      return months[month] + " " + date + ", " + year + " " + time;
   }
 }

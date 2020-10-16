@@ -2,8 +2,9 @@ package in.smslite.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 /**
  * Created by rahul1993 on 4/10/2018.
@@ -12,6 +13,7 @@ import android.util.Log;
 public class HeadlessSmsSendService extends IntentService {
 
   private static final String TAG = HeadlessSmsSendService.class.getSimpleName();
+
   /**
    * Creates an IntentService.  Invoked by your subclass's constructor.
    *

@@ -34,7 +34,7 @@ public class AppStartUtils {
 
         try {
             pInfo = context.getPackageManager().getPackageInfo(
-                    context.getPackageName(), PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
+                    context.getPackageName(), PackageManager.GET_DISABLED_UNTIL_USED_COMPONENTS);
             int lastVersionCode = sharedPreferences.getInt(
                     LAST_APP_VERSION, -1);
             // String versionName = pInfo.versionName;
@@ -84,6 +84,6 @@ public class AppStartUtils {
      * @author schnatterer
      */
     public enum AppStart {
-        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL
     }
 }

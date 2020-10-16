@@ -9,11 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import static in.smslite.utils.NotificationUtils.BUNDLE_OTP_KEY;
+import androidx.annotation.Nullable;
 
 /**
  * Created by rahul1993 on 3/18/2018.
@@ -35,8 +33,8 @@ public class OTPService extends IntentService {
 
     assert intent != null;
     Bundle bundle = intent.getExtras();
-    String OTP = bundle.getString(BUNDLE_OTP_KEY);
-    int notificationId = bundle.getInt(NOTIFICATION_ID);
+      String OTP = bundle.getString("notification id key");
+      int notificationId = bundle.getInt(NOTIFICATION_ID);
     ClipboardManager clipboard = (ClipboardManager) getBaseContext().getSystemService(Context.CLIPBOARD_SERVICE);
     ClipData clip = ClipData.newPlainText("Copied text", OTP);
     if (clipboard != null) {

@@ -23,10 +23,10 @@ public class RecipientIdCache {
     private static final boolean LOCAL_DEBUG = false;
     private static final String TAG = "Mms/cache";
 
-    private static Uri sAllCanonical =
+    private static final Uri sAllCanonical =
             Uri.parse("content://mms-sms/canonical-addresses");
 
-    private static Uri sSingleCanonicalAddressUri =
+    private static final Uri sSingleCanonicalAddressUri =
             Uri.parse("content://mms-sms/canonical-address");
 
     private static RecipientIdCache sInstance;
@@ -136,7 +136,7 @@ public class RecipientIdCache {
 
         for (PhoneContact contact : contacts) {
             if (contact.isNumberModified()) {
-                contact.setIsNumberModified(false);
+//                contact.setIsNumberModified(false);
             } else {
                 // if the contact's number wasn't modified, don't bother.
                 continue;
@@ -153,10 +153,10 @@ public class RecipientIdCache {
                 String number2 = sInstance.mCache.get(recipientId);
 
                 if (Log.isLoggable(LogTag.APP, Log.VERBOSE)) {
-                    Log.d(TAG, "[RecipientIdCache] updateNumbers: contact=" + contact +
-                            ", wasModified=true, recipientId=" + recipientId);
-                    Log.d(TAG, "   contact.getNumber=" + number1 +
-                            ", sInstance.mCache.get(recipientId)=" + number2);
+//                    Log.d(TAG, "[RecipientIdCache] updateNumbers: contact=" + contact +
+//                            ", wasModified=true, recipientId=" + recipientId);
+//                    Log.d(TAG, "   contact.getNumber=" + number1 +
+//                            ", sInstance.mCache.get(recipientId)=" + number2);
                 }
 
                 // if the numbers don't match, let's update the RecipientIdCache's number

@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    tools:context="in.smslite.activity.WelcomeActivity">
-    <!--android:background="#00bcd4"-->
+    tools:context="in.smslite.activity.WelcomeActivity"
+    android:background="@color/white_smoke">
+
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"

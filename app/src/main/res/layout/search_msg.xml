@@ -24,19 +24,18 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:src="@drawable/ic_arrow_back_black_24dp"
-        android:tint="@color/white_pure"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:clickable="true"
         android:paddingEnd="12dp"
         android:focusable="true"/>
 </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_result_recycler_view"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:scrollbars="vertical"
-        android:visibility="visible"/>
+        android:visibility="visible" />
 
     <TextView
         android:layout_width="wrap_content"

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_welcom_activity"
+    app:startDestination="@id/SMSPermissionFragment">
+
+    <fragment
+        android:id="@+id/SMSPermissionFragment"
+        android:name="in.smslite.fragments.SMSPermissionFragment"
+        android:label="SMSPermissionFragment">
+        <action
+            android:id="@+id/action_SMSPermissionFragment_to_contactsPermissionFragment"
+            app:destination="@id/contactsPermissionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactsPermissionFragment"
+        android:name="in.smslite.fragments.ContactsPermissionFragment"
+        android:label="ContactsPermissionFragment">
+        <action
+            android:id="@+id/action_contactsPermissionFragment_to_categorizeFragment"
+            app:destination="@id/categorizeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/categorizeFragment"
+        android:name="in.smslite.fragments.CategorizeFragment"
+        android:label="fragment_categorize"
+        tools:layout="@layout/fragment_categorize" />
+</navigation>
