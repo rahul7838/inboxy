@@ -24,7 +24,7 @@
             android:dividerHeight="0dp"
             android:listSelector="?android:listSelector"
             android:scrollbars="vertical"
-            android:visibility="visible"></androidx.recyclerview.widget.RecyclerView>
+            android:visibility="visible" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"

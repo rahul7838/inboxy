@@ -25,7 +25,7 @@ interface MessageDao {
     //  @Query("Select * from Message Where Category = :category group by address order by timestamp desc")
     @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message where category =:category group by address)" +
             "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where category = :category order by timestamp desc")
-    fun getMessageListByCategory(category: Int): LiveData<List<Message>>
+    fun getMessageListByCategory(category: Int?): LiveData<List<Message>>
 
     @Query("Select * from Message Where seen = 0 and Category = :category")
     suspend fun getUnseenSmsCount(category: Int): Cursor?
@@ -34,7 +34,7 @@ interface MessageDao {
     suspend fun getNotificationSummary(category: Int): List<Message?>?
 
     @Query("Update Message Set seen = 1 Where Category = :category")
-    suspend fun markAllSeen(category: Int)
+    suspend fun markAllSeen(category: Int?)
 
     @Query("Update Message Set seen=1, read = 1 Where address = :address")
     suspend fun markAllReadByAddress(address: String?)
@@ -69,7 +69,7 @@ interface MessageDao {
     @Query("select t1.* from message t1 Join (select address, MAX(timestamp) timestamp from message group by address)" +
             "t2 on t1.address = t2.address and t1.timestamp = t2.timestamp where body LIKE :keyword or t1.address LIKE :keyword" +
             " group by t1.address order by t1.timestamp desc")
-    suspend fun searchMsg(keyword: String?): List<Message>?
+    fun searchMsg(keyword: String?): LiveData<List<Message>>
 
     @Query("Delete from message where address = :address")
     suspend fun deleteSelectedConversation(address: String?)

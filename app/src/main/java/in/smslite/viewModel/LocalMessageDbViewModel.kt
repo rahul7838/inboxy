@@ -7,17 +7,16 @@ import android.content.Intent
 import android.database.Cursor
 import android.provider.ContactsContract
 import androidx.lifecycle.LiveData
-import org.koin.core.component.KoinApiExtension
+import kotlinx.coroutines.launch
 
 /**
  * Created by rahul1993 on 11/11/2017.
  */
-@KoinApiExtension
 class LocalMessageDbViewModel(
         application: Application
 ) : BaseViewModel(application) {
 
-    fun getMessageListByCategory(category: Int): LiveData<List<Message>> {
+    fun getMessageListByCategory(category: Int?): LiveData<List<Message>> {
         return messageRepository.getMessageListByCategory(category)
     }
 
@@ -30,7 +29,7 @@ class LocalMessageDbViewModel(
         }
     }
 
-    fun markAllSeen(category: Int) {
+    fun markAllSeen(category: Int?) {
         ioScope.launch {
             messageRepository.markAllSeen(category)
         }

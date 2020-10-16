@@ -70,7 +70,7 @@ class CustomDialog(context: Context, private val selectedItem: MutableList<Messa
 //      for (int i = 0; i < length; i++) {
             ThreadUtils.UpdateMessageCategory(context, selectedItem, category, presentCategory, checked).run()
             //      }
-            callback.onDestroyActionMode(MainActivityHelper.mActionMode)
+            callback.onDestroyActionMode(ContextualActionManager.mActionMode)
             onBackPressed()
         }
         binding!!.dialogOptionArchive.setOnClickListener { v: View? -> startThreadToUpdateCategory(Contact.ARCHIVE) }
@@ -80,7 +80,7 @@ class CustomDialog(context: Context, private val selectedItem: MutableList<Messa
         binding!!.dialogOptionUpdate.setOnClickListener { v: View? -> startThreadToUpdateCategory(Contact.UPDATES) }
         binding!!.dialogCancel.setOnClickListener { v: View? ->
             onBackPressed()
-            callback.onDestroyActionMode(MainActivityHelper.mActionMode)
+            callback.onDestroyActionMode(ContextualActionManager.mActionMode)
         }
     }
 
@@ -88,7 +88,7 @@ class CustomDialog(context: Context, private val selectedItem: MutableList<Messa
         checked = binding!!.dialogCheckbox.isChecked
         ThreadUtils.UpdateMessageCategory(context, selectedItem, category, presentCategory, checked).run()
         onBackPressed()
-        callback.onDestroyActionMode(MainActivityHelper.mActionMode)
+        callback.onDestroyActionMode(ContextualActionManager.mActionMode)
     }
 
     override fun onDetachedFromWindow() {

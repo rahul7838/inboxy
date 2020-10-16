@@ -1,11 +1,11 @@
 package `in`.smslite.activity
 
 import `in`.smslite.R
+import `in`.smslite.extension.navigateTo
 import `in`.smslite.fragments.CategorizeFragment
 import `in`.smslite.fragments.ContactsPermissionFragment
 import `in`.smslite.fragments.SMSPermissionFragment
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -112,15 +112,10 @@ class WelcomeActivity : AppIntro() {
         }
     }
 
-    fun openMainActivity(activity: Activity) {
-        val intent = Intent(activity, MainActivity::class.java)
-        startActivity(intent)
-        activity.finish()
-    }
-
     operator fun next() {
         if (getPager().currentItem == numFragment - 1) {
-            openMainActivity(this)
+            navigateTo<MainActivity>()
+            finish()
         } else {
             getPager().currentItem = getPager().currentItem + 1
         }

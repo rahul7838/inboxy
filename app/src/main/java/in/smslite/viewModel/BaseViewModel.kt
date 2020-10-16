@@ -3,6 +3,7 @@ package `in`.smslite.viewModel
 import `in`.smslite.repository.MessageRepository
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.CoroutineScope
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 

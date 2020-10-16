@@ -21,7 +21,7 @@ class MessageRepository(val messageDao: MessageDao) {
         return messageDao.getMessageListByAddress(address, category)
     }
 
-    fun getMessageListByCategory(category: Int): LiveData<List<Message>> {
+    fun getMessageListByCategory(category: Int?): LiveData<List<Message>> {
         return messageDao.getMessageListByCategory(category)
     }
 
@@ -33,7 +33,7 @@ class MessageRepository(val messageDao: MessageDao) {
         return messageDao.getNotificationSummary(category)
     }
 
-    suspend fun markAllSeen(category: Int) {
+    suspend fun markAllSeen(category: Int?) {
         messageDao.markAllSeen(category)
     }
 
@@ -72,7 +72,7 @@ class MessageRepository(val messageDao: MessageDao) {
 
     //  Query for message search
     //  @Query("Select * from Message where body LIKE :keyword or address LIKE :keyword group by address order by timestamp desc")
-    suspend fun searchMsg(keyword: String?): List<Message?>? {
+    fun searchMsg(keyword: String?): LiveData<List<Message>> {
         return messageDao.searchMsg(keyword)
     }
 

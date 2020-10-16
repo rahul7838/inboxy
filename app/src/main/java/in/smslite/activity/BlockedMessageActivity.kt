@@ -4,10 +4,8 @@ import `in`.smslite.R
 import `in`.smslite.adapter.SMSAdapter
 import `in`.smslite.contacts.Contact
 import `in`.smslite.db.Message
-import `in`.smslite.others.MainActivityHelper
+import `in`.smslite.others.ContextualActionManager
 import `in`.smslite.viewModel.BlockedMessageActivityViewModel
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.view.View
@@ -16,13 +14,11 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.*
+import org.koin.android.ext.android.inject
 
 /**
  * Created by rahul1993 on 5/31/2018.
@@ -32,21 +28,17 @@ class BlockedMessageActivity : AppCompatActivity() {
     var fragmentFab: FloatingActionButton? = null
     var fragmentRecyclerView: RecyclerView? = null
     private var fragmentToolbar: Toolbar? = null
-    private val selectedItem: List<Message> = ArrayList()
-    private val listOfItem: MutableList<Message> = ArrayList()
-    private var activity: Activity? = null
-    private var context: Context? = null
-    private var blockedMessageViewModel: BlockedMessageActivityViewModel? = null
-    private var liveMsgList: LiveData<List<Message>>? = null
     private var smsAdapter: SMSAdapter? = null
     private var emptyImage: ImageView? = null
     private var emptyText: TextView? = null
     private var emptyView: RelativeLayout? = null
+
+    private val blockedMessageActivityViewModel: BlockedMessageActivityViewModel by inject()
+    private val contextualActionManager: ContextualActionManager by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity = this
-        context = this
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(getString(R.string.dialog_option), Contact.BLOCKED).apply()
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(getString(R.string.dialog_option), Contact.BLOCKED).apply()
         setContentView(R.layout.activity_main)
         fragmentToolbar = findViewById(R.id.toolbar)
         fragmentFab = findViewById(R.id.fab)
@@ -59,13 +51,9 @@ class BlockedMessageActivity : AppCompatActivity() {
         //    fragmentFab.setVisibility(View.GONE);
         setToolbar()
         setLinearLayout()
-        blockedMessageViewModel = ViewModelProviders.of(this).get<BlockedMessageActivityViewModel>(BlockedMessageActivityViewModel::class.java)
-        val list: List<Message> = ArrayList()
-        smsAdapter = SMSAdapter(list, selectedItem, listOfItem)
+        smsAdapter = SMSAdapter(listOf(), listOf())
         fragmentRecyclerView?.adapter = smsAdapter
-        val mainActivityHelper = MainActivityHelper()
-        mainActivityHelper.contextualActionMode(fragmentRecyclerView!!, fragmentFab!!, fragmentBottomNavigationView!!, smsAdapter,
-                activity, this, "blocked", listOfItem)
+        val mainActivityHelper = ContextualActionManager()
         subscribeUI()
     }
 
@@ -83,8 +71,7 @@ class BlockedMessageActivity : AppCompatActivity() {
     }
 
     private fun subscribeUI() {
-        liveMsgList = blockedMessageViewModel?.blockedMessage
-        liveMsgList!!.observe(this, { messages: List<Message> -> setMessage(messages) })
+        blockedMessageActivityViewModel.blockedMessage.observe(this, { messages: List<Message> -> setMessage(messages) })
     }
 
     private fun setMessage(messages: List<Message>) {
@@ -94,15 +81,11 @@ class BlockedMessageActivity : AppCompatActivity() {
             emptyImage?.setImageDrawable(getDrawable(R.drawable.ic_block_black_24dp))
             emptyText?.text = "No sender is Blocked"
         } else {
-            listOfItem.clear()
-            listOfItem.addAll(messages)
             smsAdapter?.setMessage(messages)
-            fragmentRecyclerView!!.visibility = View.VISIBLE
+            fragmentRecyclerView?.visibility = View.VISIBLE
             emptyView?.visibility = View.GONE
+            contextualActionManager.contextualActionMode(fragmentRecyclerView!!, fragmentFab!!, fragmentBottomNavigationView!!, smsAdapter,
+                    this, this, "blocked", messages)
         }
-    }
-
-    companion object {
-        private val TAG = BlockedMessageActivity::class.java.simpleName
     }
 }

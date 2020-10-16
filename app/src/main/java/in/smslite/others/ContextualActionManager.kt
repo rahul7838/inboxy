@@ -7,6 +7,7 @@ import `in`.smslite.activity.CompleteSmsActivity
 import `in`.smslite.activity.MainActivity
 import `in`.smslite.adapter.SMSAdapter
 import `in`.smslite.db.Message
+import `in`.smslite.repository.MessageRepository
 import `in`.smslite.utils.MessageUtils
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -23,12 +24,13 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.*
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 /**
  * Created by rahul1993 on 5/8/2018.
  */
-class MainActivityHelper {
+class ContextualActionManager : KoinComponent {
     private var recyclerView: RecyclerView? = null
     private var fab: FloatingActionButton? = null
     private var bottomNavigationView: BottomNavigationView? = null
@@ -39,6 +41,8 @@ class MainActivityHelper {
     private var activity: Activity? = null
     private var whichActivity: String? = null
     private var listOfItem: List<Message> = ArrayList()
+
+    private val messageRepository: MessageRepository by inject()
 
     //  public MainActivityHelper(Context context)
     fun contextualActionMode(recyclerView: RecyclerView, fab: FloatingActionButton,
@@ -55,11 +59,11 @@ class MainActivityHelper {
         recyclerView.addOnItemTouchListener(RecyclerItemClickListener(context, recyclerView, object : RecyclerItemClickListener.OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
                 if (isMultiSelect) {
-                    address = smsAdapter1?.messages?.get(position)?.getAddress()
+                    address = smsAdapter1?.listOfItemAdapter?.get(position)?.getAddress()
                     multi_select(position, mActionModeCallback, selectedItem, listOfItem, address)
                     refreshAdapter()
                 } else {
-                    address = smsAdapter1?.messages?.get(position)?.getAddress()
+                    address = smsAdapter1?.listOfItemAdapter?.get(position)?.getAddress()
                     val i = Intent(context, CompleteSmsActivity::class.java)
                     i.putExtra(view?.resources?.getString(R.string.address_id), address)
                     //          TODO:check line 86 category
@@ -70,11 +74,10 @@ class MainActivityHelper {
 
             @SuppressLint("RestrictedApi")
             override fun onItemLongClick(view: View?, position: Int) {
-                Log.d(TAG, Integer.toString(listOfItem.size) + listOfItem[0].getAddress())
                 if (!isMultiSelect) {
                     bottomNavigationView.visibility = View.GONE
                     fab.visibility = View.GONE
-                    address = smsAdapter1?.messages?.get(position)?.getAddress()
+                    address = smsAdapter1?.listOfItemAdapter?.get(position)?.getAddress()
                     isMultiSelect = true
                     if (mActionMode == null) {
                         if (whichActivity == "blocked") {
@@ -175,7 +178,7 @@ class MainActivityHelper {
     }
 
     companion object {
-        private val TAG = MainActivityHelper::class.java.simpleName
+        private val TAG = ContextualActionManager::class.java.simpleName
         var mActionMode: ActionMode? = null
         var isMultiSelect = false
         var selectedAddressList: MutableList<String?> = ArrayList()
@@ -206,7 +209,7 @@ class MainActivityHelper {
                         while (i < size) {
 
 //              All the messages having same address will get deleted from below query.
-                            MainActivity.localMessageDbViewModel!!.deleteSelectedConversation(selectedAddressList[i])
+                            messageRepository.deleteSelectedConversation(selectedAddressList[i])
                             val where = Telephony.TextBasedSmsColumns.ADDRESS + " LIKE ?"
                             val arg = arrayOf(selectedAddressList[i])
                             val modifiedRows = context!!.contentResolver.delete(Telephony.Sms.CONTENT_URI, where, arg)
